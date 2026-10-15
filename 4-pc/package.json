@@ -1,0 +1,36 @@
+{
+  "name": "tralha-de-guerra",
+  "version": "1.1.0",
+  "description": "Tralha de Guerra: batalha de mochilas",
+  "author": "Meagea",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.meagea.tralhadeguerra",
+    "productName": "Tralha de Guerra",
+    "files": [
+      "main.js",
+      "index.html"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Tralha de Guerra"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
+  }
+}

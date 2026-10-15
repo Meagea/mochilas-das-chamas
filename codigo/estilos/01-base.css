@@ -1,0 +1,33 @@
+/* ---------- Tralha de Guerra: base (escuro e limpo, para a pintura dos personagens brilhar) ---------- */
+:root{
+  --fundo:#121117; --painel:#1d1b24; --painel2:#262330; --painel3:#302c3c; --borda:rgba(255,255,255,.08); --borda2:rgba(255,255,255,.16);
+  --texto:#f3eee6; --suave:#a7a1b3; --apagado:#6f697c;
+  --ambar:#f2b350; --carmim:#e5533f; --azul:#4aa3d8; --verde:#6cc35a; --roxo:#a76ae0;
+  --raio:16px;
+  --fonte-titulo:"Barlow Condensed", "Arial Narrow", sans-serif; --fonte:"Inter", "Segoe UI", system-ui, sans-serif;
+}
+*{ box-sizing:border-box; }
+html, body{ margin:0; height:100%; overflow:hidden; color:var(--texto); font-family:var(--fonte); font-size:14.5px; -webkit-tap-highlight-color:transparent; }
+body{ background:radial-gradient(ellipse 80% 60% at 50% -10%, #3a2a3e 0%, rgba(18,17,23,0) 70%), radial-gradient(ellipse 60% 50% at 100% 100%, #2a2016 0%, rgba(18,17,23,0) 70%), var(--fundo); }
+body.com-fundo::before{ content:''; position:fixed; inset:0; z-index:0; background:var(--fundo-img) center / cover no-repeat; opacity:.28; filter:saturate(.9); }
+#jogo{ position:fixed; inset:0; z-index:1; overflow-y:auto; overflow-x:hidden; }
+h1, h2, h3{ font-family:var(--fonte-titulo); font-weight:800; margin:0; letter-spacing:.02em; text-transform:uppercase; }
+img.ic{ display:inline-block; width:1.4em; height:1.4em; object-fit:contain; vertical-align:-.35em; }
+.ic.losango{ display:inline-block; width:.8em; height:.8em; transform:rotate(45deg); background:var(--ambar); border-radius:2px; }
+#aviso{ position:fixed; left:50%; bottom:22%; transform:translateX(-50%); z-index:60; padding:10px 18px; border-radius:12px; background:rgba(29,27,36,.96); color:var(--texto); border:1px solid var(--borda2); font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,.5); pointer-events:none; text-align:center; backdrop-filter:blur(8px); }
+
+/* botões: secundário em vidro escuro, principal em âmbar */
+.btn{ font:inherit; font-weight:700; color:var(--texto); cursor:pointer; padding:10px 16px; border-radius:12px; border:1px solid var(--borda2);
+  background:linear-gradient(rgba(255,255,255,.07), rgba(255,255,255,.02)), var(--painel2); box-shadow:0 2px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; line-height:1.15; transition:transform .08s, filter .12s, background .12s; }
+.btn:hover:not(:disabled){ filter:brightness(1.12); }
+.btn:active:not(:disabled){ transform:translateY(1px) scale(.99); }
+.btn:disabled{ opacity:.45; cursor:default; }
+.btn small{ font-weight:500; font-size:12px; color:var(--suave); }
+.btn.primario{ color:#24180a; border-color:rgba(255,210,140,.6); background:linear-gradient(#ffd27a, var(--ambar) 60%, #d98f2a); box-shadow:0 4px 18px rgba(242,179,80,.25), inset 0 1px 0 rgba(255,255,255,.45); }
+.btn.primario small{ color:rgba(36,24,10,.75); }
+.btn.grande{ font-family:var(--fonte-titulo); font-weight:800; font-size:24px; letter-spacing:.04em; text-transform:uppercase; padding:11px 22px; }
+.btn.grande small{ font-family:var(--fonte); text-transform:none; letter-spacing:0; font-size:12.5px; }
+.btn.sm{ padding:6px 12px; font-size:13px; border-radius:10px; }
+.btn.on{ border-color:var(--ambar); color:var(--ambar); }
+.btn img.ic{ width:1.15em; height:1.15em; }
