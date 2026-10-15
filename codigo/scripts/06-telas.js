@@ -17,7 +17,8 @@ function continuarCorrida(){
 const raridade = id => RARIDADES[ITEM[id].rar];
 // retrato da classe: a pintura própria (retrato-*, ARTE-PERSONAGENS.md) ou, até ela chegar, a provisória
 const retrato = c => urlArte('retrato-' + c) || urlArte('rosto-' + c);
-function iconeItem(id){ const d = ITEM[id]; return ic(d.arte, 'item'); }
+// a pintura do item (item-*, ARTE-ITENS.md) ou, até ela chegar, o ícone provisório
+function iconeItem(id){ const p = urlArte('item-' + id); return p ? `<img class="ic item pintado" src="${p}" alt="" draggable="false">` : ic(ITEM[id].arte, 'item'); }
 // uma peça desenhada com o seu formato (casas) e o ícone no meio; tam = tamanho da casa em px
 function pecaHtml(p, tam, extra){
   const f = forma(p.id, p.g), d = ITEM[p.id], bolsa = d.tipo === 'bolsa';
