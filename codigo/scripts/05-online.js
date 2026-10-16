@@ -30,7 +30,12 @@ const rpc = async (nome, args, login) => sb('/rest/v1/rpc/' + nome, args, login 
 // cada função devolve null quando não deu (sem internet, servidor fora): quem chama segue offline
 const tentar = async f => { try{ return await f(); }catch(e){ return null; } };
 const onlineNome = nome => tentar(() => rpc('definir_nome', {novo_nome:nome}, true).then(() => true));
-const onlineEnviar = (rodada, classe, foto, vitorias, vidas) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:VERSAO_REGRAS, p_itens:foto, p_vitorias:vitorias, p_vidas:vidas}, true));
+// corrida: o número da partida no servidor (de onlineIniciar); com ele, a rodada conta para a experiência
+const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:VERSAO_REGRAS, p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
+// experiência (supabase/03-experiencia.sql): o servidor conta as rodadas e calcula o ganho; o jogo só informa as vitórias
+const onlineIniciar = classe => tentar(() => rpc('iniciar_corrida', {p_classe:classe}, true));
+const onlineFechar = (corrida, vitorias) => tentar(async () => { const L = await rpc('fechar_corrida', {p_corrida:corrida, p_vitorias:vitorias}, true); return L && L[0] || null; });
+const onlineExperiencia = () => tentar(() => rpc('minha_experiencia', {}, true));
 // quantos jogadores diferentes já deixaram mochila nesta rodada e o mínimo para lutar só contra gente (guardado no servidor)
 const onlineAmostra = rodada => tentar(async () => { const L = await rpc('amostra_rodada', {p_rodada:rodada, p_versao:VERSAO_REGRAS}, true); return L && L[0] ? {jogadores:Number(L[0].jogadores), minimo:Number(L[0].minimo)} : null; });
 // jogador ou robô? Com amostra cheia, sempre jogador; abaixo dela, a chance de pegar um jogador é jogadores ÷ mínimo

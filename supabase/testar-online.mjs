@@ -25,7 +25,7 @@ ok(env.status === 200 && Number(env.dado) > 0, 'A enviou uma mochila (id ' + JSO
 const adv = await chamar('/rest/v1/rpc/sortear_adversario', {p_rodada:30, p_versao:0, p_vitorias:2}, B.token);
 ok(adv.status === 200 && adv.dado.length === 1 && adv.dado[0].nome === 'Teste Claude A', 'B recebeu a mochila de A no sorteio');
 const proprio = await chamar('/rest/v1/rpc/sortear_adversario', {p_rodada:30, p_versao:0, p_vitorias:2}, A.token);
-ok(proprio.status === 200 && proprio.dado.length === 0, 'A não cai contra a própria mochila');
+ok(proprio.status === 200 && !proprio.dado.some(m => Number(m.id) === Number(env.dado)), 'A não cai contra a própria mochila');  // pode vir a de um teste antigo
 const luta = await chamar('/rest/v1/rpc/registrar_luta', {p_venceu:true, p_campanha:1}, B.token);
 ok(luta.status === 200 && luta.dado === 10, 'B venceu e ganhou 10 pontos');
 const rk = await chamar('/rest/v1/rpc/ranking_temporada', {p_limite:50});
@@ -37,5 +37,25 @@ const forjar = await chamar('/rest/v1/ranking', {temporada:1, jogador_id:A.id, p
 ok(forjar.status >= 400, 'escrever pontos direto no ranking é barrado (' + forjar.status + ')');
 const semLogin = await chamar('/rest/v1/rpc/enviar_mochila', {p_rodada:30, p_classe:'mago', p_versao:0, p_itens:[], p_vitorias:0, p_vidas:5});
 ok(semLogin.status >= 400, 'enviar mochila sem login é barrado (' + semLogin.status + ')');
+// experiência (03-experiencia.sql): uma partida de 1 rodada com 1 vitória vale 2 + 3 = 5
+const ini = await chamar('/rest/v1/rpc/iniciar_corrida', {p_classe:'mago'}, A.token);
+if(ini.status === 404) console.log('--    03-experiencia.sql ainda não rodou no Supabase: testes de experiência pulados');
+else {
+  ok(ini.status === 200 && Number(ini.dado) > 0, 'A começou uma partida (número ' + JSON.stringify(ini.dado) + ')');
+  const env2 = await chamar('/rest/v1/rpc/enviar_mochila', {p_rodada:1, p_classe:'mago', p_versao:0, p_itens:itens, p_vitorias:0, p_vidas:3, p_corrida:ini.dado}, A.token);
+  ok(env2.status === 200 && Number(env2.dado) > 0, 'mochila enviada com o número da partida');
+  const fe = await chamar('/rest/v1/rpc/fechar_corrida', {p_corrida:ini.dado, p_vitorias:5}, A.token);
+  ok(fe.status === 200 && fe.dado[0].ganho === 5 && fe.dado[0].xp === 5, 'fechou a partida: 1 rodada, vitórias limitadas a 1, ganhou 5 (' + JSON.stringify(fe.dado) + ')');
+  const de = await chamar('/rest/v1/rpc/fechar_corrida', {p_corrida:ini.dado, p_vitorias:5}, A.token);
+  ok(de.status >= 400, 'fechar a mesma partida de novo é barrado (' + de.status + ')');
+  const mx = await chamar('/rest/v1/rpc/minha_experiencia', {}, A.token);
+  ok(mx.status === 200 && mx.dado.length === 1 && mx.dado[0].classe === 'mago' && mx.dado[0].xp === 5, 'minha_experiencia: mago com 5');
+  const outro = await chamar('/rest/v1/rpc/minha_experiencia', {}, B.token);
+  ok(outro.status === 200 && outro.dado.length === 0, 'B não vê a experiência de A');
+  const lerXp = await chamar('/rest/v1/experiencia?select=*', null, A.token, 'GET');
+  ok(lerXp.status >= 400 || (Array.isArray(lerXp.dado) && !lerXp.dado.length), 'ler a tabela de experiência direto é barrado (' + lerXp.status + ')');
+  const boost = await chamar('/rest/v1/multiplicadores?jogador_id=eq.' + A.id, {boost_partidas:99}, A.token, 'PATCH');
+  ok(boost.status >= 400 || (Array.isArray(boost.dado) && !boost.dado.length), 'dar boost a si mesmo é barrado (' + boost.status + ')');
+}
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo');
 console.log(`\nPara apagar os jogadores de teste, rode no SQL Editor:\ndelete from auth.users where id in ('${A.id}', '${B.id}');`);

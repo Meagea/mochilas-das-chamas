@@ -56,7 +56,8 @@ Um **robô** joga a loja com as mesmas regras e monta mochilas para cada rodada 
 ## 8. Progressão entre corridas
 - **Coleção:** cada item novo encontrado entra no compêndio.
 - **Conquistas** simples (vencer com cada classe, fundir 10 receitas, chegar a 10 vitórias sem derrota).
-- Sem moeda de compra e sem vantagem permanente: no ranking, todo mundo começa igual a cada corrida.
+- Sem vantagem permanente na luta: no ranking, todo mundo começa igual a cada corrida.
+- **Nível por personagem (planejado em PROGRESSAO.md):** experiência lenta que libera itens novos na loja daquele personagem (opções, não poder), especialização no nível 5, prestígio cosmético depois do 10, classes de ofício (Ferreiro, Herbalista, Cozinheiro...) e espaço para vender aceleração de experiência no futuro.
 
 ## 9. Visual e telas
 - Identidade própria, colorida e bem-humorada (proposta abaixo), sem ligação com a Bonfire Tales. Sem emojis: ícones desenhados.

@@ -8,15 +8,18 @@
 const PASSO_LUTA = .1, CANSACO = 30, LIMITE_LUTA = 90, VIGOR_MAX = 5;
 function lutador(m, classe, nome){
   const N = numeros(m), C = CLASSES[classe];
-  const L = {nome, classe, vida:C.vida, max:C.vida, vigor:3, bloq:0, forca:0, queima:0, veneno:0, regen:0, esquiva:0, gelo:0, espinhos:0, mana:0, itens:[]};
+  const L = {nome, classe, vida:C.vida, max:C.vida, vigor:3, bloq:0, forca:0, queima:0, veneno:0, regen:0, esquiva:0, gelo:0, espinhos:0, mana:0,
+    atord:0, raiva:0, perdeu:0, aoCrit:[], itens:[]};
   for(const p of m.pecas){ const s = N[p.uid]; if(!s) continue;
-    L.itens.push(Object.assign(s, {x:p.x, y:p.y, g:p.g, t:0, usado:false}));
-    if(s.uso === 'passivo' && s.inicio) aplicarInicio(L, s.inicio); }
+    L.itens.push(Object.assign(s, {x:p.x, y:p.y, g:p.g, t:0, usado:false, golpes:0}));
+    if(s.uso === 'passivo' && s.inicio) aplicarInicio(L, s.inicio);
+    if(s.aoCritico) L.aoCrit.push({ao:s.aoCritico, k:L.itens.length - 1}); }
   L.vida = L.max; L.vigor = Math.min(VIGOR_MAX + 2, L.vigor);
   return L;
 }
 function aplicarInicio(L, ini){
   if(ini.vida){ L.max += ini.vida; }
+  if(ini.raiva) L.raiva = L.raiva ? Math.min(L.raiva, ini.raiva) : ini.raiva;
   for(const k of ['bloq', 'forca', 'esquiva', 'mana', 'espinhos', 'vigor']) { const de = k === 'bloq' ? 'bloqueio' : k; if(ini[de]) L[k] += ini[de]; }
 }
 function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
@@ -31,6 +34,8 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
     if(!o.direto){ const pode = Math.max(0, alvo.bloq - (o.perfura || 0)); bl = Math.min(pode, v); alvo.bloq -= bl; v -= bl; }
     alvo.vida -= v;
     marca(lado, o.tipo || 'dano', {valor:v, bloqueado:bl, item:o.item, crit:o.crit});
+    // raiva: cada tanto de vida perdida vira força
+    if(alvo.raiva && v > 0){ alvo.perdeu += v; while(alvo.perdeu >= alvo.raiva){ alvo.perdeu -= alvo.raiva; alvo.forca++; marca(lado, 'forca', {valor:1}); } }
     return v;
   }
   function curar(L, lado, v, item){ v = Math.round(v); const antes = L.vida; L.vida = Math.min(L.max, L.vida + v); if(L.vida > antes) marca(lado, 'cura', {valor:Math.round(L.vida - antes), item}); }
@@ -47,19 +52,24 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
     if(ao.queimar){ ini.queima += ao.queimar; marca(ladoIni, 'queima', {valor:ao.queimar, item}); }
     if(ao.envenenar){ ini.veneno += ao.envenenar; marca(ladoIni, 'veneno', {valor:ao.envenenar, item}); }
     if(ao.gelo){ ini.gelo += ao.gelo; marca(ladoIni, 'gelo', {valor:ao.gelo, item}); }
-    if(ao.dano) ferir(ini, ladoIni, ao.dano, {item, tipo:'magia'});
+    if(ao.atordoar){ ini.atord = Math.max(ini.atord, ao.atordoar); marca(ladoIni, 'atordoado', {valor:ao.atordoar, item}); }
+    if(ao.multVeneno && ini.veneno > 0){ const mais = Math.floor(ini.veneno * ao.multVeneno); if(mais){ ini.veneno += mais; marca(ladoIni, 'veneno', {valor:mais, item}); } }
+    if(ao.dano) ferir(ini, ladoIni, ao.dano + (ao.danoPorGelo ? ao.danoPorGelo * ini.gelo : 0), {item, tipo:'magia'});
   }
   function golpe(eu, ini, ladoEu, s, k){
     const ladoIni = 1 - ladoEu, golpes = (s.acerto && s.acerto.golpes) || 1;
     for(let i = 0; i < golpes && ini.vida > 0; i++){
       if(ini.esquiva > 0){ ini.esquiva--; marca(ladoIni, 'esquivou', {item:k}); continue; }
-      const crit = r() < s.crit, base = entre(s.dano[0], s.dano[1], r) + eu.forca, v = base * (crit ? 2 : 1);
+      const fur = s.furia ? Math.floor(s.furia * (1 - Math.max(0, eu.vida) / eu.max)) : 0;
+      const crit = s.golpes++ < s.primeirosCrit || r() < s.crit, base = entre(s.dano[0], s.dano[1], r) + eu.forca + fur, v = base * (crit ? 2 : 1);
       const feito = ferir(ini, ladoIni, v, {item:k, crit, perfura:s.acerto && s.acerto.perfura});
       if(s.acerto){ const a = Object.assign({}, s.acerto); delete a.perfura; delete a.golpes; efeito(eu, ini, ladoEu, a, k); }
+      if(crit) for(const c of eu.aoCrit) efeito(eu, ini, ladoEu, c.ao, c.k);
       if(ini.espinhos && feito >= 0) ferir(eu, ladoEu, ini.espinhos, {tipo:'espinhos', direto:false});
     }
   }
   function agir(eu, ini, lado){
+    if(eu.atord > 0){ eu.atord = Math.max(0, eu.atord - PASSO_LUTA); return; }   // atordoado: nada anda
     const lento = 1 + eu.gelo * .05;
     eu.itens.forEach((s, k) => {
       if(s.uso === 'arma' || s.uso === 'ativo'){
@@ -72,7 +82,7 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
           s.t = 0;
           if(s.gastaMana){ if(eu.mana >= s.gastaMana){ eu.mana -= s.gastaMana; marca(lado, 'magia', {item:k}); efeito(eu, ini, lado, s.ao, k); }
             else if(s.semMana){ marca(lado, 'magia', {item:k, fraca:true}); efeito(eu, ini, lado, s.semMana, k); } }
-          else { marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.ao, k); }
+          else { marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.aleatorio ? s.aleatorio[Math.floor(r() * s.aleatorio.length)] : s.ao, k); }
         }
       } else if(s.uso === 'gatilho' && !s.usado){
         if((s.quando === 'vidaBaixa' && eu.vida < eu.max / 2) || (s.quando === 'tempo' && t >= s.t)){ s.usado = true; marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.ao, k); }

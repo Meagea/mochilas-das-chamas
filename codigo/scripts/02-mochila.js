@@ -73,13 +73,15 @@ function somarBonus(s, b){
   if(b.cd) s.rapidez += b.cd;
   if(b.cura && s.ao && s.ao.cura) s.ao = Object.assign({}, s.ao, {cura:s.ao.cura + b.cura});
   if(b.bloqueio && s.ao && s.ao.bloqueio) s.ao = Object.assign({}, s.ao, {bloqueio:s.ao.bloqueio + b.bloqueio});
+  if(b.aoMais && s.ao) for(const k in b.aoMais) if(s.ao[k]) s.ao = Object.assign({}, s.ao, {[k]:s.ao[k] + b.aoMais[k]});
   if(b.acerto && s.uso === 'arma'){ s.acerto = Object.assign({}, s.acerto); for(const k in b.acerto) s.acerto[k] = (s.acerto[k] || 0) + b.acerto[k]; }
 }
 function numeros(m){
   const R = {};
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const d = ITEM[p.id];
     R[p.uid] = {uid:p.uid, id:p.id, uso:d.uso, cd:d.cd, custo:d.custo || 0, dano:d.dano ? d.dano.slice() : null, crit:d.crit || 0, acerto:Object.assign({}, d.acerto), ao:d.ao && Object.assign({}, d.ao),
-      semMana:d.semMana, gastaMana:d.gastaMana || 0, inicio:d.inicio, quando:d.quando, t:d.t, rapidez:0, recebeu:[]}; }
+      semMana:d.semMana, gastaMana:d.gastaMana || 0, inicio:d.inicio, quando:d.quando, t:d.t, rapidez:0, recebeu:[],
+      furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico}; }
   for(const b of m.pecas){ if(!ehBolsa(b) || !ITEM[b.id].dentro) continue; const D = ITEM[b.id].dentro;
     for(const p of carregadas(m, b)) if(combina(ITEM[p.id], D.alvo)){ somarBonus(R[p.uid], D.bonus); R[p.uid].recebeu.push(b.id); } }
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const V = ITEM[p.id].viz; if(!V) continue;
@@ -90,13 +92,14 @@ function numeros(m){
   return R;
 }
 
-// ---- fusões: duas peças da receita encostadas viram uma só ----
-function fundir(m){
+// ---- fusões: duas peças da receita encostadas viram uma só (as receitas com nível só a partir dele) ----
+function fundir(m, nivel){
+  const pode = RECEITAS.filter(r => !r[3] || (nivel == null ? 99 : nivel) >= r[3]);
   const feitas = [];
   for(let guarda = 0; guarda < 10; guarda++){
     let achou = null;
     for(const p of m.pecas){ if(ehBolsa(p)) continue;
-      for(const q of vizinhos(m, p)){ const r = RECEITAS.find(([a, b]) => (a === p.id && b === q.id) || (a === q.id && b === p.id)); if(r){ achou = {p, q, r}; break; } }
+      for(const q of vizinhos(m, p)){ const r = pode.find(([a, b]) => (a === p.id && b === q.id) || (a === q.id && b === p.id)); if(r){ achou = {p, q, r}; break; } }
       if(achou) break; }
     if(!achou) break;
     const {p, q, r} = achou; m.pecas = m.pecas.filter(x => x !== p && x !== q);
