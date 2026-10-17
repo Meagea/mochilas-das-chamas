@@ -3,7 +3,16 @@
 // {uid, id, x, y, g}: (x, y) é o canto de cima à esquerda do formato já girado; g é o giro (0 a 3, de 90 em 90 graus).
 const LARG = 9, ALT = 7;
 let proxUid = 1;
-const peca = (id, x, y, g) => ({uid:proxUid++, id, x:x || 0, y:y || 0, g:g || 0});
+// n: nível do item pelas cartas (0 a 10); só existe no modo normal (PROGRESSAO.md, seção 10)
+const peca = (id, x, y, g, n) => { const p = {uid:proxUid++, id, x:x || 0, y:y || 0, g:g || 0}; if(n > 0) p.n = Math.min(10, n | 0); return p; };
+// cada nível do item soma 5% nos números dele (dano, cura, bloqueio, queimadura, veneno...)
+const POR_NIVEL_ITEM = .05, ESCALA_NIVEL = ['dano', 'bloqueio', 'cura', 'queimar', 'envenenar', 'regen', 'vida', 'espinhos', 'danoPorGelo'];
+function escalarNivel(s, n){
+  const f = 1 + POR_NIVEL_ITEM * n, esc = o => { if(!o) return o; const c = Object.assign({}, o); for(const k of ESCALA_NIVEL) if(typeof c[k] === 'number') c[k] = Math.max(c[k], Math.round(c[k] * f)); return c; };
+  if(s.dano) s.dano = s.dano.map(v => Math.round(v * f));
+  s.ao = esc(s.ao); s.semMana = esc(s.semMana); s.acerto = esc(s.acerto); s.inicio = esc(s.inicio); s.aoCritico = esc(s.aoCritico);
+  if(s.aleatorio) s.aleatorio = s.aleatorio.map(esc);
+}
 // as casas do formato, giradas g vezes no sentido do relógio, com o canto em (0, 0)
 const cacheForma = {};
 function forma(id, g){
@@ -81,7 +90,8 @@ function numeros(m){
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const d = ITEM[p.id];
     R[p.uid] = {uid:p.uid, id:p.id, uso:d.uso, cd:d.cd, custo:d.custo || 0, dano:d.dano ? d.dano.slice() : null, crit:d.crit || 0, acerto:Object.assign({}, d.acerto), ao:d.ao && Object.assign({}, d.ao),
       semMana:d.semMana, gastaMana:d.gastaMana || 0, inicio:d.inicio, quando:d.quando, t:d.t, rapidez:0, recebeu:[],
-      furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico}; }
+      furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico, n:p.n || 0};
+    if(p.n > 0) escalarNivel(R[p.uid], p.n); }
   for(const b of m.pecas){ if(!ehBolsa(b) || !ITEM[b.id].dentro) continue; const D = ITEM[b.id].dentro;
     for(const p of carregadas(m, b)) if(combina(ITEM[p.id], D.alvo)){ somarBonus(R[p.uid], D.bonus); R[p.uid].recebeu.push(b.id); } }
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const V = ITEM[p.id].viz; if(!V) continue;
@@ -103,7 +113,7 @@ function fundir(m, nivel){
       if(achou) break; }
     if(!achou) break;
     const {p, q, r} = achou; m.pecas = m.pecas.filter(x => x !== p && x !== q);
-    const nova = peca(r[2]), pr = [p, q].map(x => ({x:x.x, y:x.y, g:x.g})).concat([lugarLivre(m, r[2])].filter(Boolean)).find(l => podePor(m, r[2], l.g, l.x, l.y));
+    const nova = peca(r[2], 0, 0, 0, Math.round(((p.n || 0) + (q.n || 0)) / 2)), pr = [p, q].map(x => ({x:x.x, y:x.y, g:x.g})).concat([lugarLivre(m, r[2])].filter(Boolean)).find(l => podePor(m, r[2], l.g, l.x, l.y));
     if(pr) por(m, nova, pr.x, pr.y, pr.g); else m.bancada.push(nova);
     feitas.push(r[2]);
   }
@@ -111,10 +121,10 @@ function fundir(m, nivel){
 }
 
 // ---- foto da mochila (o que vai para o servidor e volta como adversário) ----
-const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => ({id:p.id, x:p.x, y:p.y, g:p.g}));
+const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => p.n > 0 ? {id:p.id, x:p.x, y:p.y, g:p.g, n:p.n} : {id:p.id, x:p.x, y:p.y, g:p.g});
 function deFoto(L){
   const m = {pecas:[], bancada:[]};
-  for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id); por(m, p, f.x, f.y, (f.g || 0) & 3); }
+  for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id, 0, 0, 0, Number(f.n) || 0); por(m, p, f.x, f.y, (f.g || 0) & 3); }
   return m;
 }
 function mochilaNova(classe){

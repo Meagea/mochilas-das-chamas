@@ -31,15 +31,21 @@ const rpc = async (nome, args, login) => sb('/rest/v1/rpc/' + nome, args, login 
 const tentar = async f => { try{ return await f(); }catch(e){ return null; } };
 const onlineNome = nome => tentar(() => rpc('definir_nome', {novo_nome:nome}, true).then(() => true));
 // corrida: o número da partida no servidor (de onlineIniciar); com ele, a rodada conta para a experiência
-const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:VERSAO_REGRAS, p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
+const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida, modo) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:versaoModo(modo), p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
 // experiência (supabase/03-experiencia.sql): o servidor conta as rodadas e calcula o ganho; o jogo só informa as vitórias
 const onlineIniciar = classe => tentar(() => rpc('iniciar_corrida', {p_classe:classe}, true));
 const onlineFechar = (corrida, vitorias) => tentar(async () => { const L = await rpc('fechar_corrida', {p_corrida:corrida, p_vitorias:vitorias}, true); return L && L[0] || null; });
 const onlineExperiencia = () => tentar(() => rpc('minha_experiencia', {}, true));
 // quantos jogadores diferentes já deixaram mochila nesta rodada e o mínimo para lutar só contra gente (guardado no servidor)
-const onlineAmostra = rodada => tentar(async () => { const L = await rpc('amostra_rodada', {p_rodada:rodada, p_versao:VERSAO_REGRAS}, true); return L && L[0] ? {jogadores:Number(L[0].jogadores), minimo:Number(L[0].minimo)} : null; });
+const onlineAmostra = (rodada, modo) => tentar(async () => { const L = await rpc('amostra_rodada', {p_rodada:rodada, p_versao:versaoModo(modo)}, true); return L && L[0] ? {jogadores:Number(L[0].jogadores), minimo:Number(L[0].minimo)} : null; });
 // jogador ou robô? Com amostra cheia, sempre jogador; abaixo dela, a chance de pegar um jogador é jogadores ÷ mínimo
 const querJogador = (a, sorte) => !!a && a.jogadores > 0 && (a.minimo <= 0 || a.jogadores >= a.minimo || sorte < a.jogadores / a.minimo);
-const onlineAdversario = (rodada, vitorias) => tentar(async () => { const L = await rpc('sortear_adversario', {p_rodada:rodada, p_versao:VERSAO_REGRAS, p_vitorias:vitorias}, true); return L && L[0] || null; });
+// no modo normal, o sorteio também procura nível médio de itens parecido
+const onlineAdversario = (rodada, vitorias, modo, nivelMedio) => tentar(async () => { const L = await rpc('sortear_adversario', {p_rodada:rodada, p_versao:versaoModo(modo), p_vitorias:vitorias, ...(modo === 'normal' ? {p_nivel:Math.round(nivelMedio || 0)} : {})}, true); return L && L[0] || null; });
+// cartas, moedas e loja (supabase/04-cartas.sql)
+const onlineColecao = () => tentar(() => rpc('minha_colecao', {}, true));
+const onlineSubir = item => tentar(() => rpc('subir_item', {p_item:item}, true));
+const onlineCarrinho = tipo => tentar(() => rpc('meu_carrinho', {p_tipo:tipo}, true));
+const onlineComprar = (tipo, vaga) => tentar(() => rpc('comprar_oferta', {p_tipo:tipo, p_vaga:vaga}, true));
 const onlineLuta = (venceu, campanha) => tentar(() => rpc('registrar_luta', {p_venceu:venceu, p_campanha:campanha}, true));
 const onlineRanking = () => tentar(() => rpc('ranking_temporada', {p_limite:100}, false));

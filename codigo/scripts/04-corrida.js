@@ -20,10 +20,14 @@ function sortearLoja(classe, rodada, r, nivel, caminho){
 
 // ---- a corrida do jogador ----
 let C = null;   // corrida em andamento
-function novaCorrida(classe, sem, nivel, caminho){
+// modo: 'ranqueada' (todos os itens no nível 0, vale ranking) ou 'normal' (cada item no nível da coleção: niveis = {id: nível})
+const VERSAO_NORMAL = 1000;
+const versaoModo = modo => VERSAO_REGRAS + (modo === 'normal' ? VERSAO_NORMAL : 0);
+function novaCorrida(classe, sem, nivel, caminho, modo, niveis){
   const s = sem == null ? (Date.now() & 0xffffff) : sem;
-  nivel = nivel || 1; caminho = nivel >= NIVEL_CAMINHO ? caminho || null : null;
-  C = {classe, nivel, caminho, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
+  nivel = nivel || 1; caminho = nivel >= NIVEL_CAMINHO ? caminho || null : null; modo = modo === 'normal' ? 'normal' : 'ranqueada';
+  C = {classe, nivel, caminho, modo, niveis:modo === 'normal' ? Object.assign({}, niveis) : {}, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
+  for(const p of C.mochila.pecas.concat(C.mochila.bancada)) if(C.niveis[p.id] > 0) p.n = C.niveis[p.id];
   C.loja = sortearLoja(classe, 1, semente(misturar(s, 1)), nivel, caminho);
   return C;
 }
@@ -31,7 +35,7 @@ function comprar(i){
   const id = C.loja[i]; if(!id) return null;
   if(C.ouro < ITEM[id].preco) return null;
   C.ouro -= ITEM[id].preco; C.loja[i] = null;
-  const p = peca(id); C.mochila.bancada.push(p); return p;
+  const p = peca(id, 0, 0, 0, C.niveis && C.niveis[id] || 0); C.mochila.bancada.push(p); return p;
 }
 function vender(p){
   if(ITEM[p.id].inicial) return false;
@@ -113,7 +117,9 @@ function montarRobo(classe, rodada, sem, nivel, caminho){
   return m;
 }
 const NOMES_ROBO = ['Brutus', 'Dona Sálvia', 'Zé Fivela', 'Mestre Pintas', 'Gorda Berta', 'Velho Tobias', 'Lia Cortês', 'Capitão Rolha', 'Frei Borralho', 'Nina Faísca', 'Bento Bigorna', 'Rosa Ferrugem'];
-function adversarioRobo(rodada, sem){
-  const r = semente(sem), classe = sortear(Object.keys(CLASSES), r);
-  return {nome:sortear(NOMES_ROBO, r), classe, mochila:montarRobo(classe, rodada, misturar(sem, 7)), robo:true};
+// nivelItens: no modo normal, o robô usa itens no nível médio da mochila do jogador
+function adversarioRobo(rodada, sem, nivelItens){
+  const r = semente(sem), classe = sortear(Object.keys(CLASSES), r), m = montarRobo(classe, rodada, misturar(sem, 7));
+  if(nivelItens > 0) for(const p of m.pecas) if(!ehBolsa(p)) p.n = Math.min(10, Math.round(nivelItens));
+  return {nome:sortear(NOMES_ROBO, r), classe, mochila:m, robo:true};
 }

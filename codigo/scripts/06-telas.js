@@ -2,7 +2,7 @@
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
 let PERFIL = temDOM ? ler('tdg-perfil', null) : null;
 if(!PERFIL) PERFIL = {nome:'', corridas:0, vitoriasCorrida:0, melhor:0, pontos:0, colecao:{}};
-PERFIL.xp = PERFIL.xp || {}; PERFIL.caminho = PERFIL.caminho || {};
+PERFIL.xp = PERFIL.xp || {}; PERFIL.caminho = PERFIL.caminho || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
 const gravarPerfil = () => guardar('tdg-perfil', PERFIL);
 
 // ---- experiência de cada personagem (PROGRESSAO.md): quem manda é o servidor; aqui fica uma cópia para jogar offline ----
@@ -51,7 +51,7 @@ function pecaHtml(p, tam, extra){
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
   return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
-    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span></div>`;
+    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
 function linhaNumeros(id, s){
@@ -74,9 +74,10 @@ function telaLobby(){
         <span class="txt"><b>${c.nome}</b>${barraXp(nv)}<small>${c.desc}</small><span class="ini">${iconeItem(ini.id)} ${ini.nome}</span></span></button>`; }).join('')}</div>
     ${painelPersonagem(classeEscolhida)}
     <div class="acoes">
+      <div class="modos">${['ranqueada', 'normal'].map(k => `<button class="chip${PERFIL.modo === k ? ' on' : ''}" data-modo="${k}"><b>${k === 'ranqueada' ? 'Ranqueada' : 'Normal'}</b><span>${k === 'ranqueada' ? 'Todos os itens no nível 0. Vitórias valem pontos no ranking.' : 'Seus itens lutam no nível das cartas. Não vale ranking.'}</span></button>`).join('')}</div>
       ${s && s.mochila && !s.fim ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias</small></button>` : ''}
       <button class="btn grande${s && !s.fim ? '' : ' primario'}" id="btJogar">Nova corrida<small>${CLASSES[classeEscolhida].nome}${caminhoDe(classeEscolhida) ? ' ' + CLASSES[classeEscolhida].caminhos[caminhoDe(classeEscolhida)].nome : ''} · nível ${nivelClasse(classeEscolhida).nivel} · 7 vitórias para vencer, 3 derrotas e acaba</small></button>
-      <button class="btn" id="btRanking">Ranking da temporada</button>
+      <div class="linha-btns"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
     </div>
     <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'} · ${PERFIL.pontos} pontos no ranking` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha.'}</p>
   </section>`;
@@ -88,12 +89,15 @@ function ligarLobby(){
     comecarCorrida(classeEscolhida); };
   raiz().querySelectorAll('[data-caminho]').forEach(b => b.onclick = () => { PERFIL.caminho[classeEscolhida] = b.dataset.caminho; gravarPerfil(); desenhar(); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
+  raiz().querySelectorAll('[data-modo]').forEach(b => b.onclick = () => { PERFIL.modo = b.dataset.modo; gravarPerfil(); desenhar(); });
+  $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
   const c = $('btContinuar'); if(c) c.onclick = () => { if(continuarCorrida()){ tela = 'loja'; desenhar(); } };
   $('btRanking').onclick = abrirRanking;
 }
 
 function comecarCorrida(classe){
-  novaCorrida(classe, null, nivelClasse(classe).nivel, caminhoDe(classe)); iniciarNoServidor();
+  const niveis = {}; for(const k in PERFIL.cartas) if(PERFIL.cartas[k].nivel > 0) niveis[k] = PERFIL.cartas[k].nivel;
+  novaCorrida(classe, null, nivelClasse(classe).nivel, caminhoDe(classe), PERFIL.modo, niveis); iniciarNoServidor();
   salvarCorrida(); sel = null; tela = 'loja'; desenhar();
 }
 // o personagem escolhido: nível, experiência, caminho (do nível 5 em diante) e o próximo desbloqueio
@@ -261,14 +265,15 @@ async function comecarLuta(){
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
   if(C.corrida == null && corridaPendente) await Promise.race([corridaPendente, new Promise(r => setTimeout(r, 3000))]);
-  ultimoEnvio = onlineEnviar(C.rodada, C.classe, foto, C.vitorias, vidas, C.corrida);
+  const modo = C.modo || 'ranqueada', comNivel = C.mochila.pecas.filter(p => !ehBolsa(p)), media = comNivel.length ? comNivel.reduce((a, p) => a + (p.n || 0), 0) / comNivel.length : 0;
+  ultimoEnvio = onlineEnviar(C.rodada, C.classe, foto, C.vitorias, vidas, C.corrida, modo);
   // robôs até haver jogadores suficientes nesta rodada (o mínimo fica no servidor: supabase/02-amostra-robos.sql)
-  const amostra = await onlineAmostra(C.rodada), o = querJogador(amostra, Math.random()) ? await onlineAdversario(C.rodada, C.vitorias) : null;
+  const amostra = await onlineAmostra(C.rodada, modo), o = querJogador(amostra, Math.random()) ? await onlineAdversario(C.rodada, C.vitorias, modo, media) : null;
   if(o && CLASSES[o.classe]) adv = {nome:o.nome, classe:o.classe, mochila:deFoto(o.itens), online:true};
-  if(!adv) adv = adversarioRobo(C.rodada, misturar(C.sem, C.rodada * 31 + C.trocas));
+  if(!adv) adv = adversarioRobo(C.rodada, misturar(C.sem, C.rodada * 31 + C.trocas), modo === 'normal' ? media : 0);
   const sem = misturar(C.sem, C.rodada * 7 + 3), r = lutar(C.mochila, C.classe, PERFIL.nome || 'Você', adv.mochila, adv.classe, adv.nome, sem);
   lutaAtual = {r, adv, venceu:r.vencedor === 0, tempo:0, vel:1, i:0, ultimo:null, pontos:null, fechada:false};
-  if(adv.online) onlineLuta(lutaAtual.venceu, C.vitorias + (lutaAtual.venceu ? 1 : 0)).then(p => { if(lutaAtual && p != null){ lutaAtual.pontos = p; PERFIL.pontos = p; gravarPerfil(); } });
+  if(adv.online && modo === 'ranqueada') onlineLuta(lutaAtual.venceu, C.vitorias + (lutaAtual.venceu ? 1 : 0)).then(p => { if(lutaAtual && p != null){ lutaAtual.pontos = p; PERFIL.pontos = p; gravarPerfil(); } });
   for(const pc of C.mochila.pecas) PERFIL.colecao[pc.id] = 1; gravarPerfil();
   sel = null; tela = 'luta'; desenhar(); tocarLuta();
 }
@@ -329,7 +334,7 @@ function mostrarResultado(){
   const L = lutaAtual; if(L.fechada) return; L.fechada = true;
   const el = $('resultado'); el.hidden = false;
   el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu');
-  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (L.venceu ? ': +10 pontos no ranking.' : '.') : ''}</p><button class="btn primario grande" id="btSeguir">Continuar</button>`;
+  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (L.venceu && C.modo !== 'normal' ? ': +10 pontos no ranking.' : '.') : ''}</p><button class="btn primario grande" id="btSeguir">Continuar</button>`;
   $('btSeguir').onclick = () => {
     fecharRodada(L.venceu, L.adv.nome); lutaAtual = null;
     if(C.fim){ PERFIL.corridas++; if(C.vitorias >= VITORIAS_META) PERFIL.vitoriasCorrida++; PERFIL.melhor = Math.max(PERFIL.melhor, C.vitorias); gravarPerfil(); tela = 'fim'; fecharNoServidor(); }
@@ -348,7 +353,8 @@ async function fecharNoServidor(){
     if(r){ PERFIL.xp[alvo.classe] = Number(r.xp) || 0; gravarPerfil();
       const depois = nivelClasse(alvo.classe), lib = [];
       for(let n = antes.nivel + 1; n <= depois.nivel; n++) lib.push(...liberadosNo(alvo.classe, n));
-      alvo.xpRes = {ganho:Number(r.ganho), base:Number(r.base), mult:Number(r.multiplicador), limite:Number(r.limite_hoje), antes, depois, lib}; }
+      alvo.xpRes = {ganho:Number(r.ganho), base:Number(r.base), mult:Number(r.multiplicador), limite:Number(r.limite_hoje), antes, depois, lib, bronze:Number(r.bronze) || 0, cartas:r.cartas || {}};
+      sincronizarColecao(); }
     else alvo.xpRes = 'offline';
   }
   if(tela === 'fim' && alvo === C) desenhar();
@@ -362,7 +368,8 @@ function blocoXp(){
     ${x.ganho < Math.floor(x.base * x.mult) ? `<p class="pl-nota">Limite de experiência de hoje atingido.</p>` : ''}
     ${subiu ? `<p class="xp-subiu">${x.depois.nivel > x.antes.nivel ? `Nível ${x.depois.nivel}!` : 'Nova estrela de prestígio!'}</p>` : ''}
     ${x.lib.length ? `<p class="pl-prox">Liberado: ${x.lib.map(l => `<span class="mini-item">${iconeItem(l.id)}${ITEM[l.id].nome}</span>`).join('')}</p>` : ''}
-    ${x.depois.nivel >= NIVEL_CAMINHO && x.antes.nivel < NIVEL_CAMINHO ? '<p class="pl-nota">Agora você escolhe um caminho no lobby.</p>' : ''}</div>`;
+    ${x.depois.nivel >= NIVEL_CAMINHO && x.antes.nivel < NIVEL_CAMINHO ? '<p class="pl-nota">Agora você escolhe um caminho no lobby.</p>' : ''}
+    ${x.bronze || Object.keys(x.cartas).length ? `<p class="pl-prox">Ganhou: <span class="mini-item bronze">${ic('moeda')} ${x.bronze} de bronze</span>${Object.entries(x.cartas).map(([id, q]) => ITEM[id] ? `<span class="mini-item">${iconeItem(id)}${q}× ${ITEM[id].nome}</span>` : '').join('')}</p>` : ''}</div>`;
 }
 function telaFim(){
   const venceu = C.vitorias >= VITORIAS_META;
@@ -378,6 +385,64 @@ function ligarFim(){
   $('btRanking').onclick = abrirRanking; $('btLobby').onclick = () => { tela = 'lobby'; desenhar(); };
 }
 
+// ---- cartas dos itens: coleção e loja (PROGRESSAO.md, seção 10; servidor em supabase/04-cartas.sql) ----
+// as mesmas contas do servidor (custo_cartas e custo_bronze)
+const CUSTO_CARTAS = [2, 4, 6, 10, 15, 20, 30, 40, 50, 75], CUSTO_BRONZE = [5, 10, 20, 35, 50, 75, 100, 150, 200, 300];
+const DESCONTO_RAR = {rara:.8, epica:.6, lendaria:.4};
+const custoCartas = (id, n) => Math.ceil(CUSTO_CARTAS[n - 1] * (DESCONTO_RAR[ITEM[id].rar] || 1));
+const cartaDe = id => PERFIL.cartas[id] || {nivel:0, cartas:0};
+let colecaoOk = null, carrinhoDados = null, carrinhoTipo = 'dia', ocupado = false;
+async function sincronizarColecao(){
+  const L = await onlineColecao(); if(!Array.isArray(L)) return false;
+  PERFIL.cartas = {}; for(const l of L){ if(l.bronze != null) PERFIL.bronze = Number(l.bronze); if(l.item && ITEM[l.item]) PERFIL.cartas[l.item] = {nivel:Number(l.nivel), cartas:Number(l.cartas)}; }
+  if(!L.some(l => l.bronze != null)) PERFIL.bronze = 0;
+  gravarPerfil(); return true;
+}
+async function abrirColecao(){ colecaoOk = 'carregando'; tela = 'colecao'; desenhar(); colecaoOk = await sincronizarColecao(); if(tela === 'colecao') desenhar(); }
+async function abrirLojaCartas(tipo){ carrinhoTipo = tipo; carrinhoDados = 'carregando'; tela = 'cartas'; desenhar();
+  const [L] = await Promise.all([onlineCarrinho(tipo), sincronizarColecao()]); carrinhoDados = L; if(tela === 'cartas') desenhar(); }
+const saldoHtml = () => `<span class="saldo">${ic('moeda')} <b>${PERFIL.bronze}</b> de bronze</span>`;
+function cartaHtml(id, extra){
+  const c = cartaDe(id), d = ITEM[id], prox = c.nivel < 10 ? custoCartas(id, c.nivel + 1) : 0;
+  const pode = c.nivel < 10 && c.cartas >= prox && PERFIL.bronze >= CUSTO_BRONZE[c.nivel];
+  return `<div class="carta${c.cartas || c.nivel ? '' : ' vazia'}" style="--rar:${raridade(id).cor}"><span class="nv">${c.nivel ? 'Nv ' + c.nivel : 'Nv 0'}</span><span class="pic">${iconeItem(id)}</span><b>${d.nome}</b>
+    ${c.nivel < 10 ? `<span class="cbar"><i style="width:${Math.min(100, c.cartas / prox * 100)}%"></i><em>${c.cartas}/${prox}</em></span>
+      ${extra === false ? '' : `<button class="btn sm${pode ? ' primario' : ''}" data-subir="${id}" ${pode ? '' : 'disabled'}>Subir · ${ic('moeda')} ${CUSTO_BRONZE[c.nivel]}</button>`}` : '<span class="max">Nível máximo</span>'}</div>`;
+}
+function telaColecao(){
+  const grupos = [['Comuns a todos', it => !it.classe && !it.fusao], ...Object.keys(CLASSES).map(c => [CLASSES[c].nome, it => it.classe === c && !it.fusao]), ['Fusões', it => it.fusao]];
+  return `<section class="colecao-tela"><header class="cab-cartas"><h1>Coleção</h1>${saldoHtml()}</header>
+    <p class="sub">Cartas sobem o item do nível 0 ao 10 (+5% por nível). O nível só vale nas partidas <b>normais</b>; na ranqueada todos lutam no nível 0. Ganhe cartas e bronze jogando, ou compre na loja de cartas.</p>
+    ${colecaoOk === 'carregando' ? '<p class="nota">Carregando…</p>' : colecaoOk === false ? '<p class="nota">Sem conexão: mostrando a última coleção guardada. Para subir itens, conecte-se.</p>' : ''}
+    ${grupos.map(([nome, f]) => { const L = ITENS.filter(it => it.tipo !== 'bolsa' && f(it)); return `<h2>${nome}</h2><div class="cartas">${L.map(it => cartaHtml(it.id)).join('')}</div>`; }).join('')}
+    <div class="acoes-fim"><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btVoltar">Voltar</button></div></section>`;
+}
+function ligarColecao(){
+  $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
+  raiz().querySelectorAll('[data-subir]').forEach(b => b.onclick = async () => { if(ocupado) return; ocupado = true; b.disabled = true;
+    const n = await onlineSubir(b.dataset.subir); ocupado = false;
+    if(n == null) avisar('Não deu para subir agora'); else { avisar(`${ITEM[b.dataset.subir].nome}: nível ${n}!`); await sincronizarColecao(); }
+    if(tela === 'colecao') desenhar(); });
+}
+function relogio(ate){ const ms = new Date(ate) - Date.now(); if(!(ms > 0)) return 'agora'; const h = Math.floor(ms / 36e5), d = Math.floor(h / 24); return d ? `${d} d ${h % 24} h` : `${h} h ${Math.floor(ms / 6e4) % 60} min`; }
+function telaCartas(){
+  const L = Array.isArray(carrinhoDados) ? carrinhoDados : null;
+  return `<section class="colecao-tela"><header class="cab-cartas"><h1>Loja de cartas</h1>${saldoHtml()}</header>
+    <div class="abas">${[['dia', 'Diário'], ['semana', 'Semanal']].map(([k, n]) => `<button class="chip${carrinhoTipo === k ? ' on' : ''}" data-carrinho="${k}"><b>${n}</b><span>${k === 'dia' ? '6 ofertas, troca à meia-noite' : '4 pacotes grandes, troca na segunda'}</span></button>`).join('')}</div>
+    ${carrinhoDados === 'carregando' ? '<p class="nota">Carregando…</p>' : !L ? '<p class="nota">Sem conexão com o servidor agora. A loja de cartas precisa de internet.</p>'
+      : `<p class="sub">Troca em ${relogio(L[0] && L[0].troca_em)}. Cada oferta pode ser comprada uma vez.</p><div class="cartas">${L.map(o => ITEM[o.item] ? `<div class="oferta${o.comprado ? ' comprada' : ''}">${cartaHtml(o.item, false)}<span class="qtd">${o.qtd} ${o.qtd === 1 ? 'carta' : 'cartas'}</span>
+        <button class="btn sm${!o.comprado && PERFIL.bronze >= o.preco ? ' primario' : ''}" data-oferta="${o.vaga}" ${o.comprado || PERFIL.bronze < o.preco ? 'disabled' : ''}>${o.comprado ? 'Comprado' : `${ic('moeda')} ${o.preco}`}</button></div>` : '').join('')}</div>`}
+    <div class="acoes-fim"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btVoltar">Voltar</button></div></section>`;
+}
+function ligarCartas(){
+  $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; $('btColecao').onclick = abrirColecao;
+  raiz().querySelectorAll('[data-carrinho]').forEach(b => b.onclick = () => abrirLojaCartas(b.dataset.carrinho));
+  raiz().querySelectorAll('[data-oferta]').forEach(b => b.onclick = async () => { if(ocupado) return; ocupado = true; b.disabled = true;
+    const s = await onlineComprar(carrinhoTipo, +b.dataset.oferta); ocupado = false;
+    if(s == null) avisar('Não deu para comprar agora'); else { avisar('Cartas compradas!'); PERFIL.bronze = Number(s); }
+    abrirLojaCartas(carrinhoTipo); });
+}
+
 // ---- ranking ----
 async function abrirRanking(){ rankingDados = 'carregando'; tela = 'ranking'; desenhar(); rankingDados = await onlineRanking(); if(tela === 'ranking') desenhar(); }
 function telaRanking(){
@@ -391,7 +456,7 @@ function telaRanking(){
 function ligarRanking(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; }
 
 // ---- desenhar a tela atual ----
-const TELAS = {trilha:[telaTrilha, ligarTrilha], lobby:[telaLobby, ligarLobby], loja:[telaLoja, ligarLoja], luta:[telaLuta, ligarLuta], fim:[telaFim, ligarFim], ranking:[telaRanking, ligarRanking]};
+const TELAS = {colecao:[telaColecao, ligarColecao], cartas:[telaCartas, ligarCartas], trilha:[telaTrilha, ligarTrilha], lobby:[telaLobby, ligarLobby], loja:[telaLoja, ligarLoja], luta:[telaLuta, ligarLuta], fim:[telaFim, ligarFim], ranking:[telaRanking, ligarRanking]};
 function desenhar(){
   if(!uiAtiva) return;
   const [h, l] = TELAS[tela] || TELAS.lobby;

@@ -57,5 +57,19 @@ else {
   const boost = await chamar('/rest/v1/multiplicadores?jogador_id=eq.' + A.id, {boost_partidas:99}, A.token, 'PATCH');
   ok(boost.status >= 400 || (Array.isArray(boost.dado) && !boost.dado.length), 'dar boost a si mesmo é barrado (' + boost.status + ')');
 }
+// cartas e loja (04-cartas.sql)
+const car = await chamar('/rest/v1/rpc/meu_carrinho', {p_tipo:'dia'}, A.token);
+if(car.status === 404) console.log('--    04-cartas.sql ainda não rodou no Supabase: testes de cartas pulados');
+else {
+  ok(car.status === 200 && car.dado.length === 6, 'carrinho diário com 6 ofertas (' + car.status + ')');
+  const sem = await chamar('/rest/v1/rpc/meu_carrinho', {p_tipo:'semana'}, A.token);
+  ok(sem.status === 200 && sem.dado.length === 4, 'carrinho semanal com 4 ofertas');
+  const col = await chamar('/rest/v1/rpc/minha_colecao', {}, A.token);
+  ok(col.status === 200 && col.dado.some(l => l.bronze > 0), 'A ganhou moedas na partida de teste (' + JSON.stringify(col.dado.find(l => !l.item)) + ')');
+  const cp = await chamar('/rest/v1/rpc/comprar_oferta', {p_tipo:'semana', p_vaga:4}, A.token);
+  ok(cp.status >= 400, 'comprar a lendária sem moedas é barrado (' + cp.status + ')');
+  const mo = await chamar('/rest/v1/carteira', {bronze:999999}, A.token, 'POST');
+  ok(mo.status >= 400, 'escrever moedas direto é barrado (' + mo.status + ')');
+}
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo');
 console.log(`\nPara apagar os jogadores de teste, rode no SQL Editor:\ndelete from auth.users where id in ('${A.id}', '${B.id}');`);

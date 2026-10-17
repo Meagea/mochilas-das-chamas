@@ -1,7 +1,7 @@
 // Teste do jogo sem navegador: confere a mochila, a luta (sempre igual com a mesma semente) e o balanceamento das classes.
 // O robô monta mochilas jogando a loja; elas lutam entre si por rodada.
 // Uso: node codigo/testes/simulacao.js [lutas por confronto, padrão 60]
-const t = require('./carregar')('nivelDe, lugarLivre, C, CLASSES, ITENS, ITEM, RECEITAS, novaCorrida, comprar, vender, trocarLoja, fecharRodada, mochilaNova, peca, por, tirar, podePor, forma, numeros, fundir, fotoMochila, deFoto, lutar, montarRobo, adversarioRobo, vizinhos, casasAbertas');
+const t = require('./carregar')('ehBolsa, nivelDe, lugarLivre, C, CLASSES, ITENS, ITEM, RECEITAS, novaCorrida, comprar, vender, trocarLoja, fecharRodada, mochilaNova, peca, por, tirar, podePor, forma, numeros, fundir, fotoMochila, deFoto, lutar, montarRobo, adversarioRobo, vizinhos, casasAbertas');
 const N = +(process.argv[2] || 60);
 let falhas = 0; const confere = (c, m) => { if(!c){ falhas++; if(falhas < 25) console.log('  FALHA: ' + m); } };
 
@@ -88,6 +88,23 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   { const r = t.lutar(so(['sorrisoHiena', 'adaga', 'adaga'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'esquiva' && e.lado === 0), 'Sorriso da Hiena: crítico dá esquiva'); }
   { const r = t.lutar(so(['bolsaTruques'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'ativa' && e.lado === 0), 'Bolsa de Truques age'); }
 }
+// ---- nível dos itens pelas cartas (modo normal) ----
+{ const m = t.mochilaNova('guerreiro'); m.pecas = m.pecas.filter(p => p.id === 'mochila');
+  const e = t.peca('espadaLonga', 0, 0, 0, 10), b = t.peca('escudoMadeira', 0, 0, 0, 4); t.por(m, e, 3, 2, 0); t.por(m, b, 4, 2, 0);
+  const n = t.numeros(m); confere(n[e.uid].dano[0] === 9 && n[e.uid].dano[1] === 14, 'espada longa nível 10: 6–9 vira 9–14 (' + n[e.uid].dano + ')');
+  confere(n[b.uid].ao.bloqueio === 5, 'escudo de madeira nível 4: bloqueio 4 vira 5 (' + n[b.uid].ao.bloqueio + ')');
+  confere(t.ITEM.espadaLonga.dano[0] === 6, 'o nível não mexe na tabela de itens');
+  const f = t.fotoMochila(m), m2 = t.deFoto(JSON.parse(JSON.stringify(f)));
+  confere(m2.pecas.find(p => p.id === 'espadaLonga').n === 10 && !('n' in f.find(x => x.id === 'mochila')), 'a foto leva o nível dos itens');
+  t.novaCorrida('guerreiro', 3, 1, null, 'normal', {insignia:3, clava:5});
+  confere(t.C.mochila.pecas.find(p => p.id === 'insignia').n === 3, 'modo normal: item inicial no nível da coleção');
+  t.C.loja[0] = 'clava'; t.C.ouro = 99; confere(t.comprar(0).n === 5, 'modo normal: item comprado no nível da coleção');
+  t.novaCorrida('guerreiro', 3, 1, null, 'ranqueada', {insignia:3, clava:5}); t.C.loja[0] = 'clava'; t.C.ouro = 99;
+  confere(!t.comprar(0).n && !t.C.mochila.pecas.some(p => p.n), 'ranqueada: todos no nível 0');
+  // a mesma mochila do robô no nível 10 contra ela mesma no nível 0
+  let v = 0; for(let i = 0; i < 60; i++){ const c = classes[i % 3], a = t.montarRobo(c, 6, 400 + i), b2 = t.deFoto(t.fotoMochila(a)); for(const p of a.pecas) if(!t.ehBolsa(p)) p.n = 10;
+    if(t.lutar(a, c, 'n10', b2, c, 'n0', i).vencedor === 0) v++; }
+  console.log('Mesma mochila, itens nível 10 contra nível 0: ' + Math.round(v / 60 * 100) + '% de vitórias do nível 10'); }
 // nível 1 contra nível 10 da mesma classe (regra de ouro: opções, não poder) e cada caminho contra todos
 { const lin = [];
   for(const c of classes){ let v = 0, n = 0;

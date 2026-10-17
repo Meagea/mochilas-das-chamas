@@ -220,6 +220,34 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .tr-item b{ font-size:13.5px; } .tr-item em{ font-style:normal; font-size:11px; color:var(--ambar); } .tr-item small{ font-size:11.5px; color:var(--suave); }
 .tr-item.fechado .pic{ filter:grayscale(1) brightness(.6); }
 .trilha-tela #btVoltar{ align-self:center; }
+
+/* ---------- cartas dos itens: modo, coleção e loja de cartas ---------- */
+.modos{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.linha-btns{ display:flex; gap:8px; } .linha-btns .btn{ flex:1; }
+.peca .nvp{ position:absolute; right:2px; bottom:1px; z-index:3; min-width:15px; padding:0 3px; font-size:10.5px; line-height:15px; text-align:center; border-radius:6px; background:rgba(0,0,0,.75); color:var(--ambar); border:1px solid rgba(242,179,80,.5); pointer-events:none; }
+.saldo .ic, .bronze .ic{ filter:sepia(1) hue-rotate(-25deg) saturate(1.3) brightness(.85); width:18px; height:18px; vertical-align:-4px; }
+.saldo{ font-size:14px; color:var(--suave); white-space:nowrap; } .saldo b{ color:#e0a070; font-size:17px; }
+.colecao-tela{ position:relative; z-index:1; max-width:860px; margin:0 auto; padding:20px 16px 34px; display:flex; flex-direction:column; gap:12px; height:100%; overflow-y:auto; box-sizing:border-box; }
+.colecao-tela h2{ font-size:18px; color:var(--ambar); margin-top:6px; }
+.colecao-tela .sub{ margin:0; color:var(--suave); font-size:13px; }
+.cab-cartas{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.cartas{ display:grid; grid-template-columns:repeat(auto-fill, minmax(122px, 1fr)); gap:10px; }
+.carta{ position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 8px; border-radius:14px; text-align:center;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--rar) 22%, transparent), transparent 60%), var(--painel); border:1px solid color-mix(in srgb, var(--rar) 55%, transparent); }
+.carta.vazia .pic{ filter:grayscale(.8) brightness(.6); }
+.carta .pic{ width:64px; height:64px; display:flex; } .carta .pic img, .carta .pic .ic{ width:100%; height:100%; object-fit:contain; }
+.carta b{ font-size:12.5px; line-height:1.2; min-height:2.4em; display:flex; align-items:center; }
+.carta .nv{ position:absolute; top:6px; left:6px; font-family:var(--fonte-titulo); font-weight:800; font-size:13px; color:var(--ambar); }
+.cbar{ position:relative; align-self:stretch; height:14px; border-radius:7px; background:rgba(255,255,255,.08); overflow:hidden; }
+.cbar i{ position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg, #4aa3d8, #7ad0f0); }
+.cbar em{ position:relative; font-style:normal; font-size:10.5px; font-weight:700; line-height:14px; }
+.carta .btn.sm{ font-size:12px; padding:5px 8px; align-self:stretch; } .carta .max{ font-size:11.5px; color:var(--ambar); font-weight:700; }
+.oferta{ display:flex; flex-direction:column; gap:6px; } .oferta .qtd{ text-align:center; font-weight:700; font-size:13px; }
+.oferta.comprada{ opacity:.55; }
+.abas{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.acoes-fim{ display:flex; gap:8px; justify-content:center; margin-top:6px; }
+@media (max-width:420px){ .cartas{ grid-template-columns:repeat(2, 1fr); } .modos{ grid-template-columns:1fr; } }
+.carta .btn.sm, .oferta .btn.sm{ display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px; } .carta .btn.sm .ic, .oferta .btn.sm .ic{ width:15px; height:15px; filter:sepia(1) hue-rotate(-25deg) saturate(1.3) brightness(.85); }
 </style>
 </head>
 <body>
@@ -438,7 +466,16 @@ const VERSAO_REGRAS = 2;   // sobe quando itens ou regras mudam: mochilas de ver
 // {uid, id, x, y, g}: (x, y) é o canto de cima à esquerda do formato já girado; g é o giro (0 a 3, de 90 em 90 graus).
 const LARG = 9, ALT = 7;
 let proxUid = 1;
-const peca = (id, x, y, g) => ({uid:proxUid++, id, x:x || 0, y:y || 0, g:g || 0});
+// n: nível do item pelas cartas (0 a 10); só existe no modo normal (PROGRESSAO.md, seção 10)
+const peca = (id, x, y, g, n) => { const p = {uid:proxUid++, id, x:x || 0, y:y || 0, g:g || 0}; if(n > 0) p.n = Math.min(10, n | 0); return p; };
+// cada nível do item soma 5% nos números dele (dano, cura, bloqueio, queimadura, veneno...)
+const POR_NIVEL_ITEM = .05, ESCALA_NIVEL = ['dano', 'bloqueio', 'cura', 'queimar', 'envenenar', 'regen', 'vida', 'espinhos', 'danoPorGelo'];
+function escalarNivel(s, n){
+  const f = 1 + POR_NIVEL_ITEM * n, esc = o => { if(!o) return o; const c = Object.assign({}, o); for(const k of ESCALA_NIVEL) if(typeof c[k] === 'number') c[k] = Math.max(c[k], Math.round(c[k] * f)); return c; };
+  if(s.dano) s.dano = s.dano.map(v => Math.round(v * f));
+  s.ao = esc(s.ao); s.semMana = esc(s.semMana); s.acerto = esc(s.acerto); s.inicio = esc(s.inicio); s.aoCritico = esc(s.aoCritico);
+  if(s.aleatorio) s.aleatorio = s.aleatorio.map(esc);
+}
 // as casas do formato, giradas g vezes no sentido do relógio, com o canto em (0, 0)
 const cacheForma = {};
 function forma(id, g){
@@ -516,7 +553,8 @@ function numeros(m){
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const d = ITEM[p.id];
     R[p.uid] = {uid:p.uid, id:p.id, uso:d.uso, cd:d.cd, custo:d.custo || 0, dano:d.dano ? d.dano.slice() : null, crit:d.crit || 0, acerto:Object.assign({}, d.acerto), ao:d.ao && Object.assign({}, d.ao),
       semMana:d.semMana, gastaMana:d.gastaMana || 0, inicio:d.inicio, quando:d.quando, t:d.t, rapidez:0, recebeu:[],
-      furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico}; }
+      furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico, n:p.n || 0};
+    if(p.n > 0) escalarNivel(R[p.uid], p.n); }
   for(const b of m.pecas){ if(!ehBolsa(b) || !ITEM[b.id].dentro) continue; const D = ITEM[b.id].dentro;
     for(const p of carregadas(m, b)) if(combina(ITEM[p.id], D.alvo)){ somarBonus(R[p.uid], D.bonus); R[p.uid].recebeu.push(b.id); } }
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const V = ITEM[p.id].viz; if(!V) continue;
@@ -538,7 +576,7 @@ function fundir(m, nivel){
       if(achou) break; }
     if(!achou) break;
     const {p, q, r} = achou; m.pecas = m.pecas.filter(x => x !== p && x !== q);
-    const nova = peca(r[2]), pr = [p, q].map(x => ({x:x.x, y:x.y, g:x.g})).concat([lugarLivre(m, r[2])].filter(Boolean)).find(l => podePor(m, r[2], l.g, l.x, l.y));
+    const nova = peca(r[2], 0, 0, 0, Math.round(((p.n || 0) + (q.n || 0)) / 2)), pr = [p, q].map(x => ({x:x.x, y:x.y, g:x.g})).concat([lugarLivre(m, r[2])].filter(Boolean)).find(l => podePor(m, r[2], l.g, l.x, l.y));
     if(pr) por(m, nova, pr.x, pr.y, pr.g); else m.bancada.push(nova);
     feitas.push(r[2]);
   }
@@ -546,10 +584,10 @@ function fundir(m, nivel){
 }
 
 // ---- foto da mochila (o que vai para o servidor e volta como adversário) ----
-const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => ({id:p.id, x:p.x, y:p.y, g:p.g}));
+const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => p.n > 0 ? {id:p.id, x:p.x, y:p.y, g:p.g, n:p.n} : {id:p.id, x:p.x, y:p.y, g:p.g});
 function deFoto(L){
   const m = {pecas:[], bancada:[]};
-  for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id); por(m, p, f.x, f.y, (f.g || 0) & 3); }
+  for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id, 0, 0, 0, Number(f.n) || 0); por(m, p, f.x, f.y, (f.g || 0) & 3); }
   return m;
 }
 function mochilaNova(classe){
@@ -690,10 +728,14 @@ function sortearLoja(classe, rodada, r, nivel, caminho){
 
 // ---- a corrida do jogador ----
 let C = null;   // corrida em andamento
-function novaCorrida(classe, sem, nivel, caminho){
+// modo: 'ranqueada' (todos os itens no nível 0, vale ranking) ou 'normal' (cada item no nível da coleção: niveis = {id: nível})
+const VERSAO_NORMAL = 1000;
+const versaoModo = modo => VERSAO_REGRAS + (modo === 'normal' ? VERSAO_NORMAL : 0);
+function novaCorrida(classe, sem, nivel, caminho, modo, niveis){
   const s = sem == null ? (Date.now() & 0xffffff) : sem;
-  nivel = nivel || 1; caminho = nivel >= NIVEL_CAMINHO ? caminho || null : null;
-  C = {classe, nivel, caminho, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
+  nivel = nivel || 1; caminho = nivel >= NIVEL_CAMINHO ? caminho || null : null; modo = modo === 'normal' ? 'normal' : 'ranqueada';
+  C = {classe, nivel, caminho, modo, niveis:modo === 'normal' ? Object.assign({}, niveis) : {}, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
+  for(const p of C.mochila.pecas.concat(C.mochila.bancada)) if(C.niveis[p.id] > 0) p.n = C.niveis[p.id];
   C.loja = sortearLoja(classe, 1, semente(misturar(s, 1)), nivel, caminho);
   return C;
 }
@@ -701,7 +743,7 @@ function comprar(i){
   const id = C.loja[i]; if(!id) return null;
   if(C.ouro < ITEM[id].preco) return null;
   C.ouro -= ITEM[id].preco; C.loja[i] = null;
-  const p = peca(id); C.mochila.bancada.push(p); return p;
+  const p = peca(id, 0, 0, 0, C.niveis && C.niveis[id] || 0); C.mochila.bancada.push(p); return p;
 }
 function vender(p){
   if(ITEM[p.id].inicial) return false;
@@ -783,9 +825,11 @@ function montarRobo(classe, rodada, sem, nivel, caminho){
   return m;
 }
 const NOMES_ROBO = ['Brutus', 'Dona Sálvia', 'Zé Fivela', 'Mestre Pintas', 'Gorda Berta', 'Velho Tobias', 'Lia Cortês', 'Capitão Rolha', 'Frei Borralho', 'Nina Faísca', 'Bento Bigorna', 'Rosa Ferrugem'];
-function adversarioRobo(rodada, sem){
-  const r = semente(sem), classe = sortear(Object.keys(CLASSES), r);
-  return {nome:sortear(NOMES_ROBO, r), classe, mochila:montarRobo(classe, rodada, misturar(sem, 7)), robo:true};
+// nivelItens: no modo normal, o robô usa itens no nível médio da mochila do jogador
+function adversarioRobo(rodada, sem, nivelItens){
+  const r = semente(sem), classe = sortear(Object.keys(CLASSES), r), m = montarRobo(classe, rodada, misturar(sem, 7));
+  if(nivelItens > 0) for(const p of m.pecas) if(!ehBolsa(p)) p.n = Math.min(10, Math.round(nivelItens));
+  return {nome:sortear(NOMES_ROBO, r), classe, mochila:m, robo:true};
 }
 // ---------- Online: o servidor no Supabase (mochilas dos outros jogadores e o ranking) ----------
 // Só a chave pública vai no jogo: a segurança está nas regras do banco (supabase/esquema.sql). Sem internet, tudo segue offline.
@@ -820,23 +864,29 @@ const rpc = async (nome, args, login) => sb('/rest/v1/rpc/' + nome, args, login 
 const tentar = async f => { try{ return await f(); }catch(e){ return null; } };
 const onlineNome = nome => tentar(() => rpc('definir_nome', {novo_nome:nome}, true).then(() => true));
 // corrida: o número da partida no servidor (de onlineIniciar); com ele, a rodada conta para a experiência
-const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:VERSAO_REGRAS, p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
+const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida, modo) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:versaoModo(modo), p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
 // experiência (supabase/03-experiencia.sql): o servidor conta as rodadas e calcula o ganho; o jogo só informa as vitórias
 const onlineIniciar = classe => tentar(() => rpc('iniciar_corrida', {p_classe:classe}, true));
 const onlineFechar = (corrida, vitorias) => tentar(async () => { const L = await rpc('fechar_corrida', {p_corrida:corrida, p_vitorias:vitorias}, true); return L && L[0] || null; });
 const onlineExperiencia = () => tentar(() => rpc('minha_experiencia', {}, true));
 // quantos jogadores diferentes já deixaram mochila nesta rodada e o mínimo para lutar só contra gente (guardado no servidor)
-const onlineAmostra = rodada => tentar(async () => { const L = await rpc('amostra_rodada', {p_rodada:rodada, p_versao:VERSAO_REGRAS}, true); return L && L[0] ? {jogadores:Number(L[0].jogadores), minimo:Number(L[0].minimo)} : null; });
+const onlineAmostra = (rodada, modo) => tentar(async () => { const L = await rpc('amostra_rodada', {p_rodada:rodada, p_versao:versaoModo(modo)}, true); return L && L[0] ? {jogadores:Number(L[0].jogadores), minimo:Number(L[0].minimo)} : null; });
 // jogador ou robô? Com amostra cheia, sempre jogador; abaixo dela, a chance de pegar um jogador é jogadores ÷ mínimo
 const querJogador = (a, sorte) => !!a && a.jogadores > 0 && (a.minimo <= 0 || a.jogadores >= a.minimo || sorte < a.jogadores / a.minimo);
-const onlineAdversario = (rodada, vitorias) => tentar(async () => { const L = await rpc('sortear_adversario', {p_rodada:rodada, p_versao:VERSAO_REGRAS, p_vitorias:vitorias}, true); return L && L[0] || null; });
+// no modo normal, o sorteio também procura nível médio de itens parecido
+const onlineAdversario = (rodada, vitorias, modo, nivelMedio) => tentar(async () => { const L = await rpc('sortear_adversario', {p_rodada:rodada, p_versao:versaoModo(modo), p_vitorias:vitorias, ...(modo === 'normal' ? {p_nivel:Math.round(nivelMedio || 0)} : {})}, true); return L && L[0] || null; });
+// cartas, moedas e loja (supabase/04-cartas.sql)
+const onlineColecao = () => tentar(() => rpc('minha_colecao', {}, true));
+const onlineSubir = item => tentar(() => rpc('subir_item', {p_item:item}, true));
+const onlineCarrinho = tipo => tentar(() => rpc('meu_carrinho', {p_tipo:tipo}, true));
+const onlineComprar = (tipo, vaga) => tentar(() => rpc('comprar_oferta', {p_tipo:tipo, p_vaga:vaga}, true));
 const onlineLuta = (venceu, campanha) => tentar(() => rpc('registrar_luta', {p_venceu:venceu, p_campanha:campanha}, true));
 const onlineRanking = () => tentar(() => rpc('ranking_temporada', {p_limite:100}, false));
 // ---------- Telas: lobby, loja com a mochila, luta, fim de corrida e ranking ----------
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
 let PERFIL = temDOM ? ler('tdg-perfil', null) : null;
 if(!PERFIL) PERFIL = {nome:'', corridas:0, vitoriasCorrida:0, melhor:0, pontos:0, colecao:{}};
-PERFIL.xp = PERFIL.xp || {}; PERFIL.caminho = PERFIL.caminho || {};
+PERFIL.xp = PERFIL.xp || {}; PERFIL.caminho = PERFIL.caminho || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
 const gravarPerfil = () => guardar('tdg-perfil', PERFIL);
 
 // ---- experiência de cada personagem (PROGRESSAO.md): quem manda é o servidor; aqui fica uma cópia para jogar offline ----
@@ -885,7 +935,7 @@ function pecaHtml(p, tam, extra){
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
   return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
-    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span></div>`;
+    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
 function linhaNumeros(id, s){
@@ -908,9 +958,10 @@ function telaLobby(){
         <span class="txt"><b>${c.nome}</b>${barraXp(nv)}<small>${c.desc}</small><span class="ini">${iconeItem(ini.id)} ${ini.nome}</span></span></button>`; }).join('')}</div>
     ${painelPersonagem(classeEscolhida)}
     <div class="acoes">
+      <div class="modos">${['ranqueada', 'normal'].map(k => `<button class="chip${PERFIL.modo === k ? ' on' : ''}" data-modo="${k}"><b>${k === 'ranqueada' ? 'Ranqueada' : 'Normal'}</b><span>${k === 'ranqueada' ? 'Todos os itens no nível 0. Vitórias valem pontos no ranking.' : 'Seus itens lutam no nível das cartas. Não vale ranking.'}</span></button>`).join('')}</div>
       ${s && s.mochila && !s.fim ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias</small></button>` : ''}
       <button class="btn grande${s && !s.fim ? '' : ' primario'}" id="btJogar">Nova corrida<small>${CLASSES[classeEscolhida].nome}${caminhoDe(classeEscolhida) ? ' ' + CLASSES[classeEscolhida].caminhos[caminhoDe(classeEscolhida)].nome : ''} · nível ${nivelClasse(classeEscolhida).nivel} · 7 vitórias para vencer, 3 derrotas e acaba</small></button>
-      <button class="btn" id="btRanking">Ranking da temporada</button>
+      <div class="linha-btns"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
     </div>
     <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'} · ${PERFIL.pontos} pontos no ranking` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha.'}</p>
   </section>`;
@@ -922,12 +973,15 @@ function ligarLobby(){
     comecarCorrida(classeEscolhida); };
   raiz().querySelectorAll('[data-caminho]').forEach(b => b.onclick = () => { PERFIL.caminho[classeEscolhida] = b.dataset.caminho; gravarPerfil(); desenhar(); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
+  raiz().querySelectorAll('[data-modo]').forEach(b => b.onclick = () => { PERFIL.modo = b.dataset.modo; gravarPerfil(); desenhar(); });
+  $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
   const c = $('btContinuar'); if(c) c.onclick = () => { if(continuarCorrida()){ tela = 'loja'; desenhar(); } };
   $('btRanking').onclick = abrirRanking;
 }
 
 function comecarCorrida(classe){
-  novaCorrida(classe, null, nivelClasse(classe).nivel, caminhoDe(classe)); iniciarNoServidor();
+  const niveis = {}; for(const k in PERFIL.cartas) if(PERFIL.cartas[k].nivel > 0) niveis[k] = PERFIL.cartas[k].nivel;
+  novaCorrida(classe, null, nivelClasse(classe).nivel, caminhoDe(classe), PERFIL.modo, niveis); iniciarNoServidor();
   salvarCorrida(); sel = null; tela = 'loja'; desenhar();
 }
 // o personagem escolhido: nível, experiência, caminho (do nível 5 em diante) e o próximo desbloqueio
@@ -1095,14 +1149,15 @@ async function comecarLuta(){
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
   if(C.corrida == null && corridaPendente) await Promise.race([corridaPendente, new Promise(r => setTimeout(r, 3000))]);
-  ultimoEnvio = onlineEnviar(C.rodada, C.classe, foto, C.vitorias, vidas, C.corrida);
+  const modo = C.modo || 'ranqueada', comNivel = C.mochila.pecas.filter(p => !ehBolsa(p)), media = comNivel.length ? comNivel.reduce((a, p) => a + (p.n || 0), 0) / comNivel.length : 0;
+  ultimoEnvio = onlineEnviar(C.rodada, C.classe, foto, C.vitorias, vidas, C.corrida, modo);
   // robôs até haver jogadores suficientes nesta rodada (o mínimo fica no servidor: supabase/02-amostra-robos.sql)
-  const amostra = await onlineAmostra(C.rodada), o = querJogador(amostra, Math.random()) ? await onlineAdversario(C.rodada, C.vitorias) : null;
+  const amostra = await onlineAmostra(C.rodada, modo), o = querJogador(amostra, Math.random()) ? await onlineAdversario(C.rodada, C.vitorias, modo, media) : null;
   if(o && CLASSES[o.classe]) adv = {nome:o.nome, classe:o.classe, mochila:deFoto(o.itens), online:true};
-  if(!adv) adv = adversarioRobo(C.rodada, misturar(C.sem, C.rodada * 31 + C.trocas));
+  if(!adv) adv = adversarioRobo(C.rodada, misturar(C.sem, C.rodada * 31 + C.trocas), modo === 'normal' ? media : 0);
   const sem = misturar(C.sem, C.rodada * 7 + 3), r = lutar(C.mochila, C.classe, PERFIL.nome || 'Você', adv.mochila, adv.classe, adv.nome, sem);
   lutaAtual = {r, adv, venceu:r.vencedor === 0, tempo:0, vel:1, i:0, ultimo:null, pontos:null, fechada:false};
-  if(adv.online) onlineLuta(lutaAtual.venceu, C.vitorias + (lutaAtual.venceu ? 1 : 0)).then(p => { if(lutaAtual && p != null){ lutaAtual.pontos = p; PERFIL.pontos = p; gravarPerfil(); } });
+  if(adv.online && modo === 'ranqueada') onlineLuta(lutaAtual.venceu, C.vitorias + (lutaAtual.venceu ? 1 : 0)).then(p => { if(lutaAtual && p != null){ lutaAtual.pontos = p; PERFIL.pontos = p; gravarPerfil(); } });
   for(const pc of C.mochila.pecas) PERFIL.colecao[pc.id] = 1; gravarPerfil();
   sel = null; tela = 'luta'; desenhar(); tocarLuta();
 }
@@ -1163,7 +1218,7 @@ function mostrarResultado(){
   const L = lutaAtual; if(L.fechada) return; L.fechada = true;
   const el = $('resultado'); el.hidden = false;
   el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu');
-  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (L.venceu ? ': +10 pontos no ranking.' : '.') : ''}</p><button class="btn primario grande" id="btSeguir">Continuar</button>`;
+  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (L.venceu && C.modo !== 'normal' ? ': +10 pontos no ranking.' : '.') : ''}</p><button class="btn primario grande" id="btSeguir">Continuar</button>`;
   $('btSeguir').onclick = () => {
     fecharRodada(L.venceu, L.adv.nome); lutaAtual = null;
     if(C.fim){ PERFIL.corridas++; if(C.vitorias >= VITORIAS_META) PERFIL.vitoriasCorrida++; PERFIL.melhor = Math.max(PERFIL.melhor, C.vitorias); gravarPerfil(); tela = 'fim'; fecharNoServidor(); }
@@ -1182,7 +1237,8 @@ async function fecharNoServidor(){
     if(r){ PERFIL.xp[alvo.classe] = Number(r.xp) || 0; gravarPerfil();
       const depois = nivelClasse(alvo.classe), lib = [];
       for(let n = antes.nivel + 1; n <= depois.nivel; n++) lib.push(...liberadosNo(alvo.classe, n));
-      alvo.xpRes = {ganho:Number(r.ganho), base:Number(r.base), mult:Number(r.multiplicador), limite:Number(r.limite_hoje), antes, depois, lib}; }
+      alvo.xpRes = {ganho:Number(r.ganho), base:Number(r.base), mult:Number(r.multiplicador), limite:Number(r.limite_hoje), antes, depois, lib, bronze:Number(r.bronze) || 0, cartas:r.cartas || {}};
+      sincronizarColecao(); }
     else alvo.xpRes = 'offline';
   }
   if(tela === 'fim' && alvo === C) desenhar();
@@ -1196,7 +1252,8 @@ function blocoXp(){
     ${x.ganho < Math.floor(x.base * x.mult) ? `<p class="pl-nota">Limite de experiência de hoje atingido.</p>` : ''}
     ${subiu ? `<p class="xp-subiu">${x.depois.nivel > x.antes.nivel ? `Nível ${x.depois.nivel}!` : 'Nova estrela de prestígio!'}</p>` : ''}
     ${x.lib.length ? `<p class="pl-prox">Liberado: ${x.lib.map(l => `<span class="mini-item">${iconeItem(l.id)}${ITEM[l.id].nome}</span>`).join('')}</p>` : ''}
-    ${x.depois.nivel >= NIVEL_CAMINHO && x.antes.nivel < NIVEL_CAMINHO ? '<p class="pl-nota">Agora você escolhe um caminho no lobby.</p>' : ''}</div>`;
+    ${x.depois.nivel >= NIVEL_CAMINHO && x.antes.nivel < NIVEL_CAMINHO ? '<p class="pl-nota">Agora você escolhe um caminho no lobby.</p>' : ''}
+    ${x.bronze || Object.keys(x.cartas).length ? `<p class="pl-prox">Ganhou: <span class="mini-item bronze">${ic('moeda')} ${x.bronze} de bronze</span>${Object.entries(x.cartas).map(([id, q]) => ITEM[id] ? `<span class="mini-item">${iconeItem(id)}${q}× ${ITEM[id].nome}</span>` : '').join('')}</p>` : ''}</div>`;
 }
 function telaFim(){
   const venceu = C.vitorias >= VITORIAS_META;
@@ -1212,6 +1269,64 @@ function ligarFim(){
   $('btRanking').onclick = abrirRanking; $('btLobby').onclick = () => { tela = 'lobby'; desenhar(); };
 }
 
+// ---- cartas dos itens: coleção e loja (PROGRESSAO.md, seção 10; servidor em supabase/04-cartas.sql) ----
+// as mesmas contas do servidor (custo_cartas e custo_bronze)
+const CUSTO_CARTAS = [2, 4, 6, 10, 15, 20, 30, 40, 50, 75], CUSTO_BRONZE = [5, 10, 20, 35, 50, 75, 100, 150, 200, 300];
+const DESCONTO_RAR = {rara:.8, epica:.6, lendaria:.4};
+const custoCartas = (id, n) => Math.ceil(CUSTO_CARTAS[n - 1] * (DESCONTO_RAR[ITEM[id].rar] || 1));
+const cartaDe = id => PERFIL.cartas[id] || {nivel:0, cartas:0};
+let colecaoOk = null, carrinhoDados = null, carrinhoTipo = 'dia', ocupado = false;
+async function sincronizarColecao(){
+  const L = await onlineColecao(); if(!Array.isArray(L)) return false;
+  PERFIL.cartas = {}; for(const l of L){ if(l.bronze != null) PERFIL.bronze = Number(l.bronze); if(l.item && ITEM[l.item]) PERFIL.cartas[l.item] = {nivel:Number(l.nivel), cartas:Number(l.cartas)}; }
+  if(!L.some(l => l.bronze != null)) PERFIL.bronze = 0;
+  gravarPerfil(); return true;
+}
+async function abrirColecao(){ colecaoOk = 'carregando'; tela = 'colecao'; desenhar(); colecaoOk = await sincronizarColecao(); if(tela === 'colecao') desenhar(); }
+async function abrirLojaCartas(tipo){ carrinhoTipo = tipo; carrinhoDados = 'carregando'; tela = 'cartas'; desenhar();
+  const [L] = await Promise.all([onlineCarrinho(tipo), sincronizarColecao()]); carrinhoDados = L; if(tela === 'cartas') desenhar(); }
+const saldoHtml = () => `<span class="saldo">${ic('moeda')} <b>${PERFIL.bronze}</b> de bronze</span>`;
+function cartaHtml(id, extra){
+  const c = cartaDe(id), d = ITEM[id], prox = c.nivel < 10 ? custoCartas(id, c.nivel + 1) : 0;
+  const pode = c.nivel < 10 && c.cartas >= prox && PERFIL.bronze >= CUSTO_BRONZE[c.nivel];
+  return `<div class="carta${c.cartas || c.nivel ? '' : ' vazia'}" style="--rar:${raridade(id).cor}"><span class="nv">${c.nivel ? 'Nv ' + c.nivel : 'Nv 0'}</span><span class="pic">${iconeItem(id)}</span><b>${d.nome}</b>
+    ${c.nivel < 10 ? `<span class="cbar"><i style="width:${Math.min(100, c.cartas / prox * 100)}%"></i><em>${c.cartas}/${prox}</em></span>
+      ${extra === false ? '' : `<button class="btn sm${pode ? ' primario' : ''}" data-subir="${id}" ${pode ? '' : 'disabled'}>Subir · ${ic('moeda')} ${CUSTO_BRONZE[c.nivel]}</button>`}` : '<span class="max">Nível máximo</span>'}</div>`;
+}
+function telaColecao(){
+  const grupos = [['Comuns a todos', it => !it.classe && !it.fusao], ...Object.keys(CLASSES).map(c => [CLASSES[c].nome, it => it.classe === c && !it.fusao]), ['Fusões', it => it.fusao]];
+  return `<section class="colecao-tela"><header class="cab-cartas"><h1>Coleção</h1>${saldoHtml()}</header>
+    <p class="sub">Cartas sobem o item do nível 0 ao 10 (+5% por nível). O nível só vale nas partidas <b>normais</b>; na ranqueada todos lutam no nível 0. Ganhe cartas e bronze jogando, ou compre na loja de cartas.</p>
+    ${colecaoOk === 'carregando' ? '<p class="nota">Carregando…</p>' : colecaoOk === false ? '<p class="nota">Sem conexão: mostrando a última coleção guardada. Para subir itens, conecte-se.</p>' : ''}
+    ${grupos.map(([nome, f]) => { const L = ITENS.filter(it => it.tipo !== 'bolsa' && f(it)); return `<h2>${nome}</h2><div class="cartas">${L.map(it => cartaHtml(it.id)).join('')}</div>`; }).join('')}
+    <div class="acoes-fim"><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btVoltar">Voltar</button></div></section>`;
+}
+function ligarColecao(){
+  $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
+  raiz().querySelectorAll('[data-subir]').forEach(b => b.onclick = async () => { if(ocupado) return; ocupado = true; b.disabled = true;
+    const n = await onlineSubir(b.dataset.subir); ocupado = false;
+    if(n == null) avisar('Não deu para subir agora'); else { avisar(`${ITEM[b.dataset.subir].nome}: nível ${n}!`); await sincronizarColecao(); }
+    if(tela === 'colecao') desenhar(); });
+}
+function relogio(ate){ const ms = new Date(ate) - Date.now(); if(!(ms > 0)) return 'agora'; const h = Math.floor(ms / 36e5), d = Math.floor(h / 24); return d ? `${d} d ${h % 24} h` : `${h} h ${Math.floor(ms / 6e4) % 60} min`; }
+function telaCartas(){
+  const L = Array.isArray(carrinhoDados) ? carrinhoDados : null;
+  return `<section class="colecao-tela"><header class="cab-cartas"><h1>Loja de cartas</h1>${saldoHtml()}</header>
+    <div class="abas">${[['dia', 'Diário'], ['semana', 'Semanal']].map(([k, n]) => `<button class="chip${carrinhoTipo === k ? ' on' : ''}" data-carrinho="${k}"><b>${n}</b><span>${k === 'dia' ? '6 ofertas, troca à meia-noite' : '4 pacotes grandes, troca na segunda'}</span></button>`).join('')}</div>
+    ${carrinhoDados === 'carregando' ? '<p class="nota">Carregando…</p>' : !L ? '<p class="nota">Sem conexão com o servidor agora. A loja de cartas precisa de internet.</p>'
+      : `<p class="sub">Troca em ${relogio(L[0] && L[0].troca_em)}. Cada oferta pode ser comprada uma vez.</p><div class="cartas">${L.map(o => ITEM[o.item] ? `<div class="oferta${o.comprado ? ' comprada' : ''}">${cartaHtml(o.item, false)}<span class="qtd">${o.qtd} ${o.qtd === 1 ? 'carta' : 'cartas'}</span>
+        <button class="btn sm${!o.comprado && PERFIL.bronze >= o.preco ? ' primario' : ''}" data-oferta="${o.vaga}" ${o.comprado || PERFIL.bronze < o.preco ? 'disabled' : ''}>${o.comprado ? 'Comprado' : `${ic('moeda')} ${o.preco}`}</button></div>` : '').join('')}</div>`}
+    <div class="acoes-fim"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btVoltar">Voltar</button></div></section>`;
+}
+function ligarCartas(){
+  $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; $('btColecao').onclick = abrirColecao;
+  raiz().querySelectorAll('[data-carrinho]').forEach(b => b.onclick = () => abrirLojaCartas(b.dataset.carrinho));
+  raiz().querySelectorAll('[data-oferta]').forEach(b => b.onclick = async () => { if(ocupado) return; ocupado = true; b.disabled = true;
+    const s = await onlineComprar(carrinhoTipo, +b.dataset.oferta); ocupado = false;
+    if(s == null) avisar('Não deu para comprar agora'); else { avisar('Cartas compradas!'); PERFIL.bronze = Number(s); }
+    abrirLojaCartas(carrinhoTipo); });
+}
+
 // ---- ranking ----
 async function abrirRanking(){ rankingDados = 'carregando'; tela = 'ranking'; desenhar(); rankingDados = await onlineRanking(); if(tela === 'ranking') desenhar(); }
 function telaRanking(){
@@ -1225,7 +1340,7 @@ function telaRanking(){
 function ligarRanking(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; }
 
 // ---- desenhar a tela atual ----
-const TELAS = {trilha:[telaTrilha, ligarTrilha], lobby:[telaLobby, ligarLobby], loja:[telaLoja, ligarLoja], luta:[telaLuta, ligarLuta], fim:[telaFim, ligarFim], ranking:[telaRanking, ligarRanking]};
+const TELAS = {colecao:[telaColecao, ligarColecao], cartas:[telaCartas, ligarCartas], trilha:[telaTrilha, ligarTrilha], lobby:[telaLobby, ligarLobby], loja:[telaLoja, ligarLoja], luta:[telaLuta, ligarLuta], fim:[telaFim, ligarFim], ranking:[telaRanking, ligarRanking]};
 function desenhar(){
   if(!uiAtiva) return;
   const [h, l] = TELAS[tela] || TELAS.lobby;
@@ -1239,7 +1354,7 @@ if(uiAtiva){
   desenhar();
   // um pedido de verdade: entra (se preciso) e confirma que o servidor responde
   onlineAmostra(1).then(() => { if(tela === 'lobby') desenhar(); if(PERFIL.nome && PERFIL.nome.length >= 2) onlineNome(PERFIL.nome);
-    sincronizarExperiencia().then(ok => { if(ok && (tela === 'lobby' || tela === 'trilha')) desenhar(); }); });
+    Promise.all([sincronizarExperiencia(), sincronizarColecao()]).then(([ok]) => { if(ok && (tela === 'lobby' || tela === 'trilha')) desenhar(); }); });
   let largAnt = window.innerWidth;
   window.addEventListener('resize', () => { if(Math.abs(window.innerWidth - largAnt) > 30 && tela === 'loja' && !arr){ largAnt = window.innerWidth; desenhar(); } });
 }

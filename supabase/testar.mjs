@@ -21,6 +21,7 @@ await db.exec(`
 await db.exec(SQL); ok(true, 'esquema.sql rodou');
 const AMOSTRA = fs.readFileSync(new URL('./02-amostra-robos.sql', import.meta.url), 'utf8'); await db.exec(AMOSTRA); await db.exec(AMOSTRA); ok(true, '02-amostra-robos.sql rodou (duas vezes)');
 const XP = fs.readFileSync(new URL('./03-experiencia.sql', import.meta.url), 'utf8'); await db.exec(XP); await db.exec(XP); ok(true, '03-experiencia.sql rodou (duas vezes)');
+const CARTAS = fs.readFileSync(new URL('./04-cartas.sql', import.meta.url), 'utf8'); await db.exec(CARTAS); await db.exec(CARTAS); ok(true, '04-cartas.sql rodou (duas vezes)');
 await db.exec(SQL); ok(true, 'esquema.sql rodou de novo (pode repetir sem estragar)');
 
 const U1 = '11111111-1111-1111-1111-111111111111', U2 = '22222222-2222-2222-2222-222222222222';
@@ -121,5 +122,58 @@ await db.exec('reset role');
   await erro(`select set_config('request.jwt.claim.sub', '', false); set role anon; select iniciar_corrida('mago');`, 'visitante sem login começando partida'); await db.exec('reset role');
   await erro(`select set_config('request.jwt.claim.sub', '${U2}', false); set role authenticated; select iniciar_corrida('Mago; drop');`, 'classe inválida'); await db.exec('reset role');
   ok((await como(U1, `select enviar_mochila(2, 'mago', 1, $1::jsonb, 0, 5) as id`, [itens]))[0].id > 0, 'enviar_mochila antiga (jogo V2) continua funcionando');
+}
+
+// ---- cartas, moedas e loja (04-cartas.sql) ----
+{
+  const col = async uid => { const L = await como(uid, `select * from minha_colecao()`); return {bronze:L[0] ? L[0].bronze : null, itens:Object.fromEntries(L.filter(l => l.item).map(l => [l.item, l]))}; };
+  const c2 = await col(U2);
+  ok(c2.bronze > 0 && Object.keys(c2.itens).length > 0, 'as corridas fechadas deram moedas (' + c2.bronze + ') e cartas (' + Object.values(c2.itens).reduce((a, l) => a + l.cartas, 0) + ')');
+  ok((await col(U1)).bronze === null, 'quem não jogou ainda não tem carteira, mas a coleção abre');
+  // uma corrida com mochila de itens de verdade: as cartas vêm das peças dela
+  const cc = (await como(U1, `select iniciar_corrida('guerreiro') as c`))[0].c;
+  const reais = JSON.stringify([{id:'mochila', x:3, y:2, g:0}, {id:'clava', x:3, y:2, g:0}, {id:'maca', x:4, y:2, g:0}]);
+  await como(U1, `select enviar_mochila(1, 'guerreiro', 2, $1::jsonb, 0, 3, $2)`, [reais, cc]);
+  const fc = (await como(U1, `select * from fechar_corrida($1, 1)`, [cc]))[0];
+  ok(fc.bronze === 15 && Object.keys(fc.cartas).every(k => k === 'clava' || k === 'maca') && Object.values(fc.cartas).reduce((a, b) => a + b, 0) === 4, '1 rodada e 1 vitória: 15 moedas e 4 cartas da clava/maçã (' + JSON.stringify(fc.cartas) + ')');
+  // loja
+  const d1 = await como(U1, `select * from meu_carrinho('dia')`), d2 = await como(U1, `select * from meu_carrinho('dia')`);
+  ok(d1.length === 6 && JSON.stringify(d1.map(o => o.item)) === JSON.stringify(d2.map(o => o.item)), 'carrinho diário: 6 ofertas, iguais até a troca');
+  ok(new Set(d1.map(o => o.item)).size === 6, 'carrinho sem item repetido');
+  const s1 = await como(U1, `select * from meu_carrinho('semana')`);
+  ok(s1.length === 4 && s1[3].qtd === 4 && s1[0].qtd === 40, 'carrinho semanal: 4 pacotes grandes, com lendária (' + s1.map(o => o.qtd).join(',') + ')');
+  ok((await como(U2, `select * from meu_carrinho('dia')`)).length === 6, 'cada jogador tem o seu carrinho');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select comprar_oferta('dia', 1);`, 'comprar sem moedas suficientes'); await db.exec('reset role');
+  await db.exec(`update carteira set bronze = 5000 where jogador_id = '${U1}'`);
+  const antes = (await col(U1)).itens[d1[0].item], saldo = (await como(U1, `select comprar_oferta('dia', 1) as s`))[0].s;
+  const depois = (await col(U1)).itens[d1[0].item];
+  ok(saldo === 5000 - d1[0].preco && depois.cartas === (antes ? antes.cartas : 0) + d1[0].qtd, 'comprou a oferta: cobrou ' + d1[0].preco + ' e deu ' + d1[0].qtd + ' cartas');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select comprar_oferta('dia', 1);`, 'comprar a mesma oferta duas vezes'); await db.exec('reset role');
+  // subir de nível
+  await db.exec(`insert into colecao (jogador_id, item, cartas) values ('${U1}', 'espadaLonga', 3) on conflict (jogador_id, item) do update set cartas = 3`);
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select subir_item('espadaLonga'), subir_item('espadaLonga');`, 'subir sem cartas suficientes (rara: 2 e depois 4)'); await db.exec('reset role');
+  const nv = (await como(U1, `select subir_item('espadaLonga') as n`))[0].n, ce = (await col(U1)).itens.espadaLonga;
+  ok(nv === 1 && ce.nivel === 1 && ce.cartas === 1, 'espada longa no nível 1: gastou 2 cartas (sobrou ' + ce.cartas + ')');
+  await db.exec(`update colecao set cartas = 9999 where jogador_id = '${U1}' and item = 'clava'`);
+  for(let i = 0; i < 10; i++) await como(U1, `select subir_item('clava')`);
+  ok((await col(U1)).itens.clava.nivel === 10, 'clava chegou ao nível 10');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select subir_item('clava');`, 'passar do nível 10'); await db.exec('reset role');
+  // modo normal: o nível da mochila é cortado pela coleção; ranqueada não leva nível
+  await db.exec(`update colecao set nivel = 2 where jogador_id = '${U1}' and item = 'clava'`);
+  const nm = JSON.stringify([{id:'mochila', x:3, y:2, g:0}, {id:'clava', x:3, y:2, g:0, n:9}, {id:'maca', x:4, y:2, g:0, n:3}]);
+  const idn = (await como(U1, `select enviar_mochila(4, 'guerreiro', 1002, $1::jsonb, 0, 3, null) as id`, [nm]))[0].id;
+  const gn = (await db.query(`select itens, nivel_medio from mochilas where id = ${idn}`)).rows[0];
+  ok(gn.itens.find(e => e.id === 'clava').n === 2 && gn.itens.find(e => e.id === 'maca').n === 0 && gn.nivel_medio === 1, 'normal: clava "9" vira 2, maçã "3" vira 0, média 1');
+  const idr = (await como(U1, `select enviar_mochila(4, 'guerreiro', 2, $1::jsonb, 0, 3, null) as id`, [nm]))[0].id;
+  ok((await db.query(`select itens from mochilas where id = ${idr}`)).rows[0].itens.every(e => !('n' in e)), 'ranqueada: a mochila não leva nível');
+  const sn = await como(U2, `select * from sortear_adversario(4, 1002, 0, 1)`);
+  ok(sn.length === 1 && sn[0].itens.some(e => e.n === 2), 'sorteio do modo normal só pega mochila do modo normal');
+  ok((await como(U2, `select * from sortear_adversario(4, 2, 0)`)).every(m => m.itens.every(e => !('n' in e))), 'sorteio da ranqueada não mistura com o normal');
+  // o que não pode
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; update carteira set bronze = 999999;`, 'escrever moedas direto'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; insert into colecao (jogador_id, item, nivel) values ('${U1}', 'martelo', 10);`, 'escrever coleção direto'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select dar_cartas('${U1}', 'martelo', 999);`, 'chamar dar_cartas de fora'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; update carrinho set preco = 0;`, 'mudar preço do carrinho'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select * from meu_carrinho('mes');`, 'carrinho que não existe'); await db.exec('reset role');
 }
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo');
