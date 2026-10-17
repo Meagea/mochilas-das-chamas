@@ -15,7 +15,7 @@ async function sincronizarExperiencia(){
 }
 // o que cada nível libera: itens da classe e receitas daquele nível
 function liberadosNo(c, n){
-  const itens = ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === n && !(n === 1 && it.inicial)).map(it => ({id:it.id}));
+  const itens = ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === n && !(n === 1 && it.inicial)).filter(it => !it.gerado).map(it => ({id:it.id}));
   const receitas = RECEITAS.filter(r => r[3] === n && ITEM[r[2]].classe === c).map(r => ({id:r[2], receita:[r[0], r[1]]}));
   return itens.concat(receitas);
 }
@@ -49,7 +49,7 @@ function pecaHtml(p, tam, extra){
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
   return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
-    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
+    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.lapida > 0 ? `<b class="ofp lp">L${p.lapida}</b>` : p.costura > 0 ? `<b class="ofp cs">C${p.costura}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
 function linhaNumeros(id, s){
@@ -112,7 +112,7 @@ function painelPersonagem(c){
 // ---- trilha do personagem: os 10 níveis e o que cada um libera ----
 function telaTrilha(){
   const c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c);
-  const linhas = NIVEIS_XP.map((xp, i) => { const n = i + 1, aberto = nv.nivel >= n, L = n === 1 ? ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === 1).map(it => ({id:it.id})) : liberadosNo(c, n);
+  const linhas = NIVEIS_XP.map((xp, i) => { const n = i + 1, aberto = nv.nivel >= n, L = n === 1 ? ITENS.filter(it => it.classe === c && !it.fusao && !it.gerado && it.nivel === 1).map(it => ({id:it.id})) : liberadosNo(c, n);
     const cartoes = L.map(x => `<div class="tr-item${aberto ? '' : ' fechado'}" style="--rar:${raridade(x.id).cor}"><span class="pic">${iconeItem(x.id)}</span><span><b>${ITEM[x.id].nome}</b>${x.receita ? `<em>Receita: ${x.receita.map(r => ITEM[r].nome).join(' + ')}</em>` : ''}<small>${ITEM[x.id].texto}</small></span></div>`).join('');
     return `<li class="${aberto ? 'aberto' : ''}${nv.nivel === n ? ' atual' : ''}"><div class="tr-n"><b>${n}</b><small>${xp} XP</small></div><div class="tr-l">${n === 1 ? '<p class="tr-tit">Começa com</p>' : ''}${cartoes}${n === 10 ? `<p class="tr-tit">Prestígio: moldura dourada e uma estrela a cada ${XP_ESTRELA} XP depois do nível 10</p>` : ''}</div></li>`; }).join('');
   return `<section class="trilha-tela" style="--cc:${C0.cor}"><header class="tr-cab">${retrato(c) ? `<img class="rosto" src="${retrato(c)}" alt="">` : ''}<div><h1>${C0.nome}</h1>${selo(nv)} ${barraXp(nv, 'grossa')}<small>${nv.xp} XP no total${PERFIL.mult > 1 ? ` · bônus de experiência ${String(PERFIL.mult).replace('.', ',')}×` : ''}</small></div></header>

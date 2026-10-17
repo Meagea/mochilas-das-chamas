@@ -3,10 +3,10 @@ const VITORIAS_META = 7, VIDAS = 3, TAM_LOJA = 5, OURO_INICIAL = 12;
 // chance de cada raridade na loja, por rodada (comum, incomum, rara, épica, lendária)
 const CHANCES = [[85, 15, 0, 0, 0], [70, 27, 3, 0, 0], [55, 32, 12, 1, 0], [45, 33, 18, 4, 0], [35, 33, 23, 8, 1], [28, 32, 26, 11, 3], [22, 30, 28, 15, 5]];
 const renda = (rodada, perdeuAntes) => 7 + Math.min(rodada, 6) + (perdeuAntes ? 2 : 0);
-const precoVenda = id => ITEM[id].inicial ? 0 : Math.max(1, Math.floor(ITEM[id].preco / 2));
+const precoVenda = id => ITEM[id].inicial || ITEM[id].gerado ? 0 : Math.max(1, Math.floor(ITEM[id].preco / 2));
 const custoTroca = trocas => trocas < 4 ? 1 : 2;
 // nivel do personagem: itens da classe acima dele não aparecem
-const naLoja = (it, classe, nivel) => !it.inicial && !it.fusao && (!it.classe || (it.classe === classe && it.nivel <= (nivel || 1)));
+const naLoja = (it, classe, nivel) => !it.inicial && !it.fusao && !it.gerado && (!it.classe || (it.classe === classe && it.nivel <= (nivel || 1)));
 function sortearLoja(classe, rodada, r, nivel){
   const ch = CHANCES[Math.min(rodada, CHANCES.length) - 1], L = [];
   for(let i = 0; i < TAM_LOJA; i++){
@@ -81,6 +81,29 @@ function oficio(m, rodada){
     const panelas = vizinhos(m, p).filter(q => ITEM[q.id].oficio === 'cozinha'); if(!panelas.length) continue;
     p.cozido = (p.cozido || 0) + 1;
     if(p.cozido >= (livro || panelas.some(q => ITEM[q.id].rapido) ? 1 : 2)){ p.prato = true; msgs.push(`${ITEM[p.id].nome} virou prato`); } }
+  // transmutação (Kit de Alquimia, Atanor): um frasco instável por ofício, numa casa livre (sem casa: na bancada); o Funil dá mais um nas pares
+  const frascos = () => m.pecas.concat(m.bancada || []).filter(q => ITEM[q.id].gerado).length, maxF = tem('atanor') ? 5 : 3;
+  for(const k of naoBolsa.filter(p => ITEM[p.id].oficio === 'alquimia')){
+    const vezes = 1 + (vizinhos(m, k).some(q => q.id === 'funil') && !((rodada || 0) % 2) ? 1 : 0);
+    for(let i = 0; i < vezes && frascos() < maxF; i++){
+      const id = ['frascoFogo', 'frascoGelo', 'frascoAcido'][(m.pecas.length + (rodada || 0) + i) % 3], p = peca(id), l = lugarLivre(m, id);
+      if(l) por(m, p, l.x, l.y, l.g); else if(m.bancada) m.bancada.push(p); else continue;
+      msgs.push(`${ITEM[id].nome} fabricado`); } }
+  // costura (Ferramentas de Couro, Mesa): as bolsas em que a ferramenta encosta, até 3 (5 com a Mesa); o Dedal costura mais uma vez nas pares
+  const maxC = tem('mesaCoureiro') ? 5 : 3;
+  for(const f of naoBolsa.filter(p => ITEM[p.id].oficio === 'costura')){
+    const perto = new Set(); for(const [x, y] of casasDe(f)) for(const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) perto.add(chave(x + dx, y + dy));
+    const vezes = 1 + (vizinhos(m, f).some(q => q.id === 'dedal') && !((rodada || 0) % 2) ? 1 : 0);
+    for(let i = 0; i < vezes; i++){
+      const b = m.pecas.filter(q => ehBolsa(q) && (q.costura || 0) < maxC && casasDe(q).some(c => perto.has(chave(...c)))).sort((x, y) => (x.costura || 0) - (y.costura || 0))[0];
+      if(b){ b.costura = (b.costura || 0) + 1; msgs.push(`${ITEM[b.id].nome}: costura ${b.costura}`); } } }
+  // lapidação (Lupa, Coroa de Joias): a gema encostada menos lapidada, até 3 (5 com a Coroa); as Pinças lapidam mais uma vez nas pares
+  const maxL = tem('coroaJoias') ? 5 : 3;
+  for(const l of naoBolsa.filter(p => ITEM[p.id].oficio === 'lapida')){
+    const vezes = 1 + (vizinhos(m, l).some(q => q.id === 'pincas') && !((rodada || 0) % 2) ? 1 : 0);
+    for(let i = 0; i < vezes; i++){
+      const g = vizinhos(m, l).filter(q => ITEM[q.id].tags.includes('gema') && (q.lapida || 0) < maxL).sort((x, y) => (x.lapida || 0) - (y.lapida || 0))[0];
+      if(g){ g.lapida = (g.lapida || 0) + 1; msgs.push(`${ITEM[g.id].nome}: lapidação ${g.lapida}`); } } }
   return msgs;
 }
 
@@ -95,7 +118,7 @@ function valorItem(id, m, classe){
   if(it.tipo === 'bolsa') v -= 1;
   // cada ofício valoriza o que a sua ferramenta trabalha
   const of = CLASSES[classe] && CLASSES[classe].oficio;
-  if(of && ((classe === 'ferreiro' && it.tags.includes('metal') && ['arma', 'escudo'].includes(it.tipo)) || (classe === 'herbalista' && ERVA(it)) || (classe === 'cozinheiro' && it.tipo === 'comida'))) v += 2;
+  if(of && ((classe === 'ferreiro' && it.tags.includes('metal') && ['arma', 'escudo'].includes(it.tipo)) || (classe === 'herbalista' && ERVA(it)) || (classe === 'cozinheiro' && it.tipo === 'comida') || (classe === 'alquimista' && it.tags.includes('frasco')) || (classe === 'coureiro' && it.tipo === 'bolsa') || (classe === 'joalheiro' && (it.tags.includes('gema') || it.tipo === 'arma')))) v += 2;
   // item que só ajuda os vizinhos vale pouco sem ninguém para ajudar
   if(it.viz && it.viz.modo === 'da' && !fere(it) && !m.pecas.some(p => combina(ITEM[p.id], it.viz.alvo))) v -= 3;
   return v;

@@ -6,7 +6,7 @@ let proxUid = 1;
 // n: nível do item pelas cartas (0 a 10); só existe no modo normal (PROGRESSAO.md, seção 10)
 const peca = (id, x, y, g, n) => { const p = {uid:proxUid++, id, x:x || 0, y:y || 0, g:g || 0}; if(n > 0) p.n = Math.min(10, n | 0); return p; };
 // cada nível do item soma 5% nos números dele (dano, cura, bloqueio, queimadura, veneno...)
-const POR_NIVEL_ITEM = .05, ESCALA_NIVEL = ['dano', 'bloqueio', 'cura', 'queimar', 'envenenar', 'regen', 'vida', 'espinhos', 'danoPorGelo'];
+const POR_NIVEL_ITEM = .05, ESCALA_NIVEL = ['dano', 'bloqueio', 'cura', 'queimar', 'envenenar', 'regen', 'vida', 'espinhos', 'danoPorGelo', 'corroer'];
 function escalarNivel(s, n){
   const f = 1 + POR_NIVEL_ITEM * n, esc = o => { if(!o) return o; const c = Object.assign({}, o); for(const k of ESCALA_NIVEL) if(typeof c[k] === 'number') c[k] = Math.max(c[k], Math.round(c[k] * f)); return c; };
   if(s.dano) s.dano = s.dano.map(v => Math.round(v * f));
@@ -97,12 +97,21 @@ function numeros(m){
     for(const p of carregadas(m, b)) if(combina(ITEM[p.id], D.alvo)){ somarBonus(R[p.uid], D.bonus); R[p.uid].recebeu.push(b.id); } }
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const V = ITEM[p.id].viz; if(!V) continue;
     const viz = vizinhos(m, p).filter(q => combina(ITEM[q.id], V.alvo));
-    if(V.modo === 'da') for(const q of viz){ somarBonus(R[q.uid], V.bonus); R[q.uid].recebeu.push(p.id); }
+    // gema lapidada (Joalheiro): cada lapidação soma mais uma vez o bônus original
+    const bonus = p.lapida > 0 ? escalarBonus(V.bonus, 1 + p.lapida) : V.bonus;
+    if(V.modo === 'da') for(const q of viz){ somarBonus(R[q.uid], bonus); R[q.uid].recebeu.push(p.id); }
     else for(let i = 0; i < viz.length; i++) somarBonus(R[p.uid], V.bonus); }
   for(const k in R){ const s = R[k]; if(s.cd) s.cd = Math.max(s.cd * .4, s.cd * (1 - s.rapidez)); s.crit = Math.min(.75, s.crit); }
   return R;
 }
 
+function escalarBonus(b, f){
+  const c = {}; for(const k in b){ const v = b[k];
+    if(typeof v === 'number') c[k] = k === 'crit' || k === 'cd' ? v * f : Math.max(v, Math.round(v * f));
+    else if(v && typeof v === 'object'){ c[k] = {}; for(const j in v) c[k][j] = typeof v[j] === 'number' ? Math.max(v[j], Math.round(v[j] * f)) : v[j]; }
+    else c[k] = v; }
+  return c;
+}
 // ---- classes de ofício: o que a têmpera, os brotos e o prato fazem nos números da peça ----
 const ERVA = it => it.tags.includes('erva');
 const POR_TEMPERA = 2, BLOQ_TEMPERA = 3;   // cada nível de têmpera: arma +2 de dano, armadura +3 de bloqueio
@@ -113,6 +122,9 @@ function oficioNumeros(m, p, s){
     else if(s.ao && s.ao.bloqueio) s.ao = Object.assign({}, s.ao, {bloqueio:s.ao.bloqueio + BLOQ_TEMPERA * p.tempera});
     else s.inicio = Object.assign({}, s.inicio, {bloqueio:((s.inicio && s.inicio.bloqueio) || 0) + BLOQ_TEMPERA * p.tempera}); }
   if(p.brotos > 0) escalarPor(s, 1 + .25 * p.brotos);
+  // costura (Coureiro): o item dentro de uma bolsa costurada fica 20% mais forte por costura
+  const costura = Math.max(0, ...m.pecas.filter(b => ehBolsa(b) && b.costura > 0 && carregadas(m, b).includes(p)).map(b => b.costura));
+  if(costura > 0) escalarPor(s, 1 + .2 * costura);
   if(p.prato){ escalarPor(s, 1.6); s.inicio = Object.assign({}, s.inicio, {vida:((s.inicio && s.inicio.vida) || 0) + 4}); }
   if(d.porTempera && s.dano){ const t = m.pecas.reduce((a, q) => a + (q.tempera || 0), 0); s.dano = s.dano.map(v => v + t * d.porTempera); }
   if(d.porComida){ const n = m.pecas.filter(q => ITEM[q.id].tipo === 'comida').length; s.inicio = Object.assign({}, s.inicio); for(const k in d.porComida) s.inicio[k] = (s.inicio[k] || 0) + d.porComida[k] * n; }
@@ -146,12 +158,12 @@ function fundir(m, nivel){
 // ---- foto da mochila (o que vai para o servidor e volta como adversário) ----
 // a foto leva também o que o ofício fez na peça (têmpera, brotos, cozimento)
 const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => { const f = {id:p.id, x:p.x, y:p.y, g:p.g};
-  for(const k of ['n', 'tempera', 'brotos', 'cozido']) if(p[k] > 0) f[k] = p[k]; if(p.prato) f.prato = 1; return f; });
+  for(const k of ['n', 'tempera', 'brotos', 'cozido', 'costura', 'lapida']) if(p[k] > 0) f[k] = p[k]; if(p.prato) f.prato = 1; return f; });
 function deFoto(L){
   const m = {pecas:[], bancada:[]};
   for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id, 0, 0, 0, Number(f.n) || 0);
     const lim = (v, mx) => Math.max(0, Math.min(mx, Number(v) || 0) | 0);
-    if(f.tempera) p.tempera = lim(f.tempera, 5); if(f.brotos) p.brotos = lim(f.brotos, 5); if(f.cozido) p.cozido = lim(f.cozido, 3); if(f.prato && ITEM[f.id].tipo === 'comida') p.prato = true;
+    if(f.tempera) p.tempera = lim(f.tempera, 5); if(f.brotos) p.brotos = lim(f.brotos, 5); if(f.cozido) p.cozido = lim(f.cozido, 3); if(f.costura && ITEM[f.id].tipo === 'bolsa') p.costura = lim(f.costura, 5); if(f.lapida) p.lapida = lim(f.lapida, 5); if(f.prato && ITEM[f.id].tipo === 'comida') p.prato = true;
     por(m, p, f.x, f.y, (f.g || 0) & 3); }
   return m;
 }

@@ -223,3 +223,4 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .ofp.pr{ background:#5a4012; color:#ffd27a; border:1px solid #e0a040; } .ofp.cz{ background:#3a3020; color:#e0c090; }
 .classe .sem-retrato{ width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--cc) 50%, #222), #15131a); font-family:var(--fonte-titulo); font-size:64px; font-weight:800; color:rgba(255,255,255,.85); }
 .classes{ grid-template-columns:repeat(3, 1fr); }
+.ofp.lp{ background:#1c2a4a; color:#a8c8ff; border:1px solid #7a9ad8; } .ofp.cs{ background:#3a2814; color:#e0b080; border:1px solid #a0703a; }

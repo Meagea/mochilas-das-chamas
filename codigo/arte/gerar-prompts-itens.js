@@ -54,6 +54,25 @@ const DESC = {
   carvao:'a few glowing red-hot charcoal lumps', roloMassa:'a wooden rolling pin dusted with flour', fogao:'a small cast-iron wood stove with glowing fire inside',
   marteloRunico:'a blacksmith hammer with glowing blue runes on the head', armaduraErica:'a steel plate armor covered with sharp spikes', elixirVerde:'a round flask of bright glowing green elixir with leaves',
   extratoMortal:'a small dark vial of deadly purple-green extract with a skull cork', sanduiche:'a big tasty sandwich with cheese, ham and lettuce', ensopadoVovo:'a big rustic clay bowl of grandma stew with vegetables and steam',
+  // classes de ofício, Onda 2
+  kitAlquimia:'an alchemy kit case with bubbling colorful flasks, a small burner and copper tubes', polvora:'a small leather pouch of black gunpowder with a fuse', acido:'a thick glass flask of glowing yellow-green corrosive acid eating its cork',
+  caldeira:'a small bubbling copper alchemy boiler with three-colored steam', pedraFilosofal:'a glowing crimson philosopher stone with golden light', elixirDragao:'an ornate flask of fiery red dragon elixir with a dragon-shaped stopper',
+  funil:'a copper alchemy funnel', saisVolateis:'a small jar of sparkling volatile smelling salts', catalisador:'a glowing violet catalyst crystal in a brass cage',
+  bombaGelo:'a round glass ice bomb filled with frost and snowflakes', nevoaToxica:'a corked flask releasing a swirl of toxic green mist', canhaoAlquimico:'a small brass hand cannon with alchemical tubes and a smoking barrel',
+  homunculo:'a tiny cute homunculus creature inside a glass jar with glowing eyes', mascaraGas:'a leather plague-doctor gas mask with brass filters', atanor:'a small alchemist furnace athanor with a glowing tower chimney',
+  frascoFogo:'a cracked unstable glass flask with roaring orange fire inside', frascoGelo:'a cracked unstable glass flask with swirling blue ice and frost inside', frascoAcido:'a cracked unstable glass flask with bubbling green acid inside',
+  ferramentasCouro:'a leatherworking tool roll with an awl, needles, thread and a round knife', agulhao:'a long thick leatherworker awl needle used as a weapon', bolsaCintura:'a small leather belt pouch with a buckle',
+  gibao:'a padded brown leather doublet armor', mochilaExpedicao:'a big expedition backpack with bedroll, lantern and many pockets', alforje:'a masterwork double leather saddlebag with gold stitching',
+  dedal:'a brass sewing thimble', chicote:'a coiled leather whip', botas:'a pair of sturdy leather boots with buckles',
+  cinto:'a leather belt with many brass buckles', luvasCouro:'a pair of thick leather work gloves', broquel:'a small round boiled-leather buckler with a metal boss',
+  capaViajante:'a brown hooded traveler cloak with a brooch', mesaCoureiro:'a master leatherworker table with tools, leather sheets and a stitching pony', sovela:'a fine sharp leather awl blade',
+  couracaReforcada:'a reinforced leather cuirass with metal studs and plates', lupa:'a brass jeweler magnifying loupe with fine tweezers',
+  martelinho:'a tiny jeweler hammer with a polished head', quartzo:'a clear faceted quartz crystal', rubi:'a brilliant cut red ruby gem', safira:'a brilliant cut deep blue sapphire gem',
+  esmeralda:'a brilliant cut green emerald gem', diamante:'a large brilliant cut sparkling diamond', pincas:'a pair of fine silver jeweler tweezers holding a tiny gem',
+  ametista:'a purple amethyst crystal cluster', colarOuro:'a golden necklace with small gems', topazio:'a brilliant cut golden topaz gem', onix:'a polished black onyx stone',
+  adagaCravejada:'a dagger with a hilt encrusted with colorful gems', cetro:'a royal scepter topped with a large jewel', coroaJoias:'a jeweled crown encrusted with many colorful gems',
+  espadaJoias:'a short sword with a jeweled hilt and a glowing ruby', pedraPrisma:'a glowing rainbow prism gemstone splitting light into colors',
+  barrilPolvora:'a small wooden powder keg with a lit fuse', acidoReal:'a royal flask of glowing aqua regia acid with a golden crown stopper',
 };
 const temPintura = it => fs.existsSync(path.join(__dirname, '..', 'imagens', 'item-' + it.id + '.webp'));
 const BASE = 'Single fantasy game item painted in the same style as the reference image: stylized painterly rendering with realistic textures (wood grain, leather, polished metal, glass), warm cinematic lighting with a soft colored rim light, a few small magical glints, vibrant but harmonious colors, clean readable silhouette, the object centered and filling most of the frame, isolated on a flat pure magenta (#FF00FF) background, no shadow on the background, no text, no letters, no logo, no watermark.';

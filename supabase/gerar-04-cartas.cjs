@@ -2,7 +2,7 @@
 // Uso (depois de node codigo/build.js): node supabase/gerar-04-cartas.cjs   → depois rodar o 04-cartas.sql no SQL Editor
 const fs = require('fs'), path = require('path');
 const t = require('../codigo/testes/carregar')('ITENS');
-const itens = t.ITENS.filter(i => i.tipo !== 'bolsa').map(i => `('${i.id}', '${i.rar}', ${i.fusao ? 'true' : 'false'})`).join(',\n  ');
+const itens = t.ITENS.filter(i => i.tipo !== 'bolsa').map(i => `('${i.id}', '${i.rar}', ${i.fusao || i.gerado ? 'true' : 'false'})`).join(',\n  ');
 const sql = `-- Tralha de Guerra · cartas dos itens (níveis 0 a 10), Moedas de Bronze e a loja de cartas (carrinho diário e semanal)
 -- PROGRESSAO.md, seção 10. Rodar no SQL Editor depois do 03-experiencia.sql. Pode rodar de novo sem estragar nada.
 -- Arquivo GERADO por supabase/gerar-04-cartas.cjs (a lista de itens vem do jogo): não editar à mão.

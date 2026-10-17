@@ -33,6 +33,15 @@ Mesmo processo da rodada 2: estilo base v2, `retrato-mago.png` anexada como refe
 | `retrato-herbalista.png` | Bust portrait of a cheerful green tree frog herbalist with big glossy golden eyes and a gentle smile, a woven straw hat decorated with little flowers and leaves, a satchel full of herbs and tiny glass vials on a strap, holding a sprig of glowing sage, soft blurred background of a sunny greenhouse in emerald and spring green with floating pollen glints. |
 | `retrato-cozinheiro.png` | Bust portrait of a jolly round panda cook with a big happy grin and twinkling eyes, a tall white chef hat slightly tilted, a red-checkered neckerchief and a clean apron, holding a wooden spoon with a little steam swirl, a small copper pan hanging on the belt, soft blurred background of a cozy tavern kitchen in warm honey and amber tones with floating steam and sparkles. |
 
+## Rodada 4 (2026-10-17): classes de ofício, Onda 2
+Mesmo processo (estilo base v2, `retrato-mago.png` como referência de estilo, 1:1, salvar em `codigo/arte/originais/`).
+
+| Arquivo | Prompt (depois do estilo base v2) |
+|---|---|
+| `retrato-alquimista.png` | Bust portrait of a clever fire salamander alchemist with bright orange and black spotted skin, big curious golden eyes and a mischievous smile, round brass goggles, a stained leather apron full of little glass vials with glowing colored liquids, holding a bubbling flask with green smoke, soft blurred background of an alchemy lab in warm orange and violet tones with floating sparks. |
+| `retrato-coureiro.png` | Bust portrait of a hardworking cheerful beaver leatherworker with big front teeth in a friendly grin and warm brown eyes, a well-crafted leather vest with fine stitching, a measuring tape around the neck, holding a leatherworking awl and a strip of leather, soft blurred background of a cozy workshop in honey and chestnut tones with hanging leather goods. |
+| `retrato-joalheiro.png` | Bust portrait of an elegant magpie jeweler with glossy black and white feathers with iridescent blue-green sheen and sharp clever eyes, a monocle jeweler loupe over one eye, a fine vest with a golden chain, holding a sparkling cut gem up to the light, soft blurred background of a jewelry workshop in deep blue and gold with glittering light reflections. |
+
 ## Elenco proposto
 | Classe | Animal | Ideia |
 |---|---|---|

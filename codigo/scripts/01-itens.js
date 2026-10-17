@@ -29,6 +29,9 @@ const CLASSES = {
   // classes de ofício (ferramentas de artesão): a ferramenta inicial trabalha os itens encostados nela a cada rodada (oficio em 04-corrida.js)
   ferreiro:  {nome:'Ferreiro', vida:55, cor:'#c8783a', inicial:'bigorna', oficio:true, desc:'A Bigorna tempera as armas e armaduras de metal encostadas, rodada após rodada.'},
   herbalista:{nome:'Herbalista', vida:57, cor:'#4fae6a', inicial:'kitHerbal', oficio:true, desc:'As ervas encostadas no Kit criam brotos e ficam mais fortes a cada rodada.'},
+  alquimista:{nome:'Alquimista', vida:57, cor:'#d8603a', inicial:'kitAlquimia', oficio:true, desc:'O Kit de Alquimia fabrica um frasco instável a cada rodada: fogo, gelo ou ácido.'},
+  coureiro:  {nome:'Coureiro', vida:60, cor:'#a0703a', inicial:'ferramentasCouro', oficio:true, desc:'As Ferramentas de Couro costuram as bolsas: itens dentro de bolsa costurada ficam mais fortes.'},
+  joalheiro: {nome:'Joalheiro', vida:58, cor:'#7a9ad8', inicial:'lupa', oficio:true, desc:'A Lupa lapida as gemas encostadas; gemas dão bônus às armas vizinhas, mais a cada lapidação.'},
   cozinheiro:{nome:'Cozinheiro', vida:64, cor:'#e0a040', inicial:'panela', oficio:true, desc:'A comida encostada na Panela vira um prato melhor depois de 2 rodadas.'},
 };
 // experiência total para chegar a cada nível (o índice 0 é o nível 1); depois do 10, cada estrela de prestígio custa mais XP_ESTRELA
@@ -195,6 +198,60 @@ const ITENS = [
   I('roloMassa', 'Rolo de Massa', {classe:'cozinheiro', nivel:7, rar:'rara', tipo:'arma', forma:['#', '#'], arte:'osso', cd:3, custo:2, dano:[4, 6], acerto:{atordoar:.4}, texto:'Cada acerto atordoa o inimigo por 0,4 s.'}),
   I('fogao', 'Fogão de Ferro', {classe:'cozinheiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['metal', 'fogo'], uso:'passivo', oficio:'cozinha', rapido:true, viz:{modo:'da', alvo:{tipo:'comida'}, bonus:{cura:2}}, inicio:{bloqueio:6}, texto:'Cozinha a comida encostada em 1 rodada. Comida vizinha cura +2. Começa com 6 de bloqueio.'}),
 
+  // ---- Alquimista: transmutação (o Kit fabrica frascos instáveis; até 3 na mochila) ----
+  I('kitAlquimia', 'Kit de Alquimia', {classe:'alquimista', forma:['#', '#'], arte:'frasco', inicial:true, preco:0, uso:'passivo', oficio:'alquimia', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{}}, texto:'A cada rodada, fabrica um frasco instável (fogo, gelo ou ácido) numa casa livre. Até 3 frascos na mochila.'}),
+  I('polvora', 'Pólvora Negra', {classe:'alquimista', tipo:'pocao', forma:['#'], arte:'bomba', tags:['frasco', 'fogo'], cd:4, ao:{dano:3, queimar:1}, texto:'A cada 4 s: 3 de dano e queima 1.'}),
+  I('acido', 'Ácido Corrosivo', {classe:'alquimista', rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], cd:4, ao:{envenenar:1, corroer:4}, texto:'A cada 4 s: envenena 1 e corrói 4 de bloqueio do inimigo.'}),
+  I('caldeira', 'Caldeira Borbulhante', {classe:'alquimista', rar:'rara', tipo:'magia', forma:['##', '##'], arte:'xicara', tags:['frasco'], cd:5, ao:{dano:4, queimar:2, gelo:1}, texto:'A cada 5 s: 4 de dano, queima 2 e 1 de gelo.'}),
+  I('pedraFilosofal', 'Pedra Filosofal', {classe:'alquimista', rar:'epica', forma:['#'], arte:'cristal', uso:'passivo', inicio:{vida:6}, viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{aoMais:{dano:3, queimar:1, envenenar:1, gelo:1}}}, texto:'+6 de vida. Frascos vizinhos ficam mais fortes.'}),
+  I('elixirDragao', 'Elixir do Dragão', {classe:'alquimista', rar:'lendaria', tipo:'pocao', forma:['#', '#'], arte:'frasco', tags:['frasco', 'fogo'], uso:'gatilho', quando:'vidaBaixa', ao:{cura:16, forca:2, queimar:4}, texto:'Uma vez: com a vida abaixo da metade, cura 16, ganha 2 de força e queima o inimigo em 4.'}),
+  I('funil', 'Funil de Cobre', {classe:'alquimista', nivel:2, forma:['#'], arte:'xicara', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{cd:.1}}, texto:'Encostado no Kit, fabrica mais um frasco nas rodadas pares. Frascos vizinhos agem 10% mais rápido.'}),
+  I('saisVolateis', 'Sais Voláteis', {classe:'alquimista', nivel:3, rar:'incomum', forma:['#'], arte:'pedra', tags:['frasco'], uso:'passivo', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{cd:.25}}, texto:'Frascos vizinhos agem 25% mais rápido.'}),
+  I('catalisador', 'Catalisador', {classe:'alquimista', nivel:4, rar:'rara', forma:['#'], arte:'brilho', uso:'passivo', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{aoMais:{dano:2, queimar:1, corroer:2}}}, texto:'Frascos vizinhos: +2 de dano, +1 de queimadura e +2 de corrosão.'}),
+  I('bombaGelo', 'Bomba de Gelo', {classe:'alquimista', nivel:5, rar:'incomum', tipo:'pocao', forma:['#'], arte:'gelo', tags:['frasco', 'gelo'], uso:'gatilho', quando:'tempo', t:4, ao:{gelo:5, dano:7}, texto:'Uma vez: depois de 4 s, 7 de dano e 5 de gelo.'}),
+  I('nevoaToxica', 'Névoa Tóxica', {classe:'alquimista', nivel:5, rar:'incomum', tipo:'pocao', forma:['#'], arte:'nevoa', tags:['frasco', 'veneno'], cd:3.5, ao:{envenenar:2}, texto:'Envenena 2 a cada 3,5 s.'}),
+  I('canhaoAlquimico', 'Canhão Alquímico', {classe:'alquimista', nivel:6, rar:'epica', tipo:'arma', forma:['##', '#.'], arte:'bomba', tags:['metal', 'fogo'], cd:2.5, custo:2, dano:[8, 12], acerto:{queimar:2, corroer:2}, texto:'Cada acerto queima 2 e corrói 2 de bloqueio.'}),
+  I('homunculo', 'Homúnculo', {classe:'alquimista', nivel:7, rar:'epica', forma:['#', '#'], arte:'olho', cd:3, ao:{dano:4, cura:3}, texto:'A cada 3 s: 4 de dano e cura 3.'}),
+  I('mascaraGas', 'Máscara de Gás', {classe:'alquimista', nivel:7, rar:'rara', tipo:'escudo', forma:['##'], arte:'nevoa', uso:'passivo', inicio:{bloqueio:9, regen:1}, texto:'Começa com 9 de bloqueio e 1 de regeneração.'}),
+  I('atanor', 'Atanor', {classe:'alquimista', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['fogo'], uso:'passivo', oficio:'alquimia', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{aoMais:{dano:2}}}, texto:'Fabrica frascos como o Kit, e a mochila comporta até 5. Começa com 6 de bloqueio.'}),
+  // os frascos instáveis só nascem do Kit (não aparecem na loja e não valem ouro)
+  I('frascoFogo', 'Frasco Instável de Fogo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'chama', tags:['frasco', 'fogo'], uso:'gatilho', quando:'tempo', t:2.5, ao:{dano:8, queimar:3}, texto:'Explode depois de 2,5 s: 8 de dano e queima 3.'}),
+  I('frascoGelo', 'Frasco Instável de Gelo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gelo', tags:['frasco', 'gelo'], uso:'gatilho', quando:'tempo', t:2, ao:{gelo:5, dano:4}, texto:'Explode depois de 2 s: 4 de dano e 5 de gelo.'}),
+  I('frascoAcido', 'Frasco Instável de Ácido', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], uso:'gatilho', quando:'tempo', t:3, ao:{corroer:10, envenenar:3}, texto:'Explode depois de 3 s: corrói 10 de bloqueio e envenena 3.'}),
+
+  // ---- Coureiro: costura (bolsa costurada: +20% nos itens dentro dela por nível, até 3) ----
+  I('ferramentasCouro', 'Ferramentas de Couro', {classe:'coureiro', forma:['##'], arte:'ferramenta', inicial:true, preco:0, uso:'passivo', oficio:'costura', texto:'A cada rodada, costura as bolsas em que encosta (até 3 vezes cada): os itens dentro delas ficam 20% mais fortes por costura.'}),
+  I('agulhao', 'Agulhão', {classe:'coureiro', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.4, custo:1, dano:[2, 4], acerto:{perfura:1}, texto:'Rápido. Atravessa 1 de bloqueio.'}),
+  I('bolsaCintura', 'Bolsa de Cintura', {classe:'coureiro', rar:'incomum', tipo:'bolsa', forma:['##'], arte:'etiqueta', preco:2, dentro:{alvo:{}, bonus:{cd:.1}}, texto:'Abre 2 casas. O que estiver dentro age 10% mais rápido.'}),
+  I('gibao', 'Gibão de Couro', {classe:'coureiro', rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', uso:'passivo', inicio:{bloqueio:8, vida:8}, texto:'Começa com 8 de bloqueio e +8 de vida.'}),
+  I('mochilaExpedicao', 'Mochila de Expedição', {classe:'coureiro', rar:'epica', tipo:'bolsa', forma:['###', '###', '###'], arte:'etiqueta', preco:9, dentro:{alvo:{}, bonus:{cd:.05}}, texto:'Abre 9 casas. O que estiver dentro age 5% mais rápido.'}),
+  I('alforje', 'Alforje do Mestre', {classe:'coureiro', rar:'lendaria', tipo:'bolsa', forma:['##', '##', '##'], arte:'etiqueta', preco:12, dentro:{alvo:{}, bonus:{dano:1, cura:1, bloqueio:1}}, texto:'Abre 6 casas. Dentro dele: +1 de dano, de cura e de bloqueio.'}),
+  I('dedal', 'Dedal', {classe:'coureiro', nivel:2, forma:['#'], arte:'medalha', tags:['metal'], uso:'passivo', inicio:{bloqueio:2}, texto:'Encostado nas Ferramentas, costura mais uma vez nas rodadas pares. Começa com 2 de bloqueio.'}),
+  I('chicote', 'Chicote', {classe:'coureiro', nivel:3, rar:'incomum', tipo:'arma', forma:['#', '#', '#'], arte:'vento', cd:1.8, custo:1, dano:[3, 5], acerto:{atordoar:.2}, texto:'Cada acerto atordoa o inimigo por 0,2 s.'}),
+  I('botas', 'Botas de Couro', {classe:'coureiro', nivel:4, rar:'rara', tipo:'escudo', forma:['##'], arte:'escudo', uso:'passivo', inicio:{esquiva:2, vida:10}, texto:'+10 de vida e começa com 2 de esquiva.'}),
+  I('cinto', 'Cinto de Fivelas', {classe:'coureiro', nivel:5, rar:'incomum', forma:['##'], arte:'medalha', uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{cd:.15}}, texto:'Armas vizinhas atacam 15% mais rápido.'}),
+  I('luvasCouro', 'Luvas de Couro Grosso', {classe:'coureiro', nivel:5, rar:'incomum', tipo:'escudo', forma:['#'], arte:'mao', uso:'passivo', inicio:{bloqueio:7}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{bloqueio:1}}}, texto:'Começa com 7 de bloqueio. Armas vizinhas dão 1 de bloqueio por acerto.'}),
+  I('broquel', 'Broquel de Couro Fervido', {classe:'coureiro', nivel:6, rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'escudo', cd:3, ao:{bloqueio:10}, texto:'Ganha 10 de bloqueio a cada 3 s.'}),
+  I('capaViajante', 'Capa de Viajante', {classe:'coureiro', nivel:7, rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'vento', cd:4, ao:{esquiva:1, regen:1}, texto:'A cada 4 s: 1 de esquiva e 1 de regeneração.'}),
+  I('mesaCoureiro', 'Mesa do Mestre Coureiro', {classe:'coureiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', uso:'passivo', oficio:'costura', inicio:{vida:10}, texto:'Costura como as Ferramentas, e a costura de toda a mochila vai até 5. +10 de vida.'}),
+
+  // ---- Joalheiro: lapidação (cada nível soma de novo o bônus original da gema, até 3) ----
+  I('lupa', 'Lupa e Pinças', {classe:'joalheiro', forma:['#'], arte:'olho', inicial:true, preco:0, uso:'passivo', oficio:'lapida', viz:{modo:'da', alvo:{tag:'gema'}, bonus:{}}, texto:'A cada rodada, lapida a gema encostada menos lapidada (até 3 vezes cada): cada lapidação dobra o bônus original dela.'}),
+  I('martelinho', 'Martelinho de Joalheiro', {classe:'joalheiro', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], cd:1.6, custo:1, dano:[2, 4], viz:{modo:'recebe', alvo:{tag:'gema'}, bonus:{dano:1}}, texto:'+1 de dano para cada gema vizinha.'}),
+  I('quartzo', 'Quartzo', {classe:'joalheiro', forma:['#'], arte:'cristal', tags:['gema'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:2}}, texto:'Armas vizinhas: +2 de dano.'}),
+  I('rubi', 'Rubi', {classe:'joalheiro', rar:'incomum', forma:['#'], arte:'coracao', tags:['gema', 'fogo'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{queimar:1}}}, texto:'Armas vizinhas queimam 1 ao acertar.'}),
+  I('safira', 'Safira', {classe:'joalheiro', rar:'rara', forma:['#'], arte:'gelo', tags:['gema', 'gelo'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{gelo:1}, dano:1}}, texto:'Armas vizinhas: +1 de dano e 1 de gelo ao acertar.'}),
+  I('esmeralda', 'Esmeralda', {classe:'joalheiro', rar:'epica', forma:['#'], arte:'cristal', tags:['gema', 'veneno'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{envenenar:1}, crit:.1}}, texto:'Armas vizinhas envenenam 1 ao acertar e ganham 10% de crítico.'}),
+  I('diamante', 'Diamante', {classe:'joalheiro', rar:'lendaria', forma:['#'], arte:'brilho', tags:['gema'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:2, crit:.15}}, texto:'Armas vizinhas: +2 de dano e 15% de crítico.'}),
+  I('pincas', 'Pinças Finas', {classe:'joalheiro', nivel:2, forma:['#'], arte:'ferramenta', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.05}}, texto:'Encostadas na Lupa, lapidam mais uma vez nas rodadas pares. Armas vizinhas +5% de crítico.'}),
+  I('ametista', 'Ametista', {classe:'joalheiro', nivel:3, rar:'incomum', forma:['#'], arte:'cristal', tags:['gema'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{cd:.15}}, texto:'Armas vizinhas atacam 15% mais rápido.'}),
+  I('colarOuro', 'Colar de Ouro', {classe:'joalheiro', nivel:4, rar:'rara', forma:['##'], arte:'medalha', uso:'passivo', inicio:{vida:12, bloqueio:6}, texto:'+12 de vida e começa com 6 de bloqueio.'}),
+  I('topazio', 'Topázio', {classe:'joalheiro', nivel:5, rar:'incomum', forma:['#'], arte:'sol', tags:['gema'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{bloqueio:2}}}, texto:'Armas vizinhas dão 2 de bloqueio a cada acerto.'}),
+  I('onix', 'Ônix', {classe:'joalheiro', nivel:5, rar:'incomum', forma:['#'], arte:'lua', tags:['gema'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{perfura:3}, dano:1}}, texto:'Armas vizinhas: +1 de dano e atravessam 3 de bloqueio.'}),
+  I('adagaCravejada', 'Adaga Cravejada', {classe:'joalheiro', nivel:6, rar:'epica', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.5, custo:1, dano:[4, 6], crit:.15, viz:{modo:'recebe', alvo:{tag:'gema'}, bonus:{dano:1}}, texto:'Rápida. 15% de crítico. +1 de dano para cada gema vizinha.'}),
+  I('cetro', 'Cetro de Joias', {classe:'joalheiro', nivel:7, rar:'epica', tipo:'arma', forma:['#', '#', '#'], arte:'raio', cd:2.2, custo:2, dano:[7, 11], viz:{modo:'recebe', alvo:{tag:'gema'}, bonus:{dano:1}}, texto:'+1 de dano para cada gema vizinha.'}),
+  I('coroaJoias', 'Coroa de Joias', {classe:'joalheiro', nivel:9, rar:'lendaria', forma:['##'], arte:'coroa', uso:'passivo', oficio:'lapida', inicio:{vida:8}, viz:{modo:'da', alvo:{tag:'gema'}, bonus:{}}, texto:'Lapida como a Lupa, e a lapidação de toda a mochila vai até 5. +8 de vida.'}),
+
   // ---- fusões (não aparecem na loja: nascem de duas peças encostadas) ----
   I('laminaFogo', 'Lâmina Flamejante', {rar:'epica', tipo:'arma', forma:['#', '#'], arte:'chama', tags:['metal', 'fogo'], fusao:true, cd:1.6, custo:1, dano:[4, 6], acerto:{queimar:1}, texto:'Cada acerto queima 1.'}),
   I('escudoReforcado', 'Escudo Reforçado', {rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], fusao:true, cd:3, ao:{bloqueio:9}, texto:'Ganha 9 de bloqueio a cada 3 s.'}),
@@ -213,6 +270,12 @@ const ITENS = [
   I('extratoMortal', 'Extrato Mortal', {classe:'herbalista', rar:'epica', tipo:'pocao', forma:['#'], arte:'gota', tags:['erva', 'veneno'], fusao:true, cd:3, ao:{envenenar:3, multVeneno:.15}, texto:'A cada 3 s, envenena 3 e o veneno do inimigo cresce 15%.'}),
   I('sanduiche', 'Sanduíche', {classe:'cozinheiro', rar:'rara', tipo:'comida', forma:['##'], arte:'comida', fusao:true, cd:4, ao:{cura:5, vigor:1}, texto:'A cada 4 s: cura 5 e 1 de vigor.'}),
   I('ensopadoVovo', 'Ensopado da Vovó', {classe:'cozinheiro', rar:'epica', tipo:'comida', forma:['##', '##'], arte:'xicara', fusao:true, cd:3, ao:{cura:6, regen:1}, texto:'A cada 3 s: cura 6 e soma 1 de regeneração.'}),
+  I('barrilPolvora', 'Barril de Pólvora', {classe:'alquimista', rar:'epica', tipo:'pocao', forma:['#'], arte:'bomba', tags:['frasco', 'fogo'], fusao:true, uso:'gatilho', quando:'tempo', t:5, ao:{dano:20, queimar:3}, texto:'Uma vez: depois de 5 s, 20 de dano e queima 3.'}),
+  I('acidoReal', 'Ácido Real', {classe:'alquimista', rar:'epica', tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], fusao:true, cd:3.5, ao:{envenenar:2, corroer:5}, texto:'A cada 3,5 s: envenena 2 e corrói 5 de bloqueio.'}),
+  I('sovela', 'Sovela', {classe:'coureiro', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], fusao:true, cd:1.3, custo:1, dano:[4, 6], acerto:{perfura:3}, texto:'Muito rápida. Atravessa 3 de bloqueio.'}),
+  I('couracaReforcada', 'Couraça Reforçada', {classe:'coureiro', rar:'lendaria', tipo:'escudo', forma:['##', '##'], arte:'escudo', fusao:true, uso:'passivo', inicio:{bloqueio:16, vida:10, espinhos:1}, texto:'Começa com 16 de bloqueio, +10 de vida e 1 de espinhos.'}),
+  I('espadaJoias', 'Espada de Joias', {classe:'joalheiro', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], fusao:true, cd:1.6, custo:1, dano:[4, 7], crit:.15, acerto:{queimar:1}, texto:'15% de crítico. Cada acerto queima 1.'}),
+  I('pedraPrisma', 'Pedra Prisma', {classe:'joalheiro', rar:'lendaria', forma:['#'], arte:'brilho', tags:['gema', 'fogo', 'gelo'], fusao:true, uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:1, acerto:{queimar:1, gelo:1}}}, texto:'Armas vizinhas: +1 de dano, queimam 1 e dão 1 de gelo ao acertar.'}),
   I('macaCravejada', 'Maça Cravejada', {rar:'rara', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], fusao:true, cd:2, custo:2, dano:[5, 8], acerto:{perfura:2}, texto:'Atravessa 2 de bloqueio.'}),
 ];
 const ITEM = {}; for(const it of ITENS){ if(it.classe && !it.nivel) it.nivel = 1; it.preco = it.preco != null ? it.preco : RARIDADES[it.rar].preco; it.uso = it.uso || (it.tipo === 'bolsa' ? 'bolsa' : it.tipo === 'arma' ? 'arma' : 'ativo'); ITEM[it.id] = it; }
@@ -227,5 +290,8 @@ const RECEITAS = [
   ['marteloForja', 'lingote', 'marteloRunico', 6], ['armaduraPlacas', 'rebites', 'armaduraErica', 8],
   ['salvia', 'pocaoCura', 'elixirVerde', 6], ['raizAmarga', 'frascoVeneno', 'extratoMortal', 8],
   ['queijo', 'pao', 'sanduiche', 6], ['ensopado', 'temperos', 'ensopadoVovo', 8],
+  ['polvora', 'bomba', 'barrilPolvora', 6], ['acido', 'frascoVeneno', 'acidoReal', 8],
+  ['agulhao', 'amolar', 'sovela', 6], ['gibao', 'escudoMadeira', 'couracaReforcada', 8],
+  ['quartzo', 'espadaCurta', 'espadaJoias', 6], ['rubi', 'safira', 'pedraPrisma', 8],
 ];
-const VERSAO_REGRAS = 4;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
+const VERSAO_REGRAS = 5;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas

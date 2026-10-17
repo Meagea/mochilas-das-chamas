@@ -52,6 +52,7 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
     if(ao.queimar){ ini.queima += ao.queimar; marca(ladoIni, 'queima', {valor:ao.queimar, item}); }
     if(ao.envenenar){ ini.veneno += ao.envenenar; marca(ladoIni, 'veneno', {valor:ao.envenenar, item}); }
     if(ao.gelo){ ini.gelo += ao.gelo; marca(ladoIni, 'gelo', {valor:ao.gelo, item}); }
+    if(ao.corroer && ini.bloq > 0){ const v = Math.min(ini.bloq, ao.corroer); ini.bloq -= v; marca(ladoIni, 'corroeu', {valor:v, item}); }
     if(ao.atordoar){ ini.atord = Math.max(ini.atord, ao.atordoar); marca(ladoIni, 'atordoado', {valor:ao.atordoar, item}); }
     if(ao.multVeneno && ini.veneno > 0){ const mais = Math.floor(ini.veneno * ao.multVeneno); if(mais){ ini.veneno += mais; marca(ladoIni, 'veneno', {valor:mais, item}); } }
     if(ao.dano) ferir(ini, ladoIni, ao.dano + (ao.danoPorGelo ? ao.danoPorGelo * ini.gelo : 0), {item, tipo:'magia'});
