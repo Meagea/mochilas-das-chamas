@@ -1,0 +1,18 @@
+/* ---------- tela de carregamento (06b-carregando.js) ---------- */
+#carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
+#carregando.saindo{ opacity:0; pointer-events:none; }
+.cg-fundo{ position:absolute; inset:-6%; background:center / cover no-repeat; opacity:.55; filter:saturate(.95); animation:cg-zoom 24s ease-in-out infinite alternate; }
+@keyframes cg-zoom{ from{ transform:scale(1) translate(0, 0); } to{ transform:scale(1.12) translate(-2%, -1%); } }
+#carregando::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(18,17,23,.25), rgba(18,17,23,.15) 40%, rgba(18,17,23,.92) 85%); pointer-events:none; }
+.cg-luta{ position:absolute; left:0; right:0; top:8%; display:flex; justify-content:center; gap:4vw; opacity:.8; pointer-events:none; z-index:1; }
+.cg-lado{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.cg-lado .rosto{ width:64px; height:64px; border-radius:14px; object-fit:cover; object-position:50% 20%; border:2px solid rgba(255,255,255,.25); }
+.cg-vida{ width:120px; height:8px; border-radius:5px; background:#2a1416; overflow:hidden; } .cg-vida i{ display:block; height:100%; width:100%; background:linear-gradient(90deg, #e5533f, #ff8a5a); transition:width .2s; }
+.cg-lado .mini{ position:relative; } .cg-lado .posto{ position:absolute; }
+.cg-caixa{ position:relative; z-index:2; width:min(92vw, 460px); margin-bottom:9vh; text-align:center; display:flex; flex-direction:column; gap:10px; }
+.cg-caixa small{ font-family:var(--fonte-titulo); letter-spacing:.3em; text-transform:uppercase; color:var(--ambar); font-size:13px; }
+.cg-caixa h1{ font-size:clamp(40px, 10vw, 64px); line-height:.95; text-shadow:0 4px 24px rgba(0,0,0,.6); }
+.cg-barra{ height:12px; border-radius:7px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); overflow:hidden; margin-top:8px; }
+.cg-barra i{ display:block; height:100%; width:3%; border-radius:7px; background:linear-gradient(90deg, #d98f2a, var(--ambar), #ffd27a); box-shadow:0 0 16px rgba(242,179,80,.5); transition:width .25s ease; }
+.cg-txt{ margin:0; font-weight:700; font-size:14px; } .cg-dica{ margin:0; color:var(--suave); font-size:13px; min-height:2.6em; }
+@media (max-width:560px){ .cg-luta{ top:6%; gap:10px; } .cg-lado .rosto{ width:48px; height:48px; } .cg-vida{ width:90px; } }

@@ -266,10 +266,30 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .ofp.pr{ background:#5a4012; color:#ffd27a; border:1px solid #e0a040; } .ofp.cz{ background:#3a3020; color:#e0c090; }
 .classe .sem-retrato{ width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--cc) 50%, #222), #15131a); font-family:var(--fonte-titulo); font-size:64px; font-weight:800; color:rgba(255,255,255,.85); }
 .classes{ grid-template-columns:repeat(3, 1fr); }
+/* ---------- tela de carregamento (06b-carregando.js) ---------- */
+#carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
+#carregando.saindo{ opacity:0; pointer-events:none; }
+.cg-fundo{ position:absolute; inset:-6%; background:center / cover no-repeat; opacity:.55; filter:saturate(.95); animation:cg-zoom 24s ease-in-out infinite alternate; }
+@keyframes cg-zoom{ from{ transform:scale(1) translate(0, 0); } to{ transform:scale(1.12) translate(-2%, -1%); } }
+#carregando::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(18,17,23,.25), rgba(18,17,23,.15) 40%, rgba(18,17,23,.92) 85%); pointer-events:none; }
+.cg-luta{ position:absolute; left:0; right:0; top:8%; display:flex; justify-content:center; gap:4vw; opacity:.8; pointer-events:none; z-index:1; }
+.cg-lado{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.cg-lado .rosto{ width:64px; height:64px; border-radius:14px; object-fit:cover; object-position:50% 20%; border:2px solid rgba(255,255,255,.25); }
+.cg-vida{ width:120px; height:8px; border-radius:5px; background:#2a1416; overflow:hidden; } .cg-vida i{ display:block; height:100%; width:100%; background:linear-gradient(90deg, #e5533f, #ff8a5a); transition:width .2s; }
+.cg-lado .mini{ position:relative; } .cg-lado .posto{ position:absolute; }
+.cg-caixa{ position:relative; z-index:2; width:min(92vw, 460px); margin-bottom:9vh; text-align:center; display:flex; flex-direction:column; gap:10px; }
+.cg-caixa small{ font-family:var(--fonte-titulo); letter-spacing:.3em; text-transform:uppercase; color:var(--ambar); font-size:13px; }
+.cg-caixa h1{ font-size:clamp(40px, 10vw, 64px); line-height:.95; text-shadow:0 4px 24px rgba(0,0,0,.6); }
+.cg-barra{ height:12px; border-radius:7px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); overflow:hidden; margin-top:8px; }
+.cg-barra i{ display:block; height:100%; width:3%; border-radius:7px; background:linear-gradient(90deg, #d98f2a, var(--ambar), #ffd27a); box-shadow:0 0 16px rgba(242,179,80,.5); transition:width .25s ease; }
+.cg-txt{ margin:0; font-weight:700; font-size:14px; } .cg-dica{ margin:0; color:var(--suave); font-size:13px; min-height:2.6em; }
+@media (max-width:560px){ .cg-luta{ top:6%; gap:10px; } .cg-lado .rosto{ width:48px; height:48px; } .cg-vida{ width:90px; } }
 </style>
 </head>
 <body>
 
+<div id="carregando"><div class="cg-fundo"></div><div class="cg-luta" aria-hidden="true"></div>
+  <div class="cg-caixa"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1><div class="cg-barra"><i></i></div><p class="cg-txt">Abrindo a mochila…</p><p class="cg-dica"></p></div></div>
 <div id="jogo" aria-live="polite"></div>
 <div id="arrasto" aria-hidden="true"></div>
 <div id="aviso" hidden></div>
@@ -1509,11 +1529,76 @@ function desenhar(){
   const fundo = urlArte(tela === 'luta' ? 'fundo-luta' : 'fundo-lobby'); document.body.classList.toggle('com-fundo', !!fundo); if(fundo) document.body.style.setProperty('--fundo-img', `url("${fundo}")`);
   raiz().innerHTML = h(); l();
 }
-// ---------- Início: desenha o lobby e testa a conexão com o servidor ----------
-if(uiAtiva){
+// ---------- Tela de carregamento: prepara as imagens e a conexão, com uma luta de robôs passando ao fundo ----------
+// O esqueleto da tela já vem no HTML (pagina/corpo.html), para aparecer antes de o jogo terminar de abrir.
+const DICAS = [
+  'Itens encostados se ajudam: a Pedra de Amolar dá dano às armas vizinhas.',
+  'Toque e segure um item para arrastar. No computador, R gira a peça.',
+  'Duas peças da mesma receita encostadas viram uma fusão no começo da luta.',
+  'Perdeu a rodada? A próxima loja vem com 2 de ouro a mais.',
+  'Na Ranqueada todos lutam com os itens no nível 0. Na Normal valem as suas cartas.',
+  'A Bigorna do Ferreiro tempera o metal encostado nela a cada rodada.',
+  'As ervas do Herbalista crescem quando ficam encostadas no Kit.',
+  'Comida encostada na Panela do Cozinheiro vira prato depois de 2 rodadas.',
+  'Depois dos 30 segundos de luta vem o cansaço: os dois perdem vida cada vez mais.',
+  'Cada personagem sobe de nível sozinho e libera itens novos na loja dele.',
+];
+// a luta do fundo: dois robôs de classes sorteadas, repetindo sem parar enquanto a tela estiver aberta
+function lutaDeFundo(el){
+  let viva = true, r = null, i = 0, t0 = 0, lados = null;
+  const nova = () => {
+    const ks = Object.keys(CLASSES), sem = (Date.now() & 0xffff) + Math.floor(Math.random() * 1e6), rs = semente(sem);
+    const a = sortear(ks, rs), b = sortear(ks, rs), rodada = 4 + Math.floor(rs() * 5);
+    const ma = montarRobo(a, rodada, sem + 1), mb = montarRobo(b, rodada, sem + 2);
+    r = lutar(ma, a, CLASSES[a].nome, mb, b, CLASSES[b].nome, sem + 3); i = 0; t0 = performance.now();
+    lados = [ma, mb];
+    const tam = Math.max(14, Math.min(30, Math.floor((window.innerWidth / 2 - 40) / LARG)));
+    el.innerHTML = [0, 1].map(k => { const c = r.lados[k].classe, m = lados[k];
+      const pecas = m.pecas.slice().sort((x, y) => ehBolsa(y) - ehBolsa(x)).map(p => `<div class="posto" style="left:${p.x * tam}px;top:${p.y * tam}px">${pecaHtml(p, tam, '')}</div>`).join('');
+      return `<div class="cg-lado cg-l${k}">${retrato(c) ? `<img class="rosto" src="${retrato(c)}" alt="">` : ''}<div class="cg-vida"><i></i></div>
+        <div class="mini" style="width:${LARG * tam}px;height:${ALT * tam}px">${pecas}</div></div>`; }).join('');
+  };
+  const passo = agora => {
+    if(!viva) return;
+    if(!r) nova();
+    const tempo = (agora - t0) / 1000 * 1.5;   // um pouco acelerada
+    while(i < r.eventos.length && r.eventos[i].t <= tempo){ const e = r.eventos[i++];
+      if(e.tipo === 'ataque' || e.tipo === 'magia' || e.tipo === 'ativa'){ const p = el.querySelectorAll(`.cg-l${e.lado} .mini .peca:not(.bolsa)`)[e.item]; if(p){ p.classList.remove('age'); void p.offsetWidth; p.classList.add('age'); } }
+      [0, 1].forEach(k => { const b = el.querySelector(`.cg-l${k} .cg-vida i`); if(b) b.style.width = Math.max(0, e.foto[k].vida / e.foto[k].max * 100) + '%'; }); }
+    if(i >= r.eventos.length && tempo > r.duracao + 1.2) r = null;
+    requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+  return () => { viva = false; };
+}
+// prepara todas as imagens (decodifica uma vez, para nada piscar depois) e testa o servidor; a barra mostra o andamento real
+async function carregarJogo(){
+  const tela = $('carregando'); if(!tela) return;
+  const barra = tela.querySelector('.cg-barra i'), txt = tela.querySelector('.cg-txt'), inicio = performance.now();
+  const fundo = urlArte('fundo-luta'); if(fundo) tela.querySelector('.cg-fundo').style.backgroundImage = `url("${fundo}")`;
+  tela.querySelector('.cg-dica').textContent = DICAS[Math.floor(Math.random() * DICAS.length)];
+  const progresso = (f, msg) => { barra.style.width = Math.round(f * 100) + '%'; if(msg) txt.textContent = msg; };
+  let parar = () => {};
+  try{ parar = lutaDeFundo(tela.querySelector('.cg-luta')); }catch(e){ /* sem luta ao fundo: só a imagem */ }
+  const nomes = Object.keys(ARTE);
+  for(let k = 0; k < nomes.length; k += 8){
+    await Promise.all(nomes.slice(k, k + 8).map(n => new Promise(ok => { const im = new Image(); im.onload = im.onerror = ok; im.src = urlArte(n); if(im.decode) im.decode().then(ok, ok); })));
+    const feitas = Math.min(nomes.length, k + 8);
+    progresso(.8 * feitas / nomes.length, `Preparando imagens ${feitas}/${nomes.length}`);
+  }
+  progresso(.85, 'Conectando ao servidor');
+  await Promise.race([onlineAmostra(1), new Promise(ok => setTimeout(ok, 4000))]);
+  progresso(1, conexao.ok ? 'Pronto!' : 'Pronto! (sem conexão: jogando offline)');
+  // fica pelo menos 2 s, para dar tempo de ver a tela
+  await new Promise(ok => setTimeout(ok, Math.max(400, 2000 - (performance.now() - inicio))));
   desenhar();
-  // um pedido de verdade: entra (se preciso) e confirma que o servidor responde
-  onlineAmostra(1).then(() => { if(tela === 'lobby') desenhar(); if(PERFIL.nome && PERFIL.nome.length >= 2) onlineNome(PERFIL.nome);
+  tela.classList.add('saindo');
+  setTimeout(() => { parar(); tela.remove(); }, 600);
+}
+// ---------- Início: tela de carregamento, depois o lobby, e sincroniza com o servidor ----------
+if(uiAtiva){
+  // a tela de carregamento prepara as imagens e já confirma que o servidor responde (06b-carregando.js)
+  carregarJogo().catch(() => { const c = $('carregando'); if(c) c.remove(); desenhar(); }).then(() => { if(PERFIL.nome && PERFIL.nome.length >= 2) onlineNome(PERFIL.nome);
     Promise.all([sincronizarExperiencia(), sincronizarColecao()]).then(([ok]) => { if(ok && (tela === 'lobby' || tela === 'trilha')) desenhar(); }); });
   let largAnt = window.innerWidth;
   window.addEventListener('resize', () => { if(Math.abs(window.innerWidth - largAnt) > 30 && tela === 'loja' && !arr){ largAnt = window.innerWidth; desenhar(); } });
