@@ -24,6 +24,15 @@ A coruja, os dois fundos e o ícone ficam como estão.
 
 **Decisão (2026-10-15):** o jogo usa só os retratos. As imagens de corpo inteiro com fundo magenta foram descartadas; não gerar mais.
 
+## Rodada 3 (2026-10-16): classes de ofício, Onda 1
+Mesmo processo da rodada 2: estilo base v2, `retrato-mago.png` anexada como referência de estilo, quadrado 1:1 (1024 × 1024). Só os retratos. Salvar em `codigo/arte/originais/`.
+
+| Arquivo | Prompt (depois do estilo base v2) |
+|---|---|
+| `retrato-ferreiro.png` | Bust portrait of a big friendly brown bear blacksmith with a proud warm smile and kind amber eyes, thick leather apron over rolled-up sleeves, soot-free clean fur, a heavy forging hammer resting on the shoulder, brass goggles pushed up on the forehead, glowing orange sparks floating around, soft blurred background of a warm forge glow in orange and copper. |
+| `retrato-herbalista.png` | Bust portrait of a cheerful green tree frog herbalist with big glossy golden eyes and a gentle smile, a woven straw hat decorated with little flowers and leaves, a satchel full of herbs and tiny glass vials on a strap, holding a sprig of glowing sage, soft blurred background of a sunny greenhouse in emerald and spring green with floating pollen glints. |
+| `retrato-cozinheiro.png` | Bust portrait of a jolly round panda cook with a big happy grin and twinkling eyes, a tall white chef hat slightly tilted, a red-checkered neckerchief and a clean apron, holding a wooden spoon with a little steam swirl, a small copper pan hanging on the belt, soft blurred background of a cozy tavern kitchen in warm honey and amber tones with floating steam and sparkles. |
+
 ## Elenco proposto
 | Classe | Animal | Ideia |
 |---|---|---|

@@ -2,13 +2,11 @@
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
 let PERFIL = temDOM ? ler('tdg-perfil', null) : null;
 if(!PERFIL) PERFIL = {nome:'', corridas:0, vitoriasCorrida:0, melhor:0, pontos:0, colecao:{}};
-PERFIL.xp = PERFIL.xp || {}; PERFIL.caminho = PERFIL.caminho || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
+PERFIL.xp = PERFIL.xp || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
 const gravarPerfil = () => guardar('tdg-perfil', PERFIL);
 
 // ---- experiência de cada personagem (PROGRESSAO.md): quem manda é o servidor; aqui fica uma cópia para jogar offline ----
 const nivelClasse = c => nivelDe(PERFIL.xp[c] || 0);
-// o caminho só vale a partir do nível 5; sem escolha, o primeiro
-const caminhoDe = c => nivelClasse(c).nivel < NIVEL_CAMINHO ? null : (CLASSES[c].caminhos[PERFIL.caminho[c]] ? PERFIL.caminho[c] : Object.keys(CLASSES[c].caminhos)[0]);
 async function sincronizarExperiencia(){
   const L = await onlineExperiencia(); if(!Array.isArray(L)) return false;
   // o servidor é a fonte: classe sem linha lá tem 0 (uma cópia local mexida não libera nada)
@@ -17,7 +15,7 @@ async function sincronizarExperiencia(){
 }
 // o que cada nível libera: itens da classe e receitas daquele nível
 function liberadosNo(c, n){
-  const itens = ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === n && !(n === 1 && it.inicial)).map(it => ({id:it.id, caminho:it.caminho}));
+  const itens = ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === n && !(n === 1 && it.inicial)).map(it => ({id:it.id}));
   const receitas = RECEITAS.filter(r => r[3] === n && ITEM[r[2]].classe === c).map(r => ({id:r[2], receita:[r[0], r[1]]}));
   return itens.concat(receitas);
 }
@@ -51,7 +49,7 @@ function pecaHtml(p, tam, extra){
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
   return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
-    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}</div>`;
+    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
 function linhaNumeros(id, s){
@@ -70,13 +68,13 @@ function telaLobby(){
     <header class="logo"><div class="etiqueta"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1></div></header>
     <div class="nome"><label for="campoNome">Seu nome no ranking</label><div><input id="campoNome" maxlength="20" placeholder="Aventureiro" value="${(PERFIL.nome || '').replace(/"/g, '')}"><span class="status ${conexao.ok === false ? 'off' : conexao.ok ? 'on' : ''}">${conexao.ok === false ? 'Offline' : conexao.ok ? 'Online' : 'Conectando'}</span></div></div>
     <div class="classes">${Object.keys(CLASSES).map(k => { const c = CLASSES[k], ini = ITEM[c.inicial], nv = nivelClasse(k);
-      return `<button class="classe${k === classeEscolhida ? ' on' : ''}" data-classe="${k}" style="--cc:${c.cor}">${retrato(k) ? `<img class="rosto" src="${retrato(k)}" alt="" draggable="false">` : ''}${selo(nv)}
+      return `<button class="classe${k === classeEscolhida ? ' on' : ''}" data-classe="${k}" style="--cc:${c.cor}">${retrato(k) ? `<img class="rosto" src="${retrato(k)}" alt="" draggable="false">` : `<span class="sem-retrato">${c.nome[0]}</span>`}${selo(nv)}
         <span class="txt"><b>${c.nome}</b>${barraXp(nv)}<small>${c.desc}</small><span class="ini">${iconeItem(ini.id)} ${ini.nome}</span></span></button>`; }).join('')}</div>
     ${painelPersonagem(classeEscolhida)}
     <div class="acoes">
       <div class="modos">${['ranqueada', 'normal'].map(k => `<button class="chip${PERFIL.modo === k ? ' on' : ''}" data-modo="${k}"><b>${k === 'ranqueada' ? 'Ranqueada' : 'Normal'}</b><span>${k === 'ranqueada' ? 'Todos os itens no nível 0. Vitórias valem pontos no ranking.' : 'Seus itens lutam no nível das cartas. Não vale ranking.'}</span></button>`).join('')}</div>
       ${s && s.mochila && !s.fim ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias</small></button>` : ''}
-      <button class="btn grande${s && !s.fim ? '' : ' primario'}" id="btJogar">Nova corrida<small>${CLASSES[classeEscolhida].nome}${caminhoDe(classeEscolhida) ? ' ' + CLASSES[classeEscolhida].caminhos[caminhoDe(classeEscolhida)].nome : ''} · nível ${nivelClasse(classeEscolhida).nivel} · 7 vitórias para vencer, 3 derrotas e acaba</small></button>
+      <button class="btn grande${s && !s.fim ? '' : ' primario'}" id="btJogar">Nova corrida<small>${CLASSES[classeEscolhida].nome} · nível ${nivelClasse(classeEscolhida).nivel} · 7 vitórias para vencer, 3 derrotas e acaba</small></button>
       <div class="linha-btns"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
     </div>
     <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'} · ${PERFIL.pontos} pontos no ranking` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha.'}</p>
@@ -87,7 +85,6 @@ function ligarLobby(){
   const n = $('campoNome'); n.onchange = () => { const v = n.value.trim().slice(0, 20); PERFIL.nome = v; gravarPerfil(); if(v.length >= 2) onlineNome(v).then(ok => { if(ok) avisar('Nome salvo no ranking'); desenhar(); }); };
   $('btJogar').onclick = ev => { const b = ev.currentTarget; if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     comecarCorrida(classeEscolhida); };
-  raiz().querySelectorAll('[data-caminho]').forEach(b => b.onclick = () => { PERFIL.caminho[classeEscolhida] = b.dataset.caminho; gravarPerfil(); desenhar(); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
   raiz().querySelectorAll('[data-modo]').forEach(b => b.onclick = () => { PERFIL.modo = b.dataset.modo; gravarPerfil(); desenhar(); });
   $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
@@ -97,18 +94,16 @@ function ligarLobby(){
 
 function comecarCorrida(classe){
   const niveis = {}; for(const k in PERFIL.cartas) if(PERFIL.cartas[k].nivel > 0) niveis[k] = PERFIL.cartas[k].nivel;
-  novaCorrida(classe, null, nivelClasse(classe).nivel, caminhoDe(classe), PERFIL.modo, niveis); iniciarNoServidor();
+  novaCorrida(classe, null, nivelClasse(classe).nivel, PERFIL.modo, niveis); iniciarNoServidor();
   salvarCorrida(); sel = null; tela = 'loja'; desenhar();
 }
-// o personagem escolhido: nível, experiência, caminho (do nível 5 em diante) e o próximo desbloqueio
+// o personagem escolhido: nível, experiência e o próximo desbloqueio
 function painelPersonagem(c){
-  const nv = nivelClasse(c), cs = CLASSES[c].caminhos, cam = caminhoDe(c);
+  const nv = nivelClasse(c);
   const prox = nv.nivel < 10 ? liberadosNo(c, nv.nivel + 1) : [];
   return `<div class="personagem" style="--cc:${CLASSES[c].cor}">
     <div class="pl-topo">${selo(nv)}<b>${CLASSES[c].nome}</b><span class="pl-xp">${nv.nivel < 10 ? `${nv.xp - nv.de} / ${nv.ate - nv.de} para o nível ${nv.nivel + 1}` : `${nv.xp - nv.de} / ${XP_ESTRELA} para a próxima estrela`}</span></div>
     ${barraXp(nv, 'grossa')}
-    ${nv.nivel >= NIVEL_CAMINHO ? `<div class="caminhos"><small>Caminho desta corrida</small>${Object.keys(cs).map(k => `<button class="chip${k === cam ? ' on' : ''}" data-caminho="${k}"><b>${cs[k].nome}</b><span>${cs[k].desc}</span></button>`).join('')}</div>`
-      : `<p class="pl-nota">No nível ${NIVEL_CAMINHO} você escolhe um caminho: ${Object.values(cs).map(x => x.nome).join(' ou ')}.</p>`}
     ${prox.length ? `<p class="pl-prox">Próximo nível libera: ${prox.map(x => `<span class="mini-item">${iconeItem(x.id)}${ITEM[x.id].nome}</span>`).join('')}</p>` : ''}
     <button class="btn sm" id="btTrilha">Ver a trilha do personagem</button>
   </div>`;
@@ -118,8 +113,8 @@ function painelPersonagem(c){
 function telaTrilha(){
   const c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c);
   const linhas = NIVEIS_XP.map((xp, i) => { const n = i + 1, aberto = nv.nivel >= n, L = n === 1 ? ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === 1).map(it => ({id:it.id})) : liberadosNo(c, n);
-    const cartoes = L.map(x => `<div class="tr-item${aberto ? '' : ' fechado'}" style="--rar:${raridade(x.id).cor}"><span class="pic">${iconeItem(x.id)}</span><span><b>${ITEM[x.id].nome}</b>${x.caminho ? `<em>${C0.caminhos[x.caminho].nome}</em>` : ''}${x.receita ? `<em>Receita: ${x.receita.map(r => ITEM[r].nome).join(' + ')}</em>` : ''}<small>${ITEM[x.id].texto}</small></span></div>`).join('');
-    return `<li class="${aberto ? 'aberto' : ''}${nv.nivel === n ? ' atual' : ''}"><div class="tr-n"><b>${n}</b><small>${xp} XP</small></div><div class="tr-l">${n === NIVEL_CAMINHO ? '<p class="tr-tit">Especialização: escolha o caminho no começo de cada corrida</p>' : ''}${n === 1 ? '<p class="tr-tit">Começa com</p>' : ''}${cartoes}${n === 10 ? `<p class="tr-tit">Prestígio: moldura dourada e uma estrela a cada ${XP_ESTRELA} XP depois do nível 10</p>` : ''}</div></li>`; }).join('');
+    const cartoes = L.map(x => `<div class="tr-item${aberto ? '' : ' fechado'}" style="--rar:${raridade(x.id).cor}"><span class="pic">${iconeItem(x.id)}</span><span><b>${ITEM[x.id].nome}</b>${x.receita ? `<em>Receita: ${x.receita.map(r => ITEM[r].nome).join(' + ')}</em>` : ''}<small>${ITEM[x.id].texto}</small></span></div>`).join('');
+    return `<li class="${aberto ? 'aberto' : ''}${nv.nivel === n ? ' atual' : ''}"><div class="tr-n"><b>${n}</b><small>${xp} XP</small></div><div class="tr-l">${n === 1 ? '<p class="tr-tit">Começa com</p>' : ''}${cartoes}${n === 10 ? `<p class="tr-tit">Prestígio: moldura dourada e uma estrela a cada ${XP_ESTRELA} XP depois do nível 10</p>` : ''}</div></li>`; }).join('');
   return `<section class="trilha-tela" style="--cc:${C0.cor}"><header class="tr-cab">${retrato(c) ? `<img class="rosto" src="${retrato(c)}" alt="">` : ''}<div><h1>${C0.nome}</h1>${selo(nv)} ${barraXp(nv, 'grossa')}<small>${nv.xp} XP no total${PERFIL.mult > 1 ? ` · bônus de experiência ${String(PERFIL.mult).replace('.', ',')}×` : ''}</small></div></header>
     <p class="sub">Experiência por corrida: 2 por rodada, 3 por vitória e 10 ao fechar 7 vitórias. Só conta jogando online, até 250 por dia. Os itens liberados trazem opções novas, não força a mais.</p>
     <ol class="trilha">${linhas}</ol><button class="btn" id="btVoltar">Voltar</button></section>`;
@@ -261,7 +256,10 @@ if(temDOM && typeof window !== 'undefined') window.addEventListener('contextmenu
 // ---- a luta ----
 async function comecarLuta(){
   const bt = $('btLutar'); if(bt){ bt.disabled = true; bt.innerHTML = 'Procurando adversário…'; }
-  const feitas = fundir(C.mochila, C.nivel || 1); if(feitas.length) avisar('Fusão: ' + feitas.map(id => ITEM[id].nome).join(', '), 2600);
+  const feitas = fundir(C.mochila, C.nivel || 1);
+  // a ferramenta do ofício trabalha uma vez por rodada
+  const ofi = C.oficioRodada === C.rodada ? [] : oficio(C.mochila, C.rodada); C.oficioRodada = C.rodada;
+  const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
   if(C.corrida == null && corridaPendente) await Promise.race([corridaPendente, new Promise(r => setTimeout(r, 3000))]);
@@ -391,7 +389,6 @@ function blocoXp(){
     ${x.ganho < Math.floor(x.base * x.mult) ? `<p class="pl-nota">Limite de experiência de hoje atingido.</p>` : ''}
     ${subiu ? `<p class="xp-subiu">${x.depois.nivel > x.antes.nivel ? `Nível ${x.depois.nivel}!` : 'Nova estrela de prestígio!'}</p>` : ''}
     ${x.lib.length ? `<p class="pl-prox">Liberado: ${x.lib.map(l => `<span class="mini-item">${iconeItem(l.id)}${ITEM[l.id].nome}</span>`).join('')}</p>` : ''}
-    ${x.depois.nivel >= NIVEL_CAMINHO && x.antes.nivel < NIVEL_CAMINHO ? '<p class="pl-nota">Agora você escolhe um caminho no lobby.</p>' : ''}
     ${x.bronze || Object.keys(x.cartas).length ? `<p class="pl-prox">Ganhou: <span class="mini-item bronze">${ic('moeda')} ${x.bronze} de bronze</span>${Object.entries(x.cartas).map(([id, q]) => ITEM[id] ? `<span class="mini-item">${iconeItem(id)}${q}× ${ITEM[id].nome}</span>` : '').join('')}</p>` : ''}</div>`;
 }
 function telaFim(){

@@ -261,6 +261,11 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .st-ic{ width:22px; height:22px; flex:none; display:inline-flex; } .st-ic img, .st-ic .ic{ width:100%; height:100%; object-fit:contain; }
 .st-ef td{ color:var(--suave); font-style:italic; } .st-tot td{ font-weight:800; color:var(--texto); border-top:1px solid var(--borda2); }
 @media (max-width:560px){ .stats{ grid-template-columns:1fr; } }
+.peca .ofp{ position:absolute; left:2px; top:1px; z-index:3; padding:0 4px; font-size:10px; line-height:14px; border-radius:6px; pointer-events:none; font-weight:800; }
+.ofp.tp{ background:#5a2c12; color:#ffb070; border:1px solid #c8783a; } .ofp.br{ background:#173a22; color:#9be0a8; border:1px solid #4fae6a; }
+.ofp.pr{ background:#5a4012; color:#ffd27a; border:1px solid #e0a040; } .ofp.cz{ background:#3a3020; color:#e0c090; }
+.classe .sem-retrato{ width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--cc) 50%, #222), #15131a); font-family:var(--fonte-titulo); font-size:64px; font-weight:800; color:rgba(255,255,255,.85); }
+.classes{ grid-template-columns:repeat(3, 1fr); }
 </style>
 </head>
 <body>
@@ -317,7 +322,7 @@ const ler = (k, padrao) => { try{ const s = localStorage.getItem(k); return s ? 
 //   atordoar (segundos em que os itens do inimigo param), danoPorGelo (dano a mais por ponto de gelo do inimigo), multVeneno (o veneno do inimigo
 //   cresce nessa fração), raiva (inicio: +1 de força a cada N de vida perdida). Outros campos: furia (arma: até +N de dano conforme a vida cai),
 //   primeirosCrit (arma: os N primeiros golpes são críticos), aleatorio (ativo: sorteia um dos efeitos da lista), aoCritico (cada crítico seu aplica isto).
-// nivel: itens da classe só aparecem na loja a partir desse nível do personagem (PROGRESSAO.md); caminho: só na especialização escolhida.
+// nivel: itens da classe só aparecem na loja a partir desse nível do personagem (PROGRESSAO.md). Cada personagem é único: não há especializações.
 const RARIDADES = {
   comum:    {nome:'Comum',    cor:'#9a9488', preco:3},
   incomum:  {nome:'Incomum',  cor:'#5aa84a', preco:5},
@@ -329,15 +334,16 @@ const ORDEM_RAR = ['comum', 'incomum', 'rara', 'epica', 'lendaria'];
 const NOME_TIPO = {arma:'Arma', escudo:'Defesa', comida:'Comida', pocao:'Poção', acessorio:'Acessório', bolsa:'Bolsa', magia:'Magia'};
 
 const CLASSES = {
-  guerreiro:{nome:'Guerreiro', vida:57, cor:'#d9483b', inicial:'insignia', desc:'Força e bloqueio. Aguenta a pancada e devolve mais forte.',
-    caminhos:{berserker:{nome:'Berserker', desc:'Quanto mais apanha, mais forte bate.'}, escudeiro:{nome:'Escudeiro', desc:'Uma muralha de bloqueio que devolve o dano.'}}},
-  mago:     {nome:'Mago', vida:58, cor:'#3d8fb5', inicial:'grimorio', desc:'Junta mana e solta magias fortes de fogo e gelo.',
-    caminhos:{piromante:{nome:'Piromante', desc:'Fogo que não apaga e meteoros.'}, criomante:{nome:'Criomante', desc:'Congela o inimigo e quebra o gelo com força.'}}},
-  ladino:   {nome:'Ladino', vida:47, cor:'#5aa84a', inicial:'kitVeneno', desc:'Golpes rápidos, veneno e esquiva. Vence pelo cansaço.',
-    caminhos:{assassino:{nome:'Assassino', desc:'Críticos certeiros logo no começo da luta.'}, envenenador:{nome:'Envenenador', desc:'Veneno que cresce sem parar.'}}},
+  guerreiro:{nome:'Guerreiro', vida:59, cor:'#d9483b', inicial:'insignia', desc:'Força e bloqueio. Aguenta a pancada e devolve mais forte.'},
+  mago:     {nome:'Mago', vida:58, cor:'#3d8fb5', inicial:'grimorio', desc:'Junta mana e solta magias fortes de fogo e gelo.'},
+  ladino:   {nome:'Ladino', vida:46, cor:'#5aa84a', inicial:'kitVeneno', desc:'Golpes rápidos, veneno e esquiva. Vence pelo cansaço.'},
+  // classes de ofício (ferramentas de artesão): a ferramenta inicial trabalha os itens encostados nela a cada rodada (oficio em 04-corrida.js)
+  ferreiro:  {nome:'Ferreiro', vida:55, cor:'#c8783a', inicial:'bigorna', oficio:true, desc:'A Bigorna tempera as armas e armaduras de metal encostadas, rodada após rodada.'},
+  herbalista:{nome:'Herbalista', vida:57, cor:'#4fae6a', inicial:'kitHerbal', oficio:true, desc:'As ervas encostadas no Kit criam brotos e ficam mais fortes a cada rodada.'},
+  cozinheiro:{nome:'Cozinheiro', vida:64, cor:'#e0a040', inicial:'panela', oficio:true, desc:'A comida encostada na Panela vira um prato melhor depois de 2 rodadas.'},
 };
 // experiência total para chegar a cada nível (o índice 0 é o nível 1); depois do 10, cada estrela de prestígio custa mais XP_ESTRELA
-const NIVEIS_XP = [0, 40, 120, 250, 450, 750, 1150, 1700, 2400, 3300], XP_ESTRELA = 3300, NIVEL_CAMINHO = 5;
+const NIVEIS_XP = [0, 40, 120, 250, 450, 750, 1150, 1700, 2400, 3300], XP_ESTRELA = 3300;
 function nivelDe(xp){
   xp = Math.max(0, xp || 0); let n = 1; while(n < NIVEIS_XP.length && xp >= NIVEIS_XP[n]) n++;
   const estrelas = xp >= NIVEIS_XP[9] ? Math.floor((xp - NIVEIS_XP[9]) / XP_ESTRELA) : 0;
@@ -421,33 +427,84 @@ const ITENS = [
   I('cantil', 'Cantil de Campanha', {classe:'guerreiro', tipo:'comida', forma:['#', '#'], arte:'xicara', cd:4, ao:{cura:2, vigor:1}, texto:'Cura 2 e dá 1 de vigor a cada 4 s.'}),
   I('manopla', 'Manopla de Ferro', {classe:'guerreiro', nivel:2, rar:'incomum', tipo:'escudo', forma:['#'], arte:'escudo', tags:['metal'], uso:'passivo', inicio:{bloqueio:3}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{bloqueio:1}}}, texto:'Começa com 3 de bloqueio. Armas vizinhas dão 1 de bloqueio a cada acerto.'}),
   I('gritoGuerra', 'Grito de Guerra', {classe:'guerreiro', nivel:3, rar:'rara', forma:['##'], arte:'sino', uso:'gatilho', quando:'vidaBaixa', ao:{forca:3, bloqueio:6}, texto:'Uma vez: quando a vida cai abaixo da metade, ganha 3 de força e 6 de bloqueio.'}),
-  I('cotaMalha', 'Cota de Malha', {classe:'guerreiro', nivel:4, rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], cd:4, ao:{bloqueio:6}, viz:{modo:'recebe', alvo:{tag:'metal'}, bonus:{bloqueio:1}}, texto:'Ganha 6 de bloqueio a cada 4 s. +1 para cada item de metal vizinho.'}),
-  I('machadoDuplo', 'Machado Duplo', {classe:'guerreiro', nivel:5, caminho:'berserker', rar:'epica', tipo:'arma', forma:['#.', '##', '#.'], arte:'machado', tags:['metal'], cd:2.4, custo:2, dano:[6, 9], furia:8, texto:'Até +8 de dano conforme a sua vida cai.'}),
-  I('colarDentes', 'Colar de Dentes', {classe:'guerreiro', nivel:5, caminho:'berserker', rar:'incomum', forma:['#'], arte:'osso', uso:'passivo', inicio:{raiva:10}, texto:'Ganha 1 de força a cada 10 de vida perdida.'}),
-  I('paves', 'Pavês', {classe:'guerreiro', nivel:5, caminho:'escudeiro', rar:'epica', tipo:'escudo', forma:['##', '##', '##'], arte:'escudo', tags:['metal'], cd:4, ao:{bloqueio:10, espinhos:1}, texto:'Ganha 10 de bloqueio e 1 de espinhos a cada 4 s.'}),
-  I('brasao', 'Brasão', {classe:'guerreiro', nivel:5, caminho:'escudeiro', rar:'incomum', forma:['#'], arte:'medalha', uso:'passivo', inicio:{bloqueio:7, espinhos:1}, viz:{modo:'da', alvo:{tipo:'escudo'}, bonus:{bloqueio:3}}, texto:'Começa com 7 de bloqueio e 1 de espinhos. Escudos vizinhos dão +3 de bloqueio.'}),
-  I('marteloCerco', 'Martelo de Cerco', {classe:'guerreiro', nivel:7, rar:'epica', tipo:'arma', forma:['##', '##', '.#'], arte:'martelo', tags:['metal'], cd:3.2, custo:3, dano:[10, 14], acerto:{atordoar:1}, texto:'Lento. Cada acerto atordoa o inimigo por 1 s (os itens dele param).'}),
-  I('coroaCampeao', 'Coroa do Campeão', {classe:'guerreiro', nivel:9, rar:'lendaria', forma:['##'], arte:'coroa', cd:4, ao:{forca:1, bloqueio:7}, texto:'Ganha 1 de força e 7 de bloqueio a cada 4 s.'}),
+  I('cotaMalha', 'Cota de Malha', {classe:'guerreiro', nivel:4, rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], cd:4, ao:{bloqueio:5}, viz:{modo:'recebe', alvo:{tag:'metal'}, bonus:{bloqueio:1}}, texto:'Ganha 5 de bloqueio a cada 4 s. +1 para cada item de metal vizinho.'}),
+  I('machadoDuplo', 'Machado Duplo', {classe:'guerreiro', nivel:6, rar:'epica', tipo:'arma', forma:['#.', '##', '#.'], arte:'machado', tags:['metal'], cd:2.4, custo:2, dano:[6, 9], furia:8, texto:'Até +8 de dano conforme a sua vida cai.'}),
+  I('colarDentes', 'Colar de Dentes', {classe:'guerreiro', nivel:5, rar:'incomum', forma:['#'], arte:'osso', uso:'passivo', inicio:{raiva:14}, texto:'Ganha 1 de força a cada 14 de vida perdida.'}),
+  I('paves', 'Pavês', {classe:'guerreiro', nivel:7, rar:'epica', tipo:'escudo', forma:['##', '##', '##'], arte:'escudo', tags:['metal'], cd:4, ao:{bloqueio:10, espinhos:1}, texto:'Ganha 10 de bloqueio e 1 de espinhos a cada 4 s.'}),
+  I('brasao', 'Brasão', {classe:'guerreiro', nivel:5, rar:'incomum', forma:['#'], arte:'medalha', uso:'passivo', inicio:{bloqueio:5, espinhos:1}, viz:{modo:'da', alvo:{tipo:'escudo'}, bonus:{bloqueio:2}}, texto:'Começa com 5 de bloqueio e 1 de espinhos. Escudos vizinhos dão +2 de bloqueio.'}),
+  I('marteloCerco', 'Martelo de Cerco', {classe:'guerreiro', nivel:7, rar:'epica', tipo:'arma', forma:['##', '##', '.#'], arte:'martelo', tags:['metal'], cd:3.2, custo:3, dano:[10, 14], acerto:{atordoar:.7}, texto:'Lento. Cada acerto atordoa o inimigo por 0,7 s (os itens dele param).'}),
+  I('coroaCampeao', 'Coroa do Campeão', {classe:'guerreiro', nivel:9, rar:'lendaria', forma:['##'], arte:'coroa', cd:5, ao:{forca:1, bloqueio:5}, texto:'Ganha 1 de força e 5 de bloqueio a cada 5 s.'}),
 
   I('vela', 'Vela de Estudo', {classe:'mago', nivel:2, tipo:'magia', forma:['#'], arte:'chama', tags:['magia', 'fogo'], cd:2.5, ao:{mana:1, queimar:1}, viz:{modo:'da', alvo:{tag:'magia'}, bonus:{cd:.1}}, texto:'Ganha 1 de mana e queima 1 a cada 2,5 s. Magias vizinhas agem 10% mais rápido.'}),
   I('runaGelo', 'Runa de Gelo', {classe:'mago', nivel:3, rar:'incomum', tipo:'magia', forma:['#'], arte:'gelo', tags:['magia', 'gelo'], cd:3.5, ao:{gelo:1, dano:1}, viz:{modo:'da', alvo:{tag:'gelo'}, bonus:{aoMais:{gelo:1}}}, texto:'A cada 3,5 s: 1 de dano e 1 de gelo. Magias de gelo vizinhas aplicam +1 de gelo.'}),
   I('ampolaEter', 'Ampola de Éter', {classe:'mago', nivel:4, rar:'rara', tipo:'pocao', forma:['#'], arte:'frasco', tags:['magia'], uso:'gatilho', quando:'tempo', t:5, ao:{mana:8, bloqueio:5}, texto:'Uma vez: depois de 5 s, ganha 8 de mana e 5 de bloqueio.'}),
-  I('meteorito', 'Meteorito', {classe:'mago', nivel:5, caminho:'piromante', rar:'epica', tipo:'magia', forma:['##', '##'], arte:'chama', tags:['magia', 'fogo'], cd:7, gastaMana:4, ao:{dano:14, queimar:5}, texto:'Gasta 4 de mana: 14 de dano e queima 5.'}),
-  I('brasaViva', 'Brasa Viva', {classe:'mago', nivel:5, caminho:'piromante', rar:'incomum', tipo:'magia', forma:['#'], arte:'chama', tags:['magia', 'fogo'], cd:2.5, ao:{queimar:1}, viz:{modo:'da', alvo:{tag:'fogo'}, bonus:{aoMais:{queimar:1}}}, texto:'Queima 1 a cada 2,5 s. Magias de fogo vizinhas queimam +1.'}),
-  I('lancaGelo', 'Lança de Gelo', {classe:'mago', nivel:5, caminho:'criomante', rar:'epica', tipo:'magia', forma:['#', '#', '#'], arte:'gelo', tags:['magia', 'gelo'], cd:2.8, gastaMana:2, ao:{dano:6, gelo:1, danoPorGelo:1}, semMana:{dano:2, gelo:1}, texto:'Gasta 2 de mana: 6 de dano, +1 para cada gelo do inimigo, e 1 de gelo. Sem mana: 2 de dano e 1 de gelo.'}),
-  I('coroaGeada', 'Coroa de Geada', {classe:'mago', nivel:5, caminho:'criomante', rar:'incomum', forma:['##'], arte:'gelo', tags:['magia', 'gelo'], uso:'gatilho', quando:'tempo', t:.1, ao:{gelo:3}, texto:'No começo da luta, põe 3 de gelo no inimigo.'}),
+  I('meteorito', 'Meteorito', {classe:'mago', nivel:6, rar:'epica', tipo:'magia', forma:['##', '##'], arte:'chama', tags:['magia', 'fogo'], cd:7, gastaMana:4, ao:{dano:14, queimar:5}, texto:'Gasta 4 de mana: 14 de dano e queima 5.'}),
+  I('brasaViva', 'Brasa Viva', {classe:'mago', nivel:5, rar:'incomum', tipo:'magia', forma:['#'], arte:'chama', tags:['magia', 'fogo'], cd:2.5, ao:{queimar:1}, viz:{modo:'da', alvo:{tag:'fogo'}, bonus:{aoMais:{queimar:1}}}, texto:'Queima 1 a cada 2,5 s. Magias de fogo vizinhas queimam +1.'}),
+  I('lancaGelo', 'Lança de Gelo', {classe:'mago', nivel:7, rar:'epica', tipo:'magia', forma:['#', '#', '#'], arte:'gelo', tags:['magia', 'gelo'], cd:2.8, gastaMana:2, ao:{dano:6, gelo:1, danoPorGelo:1}, semMana:{dano:2, gelo:1}, texto:'Gasta 2 de mana: 6 de dano, +1 para cada gelo do inimigo, e 1 de gelo. Sem mana: 2 de dano e 1 de gelo.'}),
+  I('coroaGeada', 'Coroa de Geada', {classe:'mago', nivel:5, rar:'incomum', forma:['##'], arte:'gelo', tags:['magia', 'gelo'], uso:'gatilho', quando:'tempo', t:.1, ao:{gelo:3}, texto:'No começo da luta, põe 3 de gelo no inimigo.'}),
   I('espelhoArcano', 'Espelho Arcano', {classe:'mago', nivel:7, rar:'rara', tipo:'escudo', forma:['#', '#'], arte:'cristal', tags:['magia'], cd:4, ao:{bloqueio:7, mana:2, dano:3}, texto:'A cada 4 s: 7 de bloqueio, 2 de mana e 3 de dano no inimigo.'}),
   I('tomoProibido', 'Tomo Proibido', {classe:'mago', nivel:9, rar:'lendaria', tipo:'magia', forma:['##', '##'], arte:'livro', tags:['magia'], cd:3, ao:{mana:3}, viz:{modo:'da', alvo:{tag:'magia'}, bonus:{cd:.25}}, texto:'Ganha 3 de mana a cada 3 s. Magias vizinhas agem 25% mais rápido.'}),
 
   I('gazua', 'Gazua', {classe:'ladino', nivel:2, forma:['#'], arte:'espada', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.12, dano:1}}, texto:'Armas vizinhas ganham 12% de crítico e +1 de dano.'}),
   I('facas', 'Facas de Arremesso', {classe:'ladino', nivel:3, rar:'incomum', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.5, custo:1, dano:[3, 4], crit:.1, acerto:{perfura:3}, texto:'Rápidas. Atravessam 3 de bloqueio. 10% de crítico.'}),
   I('mascara', 'Máscara de Ladrão', {classe:'ladino', nivel:4, rar:'rara', tipo:'escudo', forma:['##'], arte:'nevoa', uso:'passivo', inicio:{esquiva:2}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.1}}, texto:'Começa com 2 de esquiva. Armas vizinhas ganham 10% de crítico.'}),
-  I('laminaOculta', 'Lâmina Oculta', {classe:'ladino', nivel:5, caminho:'assassino', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.6, custo:1, dano:[6, 8], crit:.2, primeirosCrit:3, texto:'Os 3 primeiros golpes são críticos. Depois, 20% de crítico.'}),
-  I('luvas', 'Luvas Leves', {classe:'ladino', nivel:5, caminho:'assassino', rar:'incomum', forma:['#'], arte:'vento', uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{cd:.18, crit:.08}}, texto:'Armas vizinhas atacam 18% mais rápido e ganham 8% de crítico.'}),
-  I('alambique', 'Alambique', {classe:'ladino', nivel:5, caminho:'envenenador', rar:'epica', tipo:'pocao', forma:['##', '##'], arte:'frasco', tags:['veneno'], cd:5, ao:{envenenar:4, multVeneno:.6}, texto:'A cada 5 s, envenena 4 e o veneno do inimigo cresce 60%.'}),
-  I('cogumelo', 'Cogumelo Tóxico', {classe:'ladino', nivel:5, caminho:'envenenador', rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['veneno'], preco:3, cd:2, ao:{envenenar:1}, viz:{modo:'da', alvo:{tag:'veneno'}, bonus:{cd:.15}}, texto:'Envenena 1 a cada 2 s. Itens de veneno vizinhos agem 15% mais rápido.'}),
+  I('laminaOculta', 'Lâmina Oculta', {classe:'ladino', nivel:6, rar:'epica', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.6, custo:1, dano:[6, 9], crit:.2, primeirosCrit:3, texto:'Os 3 primeiros golpes são críticos. Depois, 20% de crítico.'}),
+  I('luvas', 'Luvas Leves', {classe:'ladino', nivel:5, rar:'incomum', forma:['#'], arte:'vento', uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{cd:.2, crit:.08}}, texto:'Armas vizinhas atacam 20% mais rápido e ganham 8% de crítico.'}),
+  I('alambique', 'Alambique', {classe:'ladino', nivel:7, rar:'epica', tipo:'pocao', forma:['##', '##'], arte:'frasco', tags:['veneno'], cd:5, ao:{envenenar:4, multVeneno:.6}, texto:'A cada 5 s, envenena 4 e o veneno do inimigo cresce 60%.'}),
+  I('cogumelo', 'Cogumelo Tóxico', {classe:'ladino', nivel:5, rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['veneno'], preco:3, cd:1.8, ao:{envenenar:1}, viz:{modo:'da', alvo:{tag:'veneno'}, bonus:{cd:.15}}, texto:'Envenena 1 a cada 1,8 s. Itens de veneno vizinhos agem 15% mais rápido.'}),
   I('bolsaTruques', 'Bolsa de Truques', {classe:'ladino', nivel:7, rar:'rara', forma:['##'], arte:'bomba', cd:5, ao:{}, aleatorio:[{esquiva:2}, {envenenar:4}, {forca:1, vigor:2}], texto:'A cada 5 s, um truque: 2 de esquiva, envenenar 4, ou 1 de força e 2 de vigor.'}),
   I('sorrisoHiena', 'Sorriso da Hiena', {classe:'ladino', nivel:9, rar:'lendaria', forma:['#', '#'], arte:'serpente', uso:'passivo', aoCritico:{envenenar:2, esquiva:1}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.1}}, texto:'Cada crítico seu envenena 2 e dá 1 de esquiva. Armas vizinhas +10% de crítico.'}),
+
+  // ---- Ferreiro: têmpera (cada nível: arma +1 de dano, armadura +2 de bloqueio) ----
+  I('bigorna', 'Bigorna', {classe:'ferreiro', forma:['##', '##'], arte:'ferramenta', tags:['metal'], inicial:true, preco:0, uso:'passivo', oficio:'tempera', viz:{modo:'da', alvo:{tag:'metal'}, bonus:{}}, texto:'A cada rodada, tempera a arma ou armadura de metal mais fraca encostada nela (até 3 vezes cada): arma +2 de dano, armadura +3 de bloqueio.'}),
+  I('marteloForja', 'Martelo de Forja', {classe:'ferreiro', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], cd:1.8, custo:1, dano:[2, 4], acerto:{bloqueio:1}, texto:'Cada acerto dá 1 de bloqueio.'}),
+  I('lingote', 'Lingote de Ferro', {classe:'ferreiro', rar:'incomum', forma:['#'], arte:'pedra', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'metal'}, bonus:{dano:1, bloqueio:1}}, texto:'Itens de metal vizinhos: +1 de dano ou +1 de bloqueio.'}),
+  I('fole', 'Fole', {classe:'ferreiro', rar:'rara', forma:['##'], arte:'vento', uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{queimar:1}}}, inicio:{vigor:1}, texto:'Armas vizinhas queimam 1 ao acertar. Começa com 1 de vigor a mais.'}),
+  I('armaduraPlacas', 'Armadura de Placas', {classe:'ferreiro', rar:'epica', tipo:'escudo', forma:['##', '##', '##'], arte:'escudo', tags:['metal'], uso:'passivo', inicio:{bloqueio:16, vida:6}, texto:'Começa com 16 de bloqueio e +6 de vida.'}),
+  I('laminaMestre', 'Lâmina do Mestre', {classe:'ferreiro', rar:'lendaria', tipo:'arma', forma:['#', '#', '#'], arte:'espada', tags:['metal'], cd:2, custo:2, dano:[6, 9], porTempera:1, texto:'+1 de dano para cada nível de têmpera na mochila.'}),
+  I('tenaz', 'Tenaz', {classe:'ferreiro', nivel:2, forma:['#', '#'], arte:'ferramenta', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'metal'}, bonus:{bloqueio:1}}, texto:'Encostada na Bigorna, ela tempera mais um item nas rodadas pares. Metal vizinho +1 de bloqueio.'}),
+  I('rebites', 'Rebites', {classe:'ferreiro', nivel:3, rar:'incomum', forma:['#'], arte:'medalha', tags:['metal'], uso:'passivo', inicio:{espinhos:1}, viz:{modo:'da', alvo:{tipo:'escudo'}, bonus:{bloqueio:1}}, texto:'1 de espinhos. Escudos vizinhos dão +1 de bloqueio.'}),
+  I('baldeTempera', 'Balde de Têmpera', {classe:'ferreiro', nivel:4, rar:'rara', forma:['##'], arte:'xicara', tags:['metal'], uso:'gatilho', quando:'vidaBaixa', ao:{bloqueio:10, forca:1}, texto:'Uma vez: quando a vida cai abaixo da metade, ganha 10 de bloqueio e 1 de força.'}),
+  I('montante', 'Montante', {classe:'ferreiro', nivel:6, rar:'epica', tipo:'arma', forma:['#', '#', '#'], arte:'espada', tags:['metal'], cd:2.6, custo:3, dano:[10, 15], texto:'Espada enorme.'}),
+  I('pedraAfiar', 'Pedra de Afiar Fina', {classe:'ferreiro', nivel:5, rar:'incomum', forma:['#'], arte:'pedra', uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:2, crit:.1}}, texto:'Armas vizinhas: +2 de dano e 10% de crítico.'}),
+  I('elmoFechado', 'Elmo Fechado', {classe:'ferreiro', nivel:7, rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'coroa', tags:['metal'], cd:3.5, ao:{bloqueio:10, espinhos:1}, inicio:{bloqueio:5}, texto:'Começa com 5 de bloqueio. A cada 3,5 s: 10 de bloqueio e 1 de espinhos.'}),
+  I('escarpas', 'Escarpas', {classe:'ferreiro', nivel:5, rar:'incomum', tipo:'escudo', forma:['##'], arte:'escudo', tags:['metal'], uso:'passivo', inicio:{vida:9, bloqueio:3}, texto:'+9 de vida e começa com 3 de bloqueio.'}),
+  I('forjaPortatil', 'Forja Portátil', {classe:'ferreiro', nivel:7, rar:'epica', forma:['##', '##'], arte:'chama', tags:['metal', 'fogo'], cd:7, ao:{forca:1, bloqueio:4}, texto:'A cada 7 s: 1 de força e 4 de bloqueio.'}),
+  I('bigornaAncestral', 'Bigorna Ancestral', {classe:'ferreiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', tags:['metal'], uso:'passivo', oficio:'tempera', viz:{modo:'da', alvo:{tag:'metal'}, bonus:{}}, inicio:{bloqueio:6}, texto:'Tempera como a Bigorna, e a têmpera de toda a mochila vai até 4. Começa com 6 de bloqueio.'}),
+
+  // ---- Herbalista: cultivo (cada broto: +20% no efeito da erva, até 5) ----
+  I('kitHerbal', 'Kit de Herbalismo', {classe:'herbalista', forma:['#', '#'], arte:'folha', inicial:true, preco:0, uso:'passivo', oficio:'cultivo', viz:{modo:'da', alvo:{tag:'erva'}, bonus:{}}, texto:'A cada rodada, as ervas encostadas ganham 1 broto (até 5; cada broto +25% no efeito). Poções encostadas funcionam duas vezes.'}),
+  I('salvia', 'Folha de Sálvia', {classe:'herbalista', tipo:'comida', forma:['#'], arte:'folha', tags:['erva'], cd:2.2, ao:{cura:2}, texto:'Cura 2 a cada 2,2 s.'}),
+  I('raizAmarga', 'Raiz Amarga', {classe:'herbalista', rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['erva', 'veneno'], cd:2.5, ao:{envenenar:1}, texto:'Envenena 1 a cada 2,5 s.'}),
+  I('florVigor', 'Flor de Vigor', {classe:'herbalista', rar:'rara', tipo:'comida', forma:['#'], arte:'sol', tags:['erva'], cd:3, ao:{vigor:1, cura:2}, texto:'A cada 3 s: 1 de vigor e cura 2.'}),
+  I('cogumeloGigante', 'Cogumelo Gigante', {classe:'herbalista', rar:'epica', tipo:'comida', forma:['##', '##'], arte:'comida', tags:['erva'], cd:4, ao:{cura:4, regen:1}, texto:'A cada 4 s: cura 4 e soma 1 de regeneração.'}),
+  I('arvoreAncia', 'Árvore Anciã', {classe:'herbalista', rar:'lendaria', forma:['#', '#', '#'], arte:'folha', tags:['erva'], uso:'passivo', inicio:{vida:10}, texto:'Todas as ervas da mochila ganham 1 broto a mais por rodada. +10 de vida.'}),
+  I('regador', 'Regador', {classe:'herbalista', nivel:2, forma:['##'], arte:'xicara', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'erva'}, bonus:{}}, texto:'Ervas encostadas nele ganham 1 broto a mais por rodada.'}),
+  I('pilao', 'Pilão', {classe:'herbalista', nivel:3, rar:'incomum', forma:['#'], arte:'pedra', uso:'passivo', viz:{modo:'da', alvo:{tag:'erva'}, bonus:{aoMais:{cura:1, envenenar:1, vigor:1}, cd:.1}}, texto:'Ervas vizinhas: +1 no efeito e agem 10% mais rápido.'}),
+  I('musgo', 'Musgo Curativo', {classe:'herbalista', nivel:4, rar:'rara', tipo:'pocao', forma:['#'], arte:'folha', tags:['erva'], uso:'gatilho', quando:'vidaBaixa', ao:{cura:14, regen:1}, texto:'Uma vez: quando a vida cai abaixo da metade, cura 14 e soma 1 de regeneração.'}),
+  I('chaCamomila', 'Chá de Camomila', {classe:'herbalista', nivel:6, rar:'epica', tipo:'comida', forma:['##'], arte:'xicara', tags:['erva'], cd:3.5, ao:{cura:4, regen:1}, texto:'A cada 3,5 s: cura 4 e soma 1 de regeneração.'}),
+  I('balsamo', 'Bálsamo', {classe:'herbalista', nivel:5, rar:'incomum', tipo:'pocao', forma:['#'], arte:'frasco', tags:['erva'], cd:4, ao:{cura:2, bloqueio:3}, texto:'A cada 4 s: cura 2 e 3 de bloqueio.'}),
+  I('beladona', 'Beladona', {classe:'herbalista', nivel:7, rar:'epica', tipo:'pocao', forma:['#', '#'], arte:'gota', tags:['erva', 'veneno'], cd:3.5, ao:{envenenar:2}, texto:'Envenena 2 a cada 3,5 s.'}),
+  I('espinheiro', 'Espinheiro', {classe:'herbalista', nivel:5, rar:'incomum', forma:['#'], arte:'folha', tags:['erva'], uso:'passivo', inicio:{espinhos:1}, viz:{modo:'da', alvo:{tag:'erva'}, bonus:{cd:.1}}, texto:'1 de espinhos. Ervas vizinhas agem 10% mais rápido.'}),
+  I('estufa', 'Estufa de Vidro', {classe:'herbalista', nivel:7, rar:'epica', tipo:'bolsa', forma:['##', '##'], arte:'cristal', preco:9, dentro:{alvo:{tag:'erva'}, bonus:{cd:.25}}, texto:'Abre 4 casas. Ervas dentro dela agem 25% mais rápido.'}),
+  I('sementeMundo', 'Semente do Mundo', {classe:'herbalista', nivel:9, rar:'lendaria', forma:['#'], arte:'brilho', tags:['erva'], uso:'gatilho', quando:'morte', ao:{cura:999}, texto:'Uma vez: ao cair, volta com metade da vida.'}),
+
+  // ---- Cozinheiro: cozimento (prato: +60% no efeito e +4 de vida) ----
+  I('panela', 'Panela', {classe:'cozinheiro', forma:['##', '##'], arte:'xicara', tags:['metal'], inicial:true, preco:0, uso:'passivo', oficio:'cozinha', viz:{modo:'da', alvo:{tipo:'comida'}, bonus:{cd:.15}}, texto:'A comida encostada nela age 15% mais rápido e, depois de 2 rodadas, vira um prato: +60% no efeito e +4 de vida.'}),
+  I('colherPau', 'Colher de Pau', {classe:'cozinheiro', tipo:'arma', forma:['#', '#'], arte:'osso', cd:1.6, custo:1, dano:[3, 5], acerto:{cura:1}, texto:'Cada acerto cura 1.'}),
+  I('temperos', 'Temperos', {classe:'cozinheiro', rar:'incomum', forma:['#'], arte:'folha', uso:'passivo', viz:{modo:'da', alvo:{tipo:'comida'}, bonus:{cura:1, cd:.1}}, texto:'Comida vizinha cura +1 e age 10% mais rápido.'}),
+  I('caldeirao', 'Caldeirão de Sopa', {classe:'cozinheiro', rar:'rara', tipo:'comida', forma:['##', '##'], arte:'xicara', tags:['fogo'], cd:4, ao:{cura:3, regen:1, queimar:2}, texto:'Sopa fervente. A cada 4 s: cura 3, soma 1 de regeneração e queima o inimigo em 2.'}),
+  I('banquete', 'Banquete', {classe:'cozinheiro', rar:'epica', tipo:'comida', forma:['###', '###'], arte:'comida', cd:4, ao:{cura:6, vigor:1}, inicio:{vida:8}, texto:'+8 de vida. A cada 4 s: cura 6 e 1 de vigor.'}),
+  I('livroReceitas', 'Livro de Receitas', {classe:'cozinheiro', rar:'lendaria', forma:['#', '#'], arte:'livro', uso:'passivo', inicio:{vida:8, forca:1}, viz:{modo:'da', alvo:{tipo:'comida'}, bonus:{cura:1}}, texto:'Os pratos ficam prontos em 1 rodada. +8 de vida e 1 de força. Comida vizinha cura +1.'}),
+  I('avental', 'Avental', {classe:'cozinheiro', nivel:2, tipo:'escudo', forma:['##'], arte:'nevoa', uso:'passivo', inicio:{bloqueio:3}, porComida:{bloqueio:1}, texto:'Começa com 3 de bloqueio, mais 1 para cada comida na mochila.'}),
+  I('facaCozinha', 'Faca de Cozinha', {classe:'cozinheiro', nivel:3, rar:'incomum', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.5, custo:1, dano:[2, 4], viz:{modo:'recebe', alvo:{tipo:'comida'}, bonus:{dano:1}}, texto:'Rápida. +1 de dano para cada comida vizinha.'}),
+  I('pimenta', 'Pimenta Ardida', {classe:'cozinheiro', nivel:4, rar:'rara', tipo:'comida', forma:['#'], arte:'chama', tags:['fogo'], cd:7, ao:{forca:1, cura:2}, texto:'A cada 7 s: 1 de força e cura 2.'}),
+  I('bolo', 'Bolo de Festa', {classe:'cozinheiro', nivel:6, rar:'epica', tipo:'comida', forma:['##', '##'], arte:'comida', cd:4, ao:{cura:6, esquiva:1}, texto:'A cada 4 s: cura 6 e 1 de esquiva.'}),
+  I('mel', 'Mel', {classe:'cozinheiro', nivel:5, rar:'incomum', tipo:'comida', forma:['#'], arte:'frasco', cd:5, ao:{regen:1}, texto:'Soma 1 de regeneração a cada 5 s.'}),
+  I('espeto', 'Espeto Flamejante', {classe:'cozinheiro', nivel:7, rar:'epica', tipo:'arma', forma:['#', '#', '#'], arte:'chama', tags:['metal', 'fogo'], cd:2, custo:2, dano:[7, 10], acerto:{queimar:3}, texto:'Cada acerto queima 3.'}),
+  I('carvao', 'Carvão', {classe:'cozinheiro', nivel:5, rar:'incomum', forma:['#'], arte:'pedra', tags:['fogo'], cd:2.5, ao:{queimar:1}, viz:{modo:'da', alvo:{tipo:'comida'}, bonus:{cd:.1}}, texto:'Queima 1 a cada 2,5 s. Comida vizinha age 10% mais rápido.'}),
+  I('roloMassa', 'Rolo de Massa', {classe:'cozinheiro', nivel:7, rar:'rara', tipo:'arma', forma:['#', '#'], arte:'osso', cd:3, custo:2, dano:[4, 6], acerto:{atordoar:.4}, texto:'Cada acerto atordoa o inimigo por 0,4 s.'}),
+  I('fogao', 'Fogão de Ferro', {classe:'cozinheiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['metal', 'fogo'], uso:'passivo', oficio:'cozinha', rapido:true, viz:{modo:'da', alvo:{tipo:'comida'}, bonus:{cura:2}}, inicio:{bloqueio:6}, texto:'Cozinha a comida encostada em 1 rodada. Comida vizinha cura +2. Começa com 6 de bloqueio.'}),
 
   // ---- fusões (não aparecem na loja: nascem de duas peças encostadas) ----
   I('laminaFogo', 'Lâmina Flamejante', {rar:'epica', tipo:'arma', forma:['#', '#'], arte:'chama', tags:['metal', 'fogo'], fusao:true, cd:1.6, custo:1, dano:[4, 6], acerto:{queimar:1}, texto:'Cada acerto queima 1.'}),
@@ -461,6 +518,12 @@ const ITENS = [
   I('cajadoInfernal', 'Cajado Infernal', {classe:'mago', rar:'epica', tipo:'magia', forma:['#', '#', '#'], arte:'chama', tags:['magia', 'fogo'], fusao:true, cd:2.2, gastaMana:2, ao:{dano:10, queimar:3}, semMana:{dano:4, queimar:1}, texto:'Gasta 2 de mana: 10 de dano e queima 3. Sem mana: 4 de dano e queima 1.'}),
   I('zarabatanaPeconha', 'Zarabatana da Peçonha', {classe:'ladino', rar:'rara', tipo:'arma', forma:['#', '#'], arte:'vento', tags:['veneno'], fusao:true, cd:1.8, custo:1, dano:[1, 3], acerto:{envenenar:3}, texto:'Cada acerto envenena 3.'}),
   I('veuNoite', 'Véu da Noite', {classe:'ladino', rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'nevoa', fusao:true, cd:4, ao:{esquiva:1, bloqueio:3}, texto:'Ganha 1 de esquiva e 3 de bloqueio a cada 4 s.'}),
+  I('marteloRunico', 'Martelo Rúnico', {classe:'ferreiro', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], fusao:true, cd:1.8, custo:1, dano:[5, 8], acerto:{bloqueio:2}, texto:'Cada acerto dá 2 de bloqueio.'}),
+  I('armaduraErica', 'Armadura Eriçada', {classe:'ferreiro', rar:'lendaria', tipo:'escudo', forma:['##', '##', '##'], arte:'escudo', tags:['metal'], fusao:true, uso:'passivo', inicio:{bloqueio:20, espinhos:3, vida:6}, texto:'Começa com 20 de bloqueio, 3 de espinhos e +6 de vida.'}),
+  I('elixirVerde', 'Elixir Verde', {classe:'herbalista', rar:'rara', tipo:'pocao', forma:['#'], arte:'frasco', tags:['erva'], fusao:true, uso:'gatilho', quando:'vidaBaixa', ao:{cura:22, regen:2}, texto:'Uma vez: quando a vida cai abaixo da metade, cura 22 e soma 2 de regeneração.'}),
+  I('extratoMortal', 'Extrato Mortal', {classe:'herbalista', rar:'epica', tipo:'pocao', forma:['#'], arte:'gota', tags:['erva', 'veneno'], fusao:true, cd:3, ao:{envenenar:3, multVeneno:.15}, texto:'A cada 3 s, envenena 3 e o veneno do inimigo cresce 15%.'}),
+  I('sanduiche', 'Sanduíche', {classe:'cozinheiro', rar:'rara', tipo:'comida', forma:['##'], arte:'comida', fusao:true, cd:4, ao:{cura:5, vigor:1}, texto:'A cada 4 s: cura 5 e 1 de vigor.'}),
+  I('ensopadoVovo', 'Ensopado da Vovó', {classe:'cozinheiro', rar:'epica', tipo:'comida', forma:['##', '##'], arte:'xicara', fusao:true, cd:3, ao:{cura:6, regen:1}, texto:'A cada 3 s: cura 6 e soma 1 de regeneração.'}),
   I('macaCravejada', 'Maça Cravejada', {rar:'rara', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], fusao:true, cd:2, custo:2, dano:[5, 8], acerto:{perfura:2}, texto:'Atravessa 2 de bloqueio.'}),
 ];
 const ITEM = {}; for(const it of ITENS){ if(it.classe && !it.nivel) it.nivel = 1; it.preco = it.preco != null ? it.preco : RARIDADES[it.rar].preco; it.uso = it.uso || (it.tipo === 'bolsa' ? 'bolsa' : it.tipo === 'arma' ? 'arma' : 'ativo'); ITEM[it.id] = it; }
@@ -472,8 +535,11 @@ const RECEITAS = [
   ['machadoFuria', 'trombeta', 'machadoClamor', 6], ['escudoTorre', 'estandarte', 'muralha', 8],
   ['orbeGelo', 'cristalMana', 'prismaGelado', 6], ['cajadoFogo', 'faisca', 'cajadoInfernal', 8],
   ['zarabatana', 'frascoVeneno', 'zarabatanaPeconha', 6], ['capaSombras', 'fumaca', 'veuNoite', 8],
+  ['marteloForja', 'lingote', 'marteloRunico', 6], ['armaduraPlacas', 'rebites', 'armaduraErica', 8],
+  ['salvia', 'pocaoCura', 'elixirVerde', 6], ['raizAmarga', 'frascoVeneno', 'extratoMortal', 8],
+  ['queijo', 'pao', 'sanduiche', 6], ['ensopado', 'temperos', 'ensopadoVovo', 8],
 ];
-const VERSAO_REGRAS = 2;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
+const VERSAO_REGRAS = 4;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
 // ---------- A mochila: grade, formatos girados, bolsas, vizinhança e fusões ----------
 // A área da mochila tem LARG × ALT casas. Só as casas abertas por bolsas aceitam itens. Cada peça na mochila é
 // {uid, id, x, y, g}: (x, y) é o canto de cima à esquerda do formato já girado; g é o giro (0 a 3, de 90 em 90 graus).
@@ -567,7 +633,8 @@ function numeros(m){
     R[p.uid] = {uid:p.uid, id:p.id, uso:d.uso, cd:d.cd, custo:d.custo || 0, dano:d.dano ? d.dano.slice() : null, crit:d.crit || 0, acerto:Object.assign({}, d.acerto), ao:d.ao && Object.assign({}, d.ao),
       semMana:d.semMana, gastaMana:d.gastaMana || 0, inicio:d.inicio, quando:d.quando, t:d.t, rapidez:0, recebeu:[],
       furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico, n:p.n || 0};
-    if(p.n > 0) escalarNivel(R[p.uid], p.n); }
+    if(p.n > 0) escalarNivel(R[p.uid], p.n);
+    oficioNumeros(m, p, R[p.uid]); }
   for(const b of m.pecas){ if(!ehBolsa(b) || !ITEM[b.id].dentro) continue; const D = ITEM[b.id].dentro;
     for(const p of carregadas(m, b)) if(combina(ITEM[p.id], D.alvo)){ somarBonus(R[p.uid], D.bonus); R[p.uid].recebeu.push(b.id); } }
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const V = ITEM[p.id].viz; if(!V) continue;
@@ -576,6 +643,28 @@ function numeros(m){
     else for(let i = 0; i < viz.length; i++) somarBonus(R[p.uid], V.bonus); }
   for(const k in R){ const s = R[k]; if(s.cd) s.cd = Math.max(s.cd * .4, s.cd * (1 - s.rapidez)); s.crit = Math.min(.75, s.crit); }
   return R;
+}
+
+// ---- classes de ofício: o que a têmpera, os brotos e o prato fazem nos números da peça ----
+const ERVA = it => it.tags.includes('erva');
+const POR_TEMPERA = 2, BLOQ_TEMPERA = 3;   // cada nível de têmpera: arma +2 de dano, armadura +3 de bloqueio
+function oficioNumeros(m, p, s){
+  const d = ITEM[p.id];
+  if(p.tempera > 0){   // arma +POR_TEMPERA de dano por nível; armadura +BLOQ_TEMPERA de bloqueio
+    if(s.dano) s.dano = s.dano.map(v => v + POR_TEMPERA * p.tempera);
+    else if(s.ao && s.ao.bloqueio) s.ao = Object.assign({}, s.ao, {bloqueio:s.ao.bloqueio + BLOQ_TEMPERA * p.tempera});
+    else s.inicio = Object.assign({}, s.inicio, {bloqueio:((s.inicio && s.inicio.bloqueio) || 0) + BLOQ_TEMPERA * p.tempera}); }
+  if(p.brotos > 0) escalarPor(s, 1 + .25 * p.brotos);
+  if(p.prato){ escalarPor(s, 1.6); s.inicio = Object.assign({}, s.inicio, {vida:((s.inicio && s.inicio.vida) || 0) + 4}); }
+  if(d.porTempera && s.dano){ const t = m.pecas.reduce((a, q) => a + (q.tempera || 0), 0); s.dano = s.dano.map(v => v + t * d.porTempera); }
+  if(d.porComida){ const n = m.pecas.filter(q => ITEM[q.id].tipo === 'comida').length; s.inicio = Object.assign({}, s.inicio); for(const k in d.porComida) s.inicio[k] = (s.inicio[k] || 0) + d.porComida[k] * n; }
+  // poção de gatilho encostada no Kit de Herbalismo funciona duas vezes
+  if(d.uso === 'gatilho' && d.tipo === 'pocao' && vizinhos(m, p).some(q => ITEM[q.id].oficio === 'cultivo')) s.usos = 2;
+}
+function escalarPor(s, f){
+  const esc = o => { if(!o) return o; const c = Object.assign({}, o); for(const k of ESCALA_NIVEL.concat(['vigor', 'mana'])) if(typeof c[k] === 'number') c[k] = Math.max(c[k], Math.round(c[k] * f)); return c; };
+  if(s.dano) s.dano = s.dano.map(v => Math.round(v * f));
+  s.ao = esc(s.ao); s.semMana = esc(s.semMana); s.acerto = esc(s.acerto);
 }
 
 // ---- fusões: duas peças da receita encostadas viram uma só (as receitas com nível só a partir dele) ----
@@ -597,10 +686,15 @@ function fundir(m, nivel){
 }
 
 // ---- foto da mochila (o que vai para o servidor e volta como adversário) ----
-const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => p.n > 0 ? {id:p.id, x:p.x, y:p.y, g:p.g, n:p.n} : {id:p.id, x:p.x, y:p.y, g:p.g});
+// a foto leva também o que o ofício fez na peça (têmpera, brotos, cozimento)
+const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => { const f = {id:p.id, x:p.x, y:p.y, g:p.g};
+  for(const k of ['n', 'tempera', 'brotos', 'cozido']) if(p[k] > 0) f[k] = p[k]; if(p.prato) f.prato = 1; return f; });
 function deFoto(L){
   const m = {pecas:[], bancada:[]};
-  for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id, 0, 0, 0, Number(f.n) || 0); por(m, p, f.x, f.y, (f.g || 0) & 3); }
+  for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id, 0, 0, 0, Number(f.n) || 0);
+    const lim = (v, mx) => Math.max(0, Math.min(mx, Number(v) || 0) | 0);
+    if(f.tempera) p.tempera = lim(f.tempera, 5); if(f.brotos) p.brotos = lim(f.brotos, 5); if(f.cozido) p.cozido = lim(f.cozido, 3); if(f.prato && ITEM[f.id].tipo === 'comida') p.prato = true;
+    por(m, p, f.x, f.y, (f.g || 0) & 3); }
   return m;
 }
 function mochilaNova(classe){
@@ -622,8 +716,8 @@ function lutador(m, classe, nome){
   const L = {nome, classe, vida:C.vida, max:C.vida, vigor:3, bloq:0, forca:0, queima:0, veneno:0, regen:0, esquiva:0, gelo:0, espinhos:0, mana:0,
     atord:0, raiva:0, perdeu:0, aoCrit:[], itens:[]};
   for(const p of m.pecas){ const s = N[p.uid]; if(!s) continue;
-    L.itens.push(Object.assign(s, {x:p.x, y:p.y, g:p.g, t:0, usado:false, golpes:0}));
-    if(s.uso === 'passivo' && s.inicio) aplicarInicio(L, s.inicio);
+    L.itens.push(Object.assign(s, {x:p.x, y:p.y, g:p.g, t:0, usado:false, golpes:0, usou:0, espera:0}));
+    if(s.inicio) aplicarInicio(L, s.inicio);   // passivos, e também têmpera ou prato em itens que agem
     if(s.aoCritico) L.aoCrit.push({ao:s.aoCritico, k:L.itens.length - 1}); }
   L.vida = L.max; L.vigor = Math.min(VIGOR_MAX + 2, L.vigor);
   return L;
@@ -695,8 +789,9 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
             else if(s.semMana){ marca(lado, 'magia', {item:k, fraca:true}); efeito(eu, ini, lado, s.semMana, k); } }
           else { marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.aleatorio ? s.aleatorio[Math.floor(r() * s.aleatorio.length)] : s.ao, k); }
         }
-      } else if(s.uso === 'gatilho' && !s.usado){
-        if((s.quando === 'vidaBaixa' && eu.vida < eu.max / 2) || (s.quando === 'tempo' && t >= s.t)){ s.usado = true; marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.ao, k); }
+      } else if(s.uso === 'gatilho' && !s.usado && t >= s.espera){
+        // poção perto do Kit de Herbalismo (usos 2) volta a funcionar 5 s depois
+        if((s.quando === 'vidaBaixa' && eu.vida < eu.max / 2) || (s.quando === 'tempo' && t >= s.t)){ s.usou++; s.usado = s.usou >= (s.usos || 1); s.espera = t + 5; marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.ao, k); }
       }
     });
   }
@@ -713,6 +808,9 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
       });
       if(t > CANSACO){ cansaco++; [A, B].forEach((L, lado) => ferir(L, lado, cansaco, {tipo:'cansaco', direto:true})); }
     }
+    // Semente do Mundo: quem cai volta uma vez com metade da vida
+    [A, B].forEach((L, lado) => { if(L.vida > 0) return; const k = L.itens.findIndex(s => s.uso === 'gatilho' && s.quando === 'morte' && !s.usado);
+      if(k >= 0){ L.itens[k].usado = true; L.vida = Math.round(L.max / 2); marca(lado, 'ativa', {item:k}); marca(lado, 'cura', {valor:L.vida, item:k}); } });
     if(A.vida <= 0 || B.vida <= 0) fim = A.vida <= 0 && B.vida <= 0 ? (A.vida >= B.vida ? 0 : 1) : (A.vida > 0 ? 0 : 1);
   }
   if(fim === null) fim = A.vida / A.max >= B.vida / B.max ? 0 : 1;
@@ -726,15 +824,15 @@ const CHANCES = [[85, 15, 0, 0, 0], [70, 27, 3, 0, 0], [55, 32, 12, 1, 0], [45, 
 const renda = (rodada, perdeuAntes) => 7 + Math.min(rodada, 6) + (perdeuAntes ? 2 : 0);
 const precoVenda = id => ITEM[id].inicial ? 0 : Math.max(1, Math.floor(ITEM[id].preco / 2));
 const custoTroca = trocas => trocas < 4 ? 1 : 2;
-// nivel e caminho do personagem: itens da classe acima do nível, ou de outro caminho, não aparecem
-const naLoja = (it, classe, nivel, caminho) => !it.inicial && !it.fusao && (!it.classe || (it.classe === classe && it.nivel <= (nivel || 1) && (!it.caminho || it.caminho === caminho)));
-function sortearLoja(classe, rodada, r, nivel, caminho){
+// nivel do personagem: itens da classe acima dele não aparecem
+const naLoja = (it, classe, nivel) => !it.inicial && !it.fusao && (!it.classe || (it.classe === classe && it.nivel <= (nivel || 1)));
+function sortearLoja(classe, rodada, r, nivel){
   const ch = CHANCES[Math.min(rodada, CHANCES.length) - 1], L = [];
   for(let i = 0; i < TAM_LOJA; i++){
     let x = r() * 100, rar = 'comum'; for(let k = 0; k < 5; k++){ if(x < ch[k]){ rar = ORDEM_RAR[k]; break; } x -= ch[k]; }
     // os itens da classe aparecem 3 vezes mais que os comuns a todos
-    const pool = ITENS.filter(it => naLoja(it, classe, nivel, caminho) && it.rar === rar && !L.includes(it.id)).flatMap(it => it.classe ? [it, it, it] : [it]);
-    L.push(sortear(pool.length ? pool : ITENS.filter(it => naLoja(it, classe, nivel, caminho) && it.rar === 'comum'), r).id);
+    const pool = ITENS.filter(it => naLoja(it, classe, nivel) && it.rar === rar && !L.includes(it.id)).flatMap(it => it.classe ? [it, it, it] : [it]);
+    L.push(sortear(pool.length ? pool : ITENS.filter(it => naLoja(it, classe, nivel) && it.rar === 'comum'), r).id);
   }
   return L;
 }
@@ -744,12 +842,12 @@ let C = null;   // corrida em andamento
 // modo: 'ranqueada' (todos os itens no nível 0, vale ranking) ou 'normal' (cada item no nível da coleção: niveis = {id: nível})
 const VERSAO_NORMAL = 1000;
 const versaoModo = modo => VERSAO_REGRAS + (modo === 'normal' ? VERSAO_NORMAL : 0);
-function novaCorrida(classe, sem, nivel, caminho, modo, niveis){
+function novaCorrida(classe, sem, nivel, modo, niveis){
   const s = sem == null ? (Date.now() & 0xffffff) : sem;
-  nivel = nivel || 1; caminho = nivel >= NIVEL_CAMINHO ? caminho || null : null; modo = modo === 'normal' ? 'normal' : 'ranqueada';
-  C = {classe, nivel, caminho, modo, niveis:modo === 'normal' ? Object.assign({}, niveis) : {}, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
+  nivel = nivel || 1; modo = modo === 'normal' ? 'normal' : 'ranqueada';
+  C = {classe, nivel, modo, niveis:modo === 'normal' ? Object.assign({}, niveis) : {}, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
   for(const p of C.mochila.pecas.concat(C.mochila.bancada)) if(C.niveis[p.id] > 0) p.n = C.niveis[p.id];
-  C.loja = sortearLoja(classe, 1, semente(misturar(s, 1)), nivel, caminho);
+  C.loja = sortearLoja(classe, 1, semente(misturar(s, 1)), nivel);
   return C;
 }
 function comprar(i){
@@ -767,7 +865,7 @@ function vender(p){
 }
 function trocarLoja(){
   const c = custoTroca(C.trocas); if(C.ouro < c) return false;
-  C.ouro -= c; C.trocas++; C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel, C.caminho); return true;
+  C.ouro -= c; C.trocas++; C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel); return true;
 }
 // depois da luta: soma a vitória ou a derrota, paga a renda e abre a loja da rodada seguinte
 function fecharRodada(venceu, adversario){
@@ -776,7 +874,33 @@ function fecharRodada(venceu, adversario){
   C.perdeuAntes = !venceu;
   if(C.vitorias >= VITORIAS_META || C.derrotas >= VIDAS){ C.fim = true; return; }
   C.rodada++; C.trocas = 0; C.ouro += renda(C.rodada, C.perdeuAntes);
-  C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel, C.caminho);
+  C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel);
+}
+
+// ---- classes de ofício: a cada rodada (antes da luta), a ferramenta trabalha os itens encostados nela ----
+// devolve as mensagens do que aconteceu, para o aviso na tela
+function oficio(m, rodada){
+  const msgs = [], tem = id => m.pecas.some(p => p.id === id), naoBolsa = m.pecas.filter(p => !ehBolsa(p));
+  // têmpera (Bigorna): a peça de metal mais fraca encostada; a Tenaz encostada tempera mais uma nas rodadas pares
+  const maxT = tem('bigornaAncestral') ? 4 : 3;
+  for(const b of naoBolsa.filter(p => ITEM[p.id].oficio === 'tempera')){
+    const vezes = 1 + (vizinhos(m, b).some(q => q.id === 'tenaz') && !((rodada || 0) % 2) ? 1 : 0);   // Tenaz: mais um nas rodadas pares
+    for(let i = 0; i < vezes; i++){
+      const alvo = vizinhos(m, b).filter(q => ITEM[q.id].tags.includes('metal') && ['arma', 'escudo'].includes(ITEM[q.id].tipo) && (q.tempera || 0) < maxT)
+        .sort((x, y) => (x.tempera || 0) - (y.tempera || 0) || ITEM[x.id].preco - ITEM[y.id].preco)[0];
+      if(alvo){ alvo.tempera = (alvo.tempera || 0) + 1; msgs.push(`${ITEM[alvo.id].nome}: têmpera ${alvo.tempera}`); } } }
+  // cultivo (Kit de Herbalismo, Regador, Árvore Anciã): cada erva ganha brotos, até 5
+  const arvore = tem('arvoreAncia');
+  for(const p of naoBolsa.filter(q => ERVA(ITEM[q.id]) && ITEM[q.id].uso !== 'passivo')){
+    const v = vizinhos(m, p), mais = (v.some(q => ITEM[q.id].oficio === 'cultivo') ? 1 : 0) + (v.some(q => q.id === 'regador') ? 1 : 0) + (arvore ? 1 : 0);
+    if(mais && (p.brotos || 0) < 5){ p.brotos = Math.min(5, (p.brotos || 0) + mais); msgs.push(`${ITEM[p.id].nome}: ${p.brotos} ${p.brotos === 1 ? 'broto' : 'brotos'}`); } }
+  // cozimento (Panela, Fogão): 2 rodadas encostada vira prato (1 com o Livro de Receitas ou no Fogão)
+  const livro = tem('livroReceitas');
+  for(const p of naoBolsa.filter(q => ITEM[q.id].tipo === 'comida' && !q.prato)){
+    const panelas = vizinhos(m, p).filter(q => ITEM[q.id].oficio === 'cozinha'); if(!panelas.length) continue;
+    p.cozido = (p.cozido || 0) + 1;
+    if(p.cozido >= (livro || panelas.some(q => ITEM[q.id].rapido) ? 1 : 2)){ p.prato = true; msgs.push(`${ITEM[p.id].nome} virou prato`); } }
+  return msgs;
 }
 
 // ---- o robô: monta uma mochila jogando a loja com as mesmas regras ----
@@ -788,6 +912,9 @@ function valorItem(id, m, classe){
   // quem junta mana precisa de onde gastar: com mana sobrando, magias que gastam valem mais
   if(it.gastaMana && m.pecas.some(p => ITEM[p.id].ao && ITEM[p.id].ao.mana || ITEM[p.id].acerto && ITEM[p.id].acerto.mana)) v += 3;
   if(it.tipo === 'bolsa') v -= 1;
+  // cada ofício valoriza o que a sua ferramenta trabalha
+  const of = CLASSES[classe] && CLASSES[classe].oficio;
+  if(of && ((classe === 'ferreiro' && it.tags.includes('metal') && ['arma', 'escudo'].includes(it.tipo)) || (classe === 'herbalista' && ERVA(it)) || (classe === 'cozinheiro' && it.tipo === 'comida'))) v += 2;
   // item que só ajuda os vizinhos vale pouco sem ninguém para ajudar
   if(it.viz && it.viz.modo === 'da' && !fere(it) && !m.pecas.some(p => combina(ITEM[p.id], it.viz.alvo))) v -= 3;
   return v;
@@ -821,19 +948,19 @@ function roboCompra(m, classe, loja, ouro, r){
   }
   return ouro;
 }
-// nivel e caminho: os do personagem que o robô imita (padrão: nível 10, caminho sorteado)
-function montarRobo(classe, rodada, sem, nivel, caminho){
+// nivel: o do personagem que o robô imita (padrão: nível 10)
+function montarRobo(classe, rodada, sem, nivel){
   const r = semente(sem), m = mochilaNova(classe); m.bancada = [];
-  nivel = nivel || 10; if(nivel >= NIVEL_CAMINHO && !caminho) caminho = sortear(Object.keys(CLASSES[classe].caminhos), r);
+  nivel = nivel || 10;
   let ouro = OURO_INICIAL;
   for(let rd = 1; rd <= rodada; rd++){
     if(rd > 1) ouro += renda(rd, r() < .4);
     for(let troca = 0; troca < 3; troca++){
-      ouro = roboCompra(m, classe, sortearLoja(classe, rd, r, nivel, caminho), ouro, r);
+      ouro = roboCompra(m, classe, sortearLoja(classe, rd, r, nivel), ouro, r);
       if(ouro < 4) break;
       ouro -= 1;
     }
-    fundir(m, nivel);
+    fundir(m, nivel); oficio(m, rd);
   }
   return m;
 }
@@ -899,13 +1026,11 @@ const onlineRanking = () => tentar(() => rpc('ranking_temporada', {p_limite:100}
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
 let PERFIL = temDOM ? ler('tdg-perfil', null) : null;
 if(!PERFIL) PERFIL = {nome:'', corridas:0, vitoriasCorrida:0, melhor:0, pontos:0, colecao:{}};
-PERFIL.xp = PERFIL.xp || {}; PERFIL.caminho = PERFIL.caminho || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
+PERFIL.xp = PERFIL.xp || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
 const gravarPerfil = () => guardar('tdg-perfil', PERFIL);
 
 // ---- experiência de cada personagem (PROGRESSAO.md): quem manda é o servidor; aqui fica uma cópia para jogar offline ----
 const nivelClasse = c => nivelDe(PERFIL.xp[c] || 0);
-// o caminho só vale a partir do nível 5; sem escolha, o primeiro
-const caminhoDe = c => nivelClasse(c).nivel < NIVEL_CAMINHO ? null : (CLASSES[c].caminhos[PERFIL.caminho[c]] ? PERFIL.caminho[c] : Object.keys(CLASSES[c].caminhos)[0]);
 async function sincronizarExperiencia(){
   const L = await onlineExperiencia(); if(!Array.isArray(L)) return false;
   // o servidor é a fonte: classe sem linha lá tem 0 (uma cópia local mexida não libera nada)
@@ -914,7 +1039,7 @@ async function sincronizarExperiencia(){
 }
 // o que cada nível libera: itens da classe e receitas daquele nível
 function liberadosNo(c, n){
-  const itens = ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === n && !(n === 1 && it.inicial)).map(it => ({id:it.id, caminho:it.caminho}));
+  const itens = ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === n && !(n === 1 && it.inicial)).map(it => ({id:it.id}));
   const receitas = RECEITAS.filter(r => r[3] === n && ITEM[r[2]].classe === c).map(r => ({id:r[2], receita:[r[0], r[1]]}));
   return itens.concat(receitas);
 }
@@ -948,7 +1073,7 @@ function pecaHtml(p, tam, extra){
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
   return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
-    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}</div>`;
+    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
 function linhaNumeros(id, s){
@@ -967,13 +1092,13 @@ function telaLobby(){
     <header class="logo"><div class="etiqueta"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1></div></header>
     <div class="nome"><label for="campoNome">Seu nome no ranking</label><div><input id="campoNome" maxlength="20" placeholder="Aventureiro" value="${(PERFIL.nome || '').replace(/"/g, '')}"><span class="status ${conexao.ok === false ? 'off' : conexao.ok ? 'on' : ''}">${conexao.ok === false ? 'Offline' : conexao.ok ? 'Online' : 'Conectando'}</span></div></div>
     <div class="classes">${Object.keys(CLASSES).map(k => { const c = CLASSES[k], ini = ITEM[c.inicial], nv = nivelClasse(k);
-      return `<button class="classe${k === classeEscolhida ? ' on' : ''}" data-classe="${k}" style="--cc:${c.cor}">${retrato(k) ? `<img class="rosto" src="${retrato(k)}" alt="" draggable="false">` : ''}${selo(nv)}
+      return `<button class="classe${k === classeEscolhida ? ' on' : ''}" data-classe="${k}" style="--cc:${c.cor}">${retrato(k) ? `<img class="rosto" src="${retrato(k)}" alt="" draggable="false">` : `<span class="sem-retrato">${c.nome[0]}</span>`}${selo(nv)}
         <span class="txt"><b>${c.nome}</b>${barraXp(nv)}<small>${c.desc}</small><span class="ini">${iconeItem(ini.id)} ${ini.nome}</span></span></button>`; }).join('')}</div>
     ${painelPersonagem(classeEscolhida)}
     <div class="acoes">
       <div class="modos">${['ranqueada', 'normal'].map(k => `<button class="chip${PERFIL.modo === k ? ' on' : ''}" data-modo="${k}"><b>${k === 'ranqueada' ? 'Ranqueada' : 'Normal'}</b><span>${k === 'ranqueada' ? 'Todos os itens no nível 0. Vitórias valem pontos no ranking.' : 'Seus itens lutam no nível das cartas. Não vale ranking.'}</span></button>`).join('')}</div>
       ${s && s.mochila && !s.fim ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias</small></button>` : ''}
-      <button class="btn grande${s && !s.fim ? '' : ' primario'}" id="btJogar">Nova corrida<small>${CLASSES[classeEscolhida].nome}${caminhoDe(classeEscolhida) ? ' ' + CLASSES[classeEscolhida].caminhos[caminhoDe(classeEscolhida)].nome : ''} · nível ${nivelClasse(classeEscolhida).nivel} · 7 vitórias para vencer, 3 derrotas e acaba</small></button>
+      <button class="btn grande${s && !s.fim ? '' : ' primario'}" id="btJogar">Nova corrida<small>${CLASSES[classeEscolhida].nome} · nível ${nivelClasse(classeEscolhida).nivel} · 7 vitórias para vencer, 3 derrotas e acaba</small></button>
       <div class="linha-btns"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
     </div>
     <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'} · ${PERFIL.pontos} pontos no ranking` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha.'}</p>
@@ -984,7 +1109,6 @@ function ligarLobby(){
   const n = $('campoNome'); n.onchange = () => { const v = n.value.trim().slice(0, 20); PERFIL.nome = v; gravarPerfil(); if(v.length >= 2) onlineNome(v).then(ok => { if(ok) avisar('Nome salvo no ranking'); desenhar(); }); };
   $('btJogar').onclick = ev => { const b = ev.currentTarget; if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     comecarCorrida(classeEscolhida); };
-  raiz().querySelectorAll('[data-caminho]').forEach(b => b.onclick = () => { PERFIL.caminho[classeEscolhida] = b.dataset.caminho; gravarPerfil(); desenhar(); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
   raiz().querySelectorAll('[data-modo]').forEach(b => b.onclick = () => { PERFIL.modo = b.dataset.modo; gravarPerfil(); desenhar(); });
   $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
@@ -994,18 +1118,16 @@ function ligarLobby(){
 
 function comecarCorrida(classe){
   const niveis = {}; for(const k in PERFIL.cartas) if(PERFIL.cartas[k].nivel > 0) niveis[k] = PERFIL.cartas[k].nivel;
-  novaCorrida(classe, null, nivelClasse(classe).nivel, caminhoDe(classe), PERFIL.modo, niveis); iniciarNoServidor();
+  novaCorrida(classe, null, nivelClasse(classe).nivel, PERFIL.modo, niveis); iniciarNoServidor();
   salvarCorrida(); sel = null; tela = 'loja'; desenhar();
 }
-// o personagem escolhido: nível, experiência, caminho (do nível 5 em diante) e o próximo desbloqueio
+// o personagem escolhido: nível, experiência e o próximo desbloqueio
 function painelPersonagem(c){
-  const nv = nivelClasse(c), cs = CLASSES[c].caminhos, cam = caminhoDe(c);
+  const nv = nivelClasse(c);
   const prox = nv.nivel < 10 ? liberadosNo(c, nv.nivel + 1) : [];
   return `<div class="personagem" style="--cc:${CLASSES[c].cor}">
     <div class="pl-topo">${selo(nv)}<b>${CLASSES[c].nome}</b><span class="pl-xp">${nv.nivel < 10 ? `${nv.xp - nv.de} / ${nv.ate - nv.de} para o nível ${nv.nivel + 1}` : `${nv.xp - nv.de} / ${XP_ESTRELA} para a próxima estrela`}</span></div>
     ${barraXp(nv, 'grossa')}
-    ${nv.nivel >= NIVEL_CAMINHO ? `<div class="caminhos"><small>Caminho desta corrida</small>${Object.keys(cs).map(k => `<button class="chip${k === cam ? ' on' : ''}" data-caminho="${k}"><b>${cs[k].nome}</b><span>${cs[k].desc}</span></button>`).join('')}</div>`
-      : `<p class="pl-nota">No nível ${NIVEL_CAMINHO} você escolhe um caminho: ${Object.values(cs).map(x => x.nome).join(' ou ')}.</p>`}
     ${prox.length ? `<p class="pl-prox">Próximo nível libera: ${prox.map(x => `<span class="mini-item">${iconeItem(x.id)}${ITEM[x.id].nome}</span>`).join('')}</p>` : ''}
     <button class="btn sm" id="btTrilha">Ver a trilha do personagem</button>
   </div>`;
@@ -1015,8 +1137,8 @@ function painelPersonagem(c){
 function telaTrilha(){
   const c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c);
   const linhas = NIVEIS_XP.map((xp, i) => { const n = i + 1, aberto = nv.nivel >= n, L = n === 1 ? ITENS.filter(it => it.classe === c && !it.fusao && it.nivel === 1).map(it => ({id:it.id})) : liberadosNo(c, n);
-    const cartoes = L.map(x => `<div class="tr-item${aberto ? '' : ' fechado'}" style="--rar:${raridade(x.id).cor}"><span class="pic">${iconeItem(x.id)}</span><span><b>${ITEM[x.id].nome}</b>${x.caminho ? `<em>${C0.caminhos[x.caminho].nome}</em>` : ''}${x.receita ? `<em>Receita: ${x.receita.map(r => ITEM[r].nome).join(' + ')}</em>` : ''}<small>${ITEM[x.id].texto}</small></span></div>`).join('');
-    return `<li class="${aberto ? 'aberto' : ''}${nv.nivel === n ? ' atual' : ''}"><div class="tr-n"><b>${n}</b><small>${xp} XP</small></div><div class="tr-l">${n === NIVEL_CAMINHO ? '<p class="tr-tit">Especialização: escolha o caminho no começo de cada corrida</p>' : ''}${n === 1 ? '<p class="tr-tit">Começa com</p>' : ''}${cartoes}${n === 10 ? `<p class="tr-tit">Prestígio: moldura dourada e uma estrela a cada ${XP_ESTRELA} XP depois do nível 10</p>` : ''}</div></li>`; }).join('');
+    const cartoes = L.map(x => `<div class="tr-item${aberto ? '' : ' fechado'}" style="--rar:${raridade(x.id).cor}"><span class="pic">${iconeItem(x.id)}</span><span><b>${ITEM[x.id].nome}</b>${x.receita ? `<em>Receita: ${x.receita.map(r => ITEM[r].nome).join(' + ')}</em>` : ''}<small>${ITEM[x.id].texto}</small></span></div>`).join('');
+    return `<li class="${aberto ? 'aberto' : ''}${nv.nivel === n ? ' atual' : ''}"><div class="tr-n"><b>${n}</b><small>${xp} XP</small></div><div class="tr-l">${n === 1 ? '<p class="tr-tit">Começa com</p>' : ''}${cartoes}${n === 10 ? `<p class="tr-tit">Prestígio: moldura dourada e uma estrela a cada ${XP_ESTRELA} XP depois do nível 10</p>` : ''}</div></li>`; }).join('');
   return `<section class="trilha-tela" style="--cc:${C0.cor}"><header class="tr-cab">${retrato(c) ? `<img class="rosto" src="${retrato(c)}" alt="">` : ''}<div><h1>${C0.nome}</h1>${selo(nv)} ${barraXp(nv, 'grossa')}<small>${nv.xp} XP no total${PERFIL.mult > 1 ? ` · bônus de experiência ${String(PERFIL.mult).replace('.', ',')}×` : ''}</small></div></header>
     <p class="sub">Experiência por corrida: 2 por rodada, 3 por vitória e 10 ao fechar 7 vitórias. Só conta jogando online, até 250 por dia. Os itens liberados trazem opções novas, não força a mais.</p>
     <ol class="trilha">${linhas}</ol><button class="btn" id="btVoltar">Voltar</button></section>`;
@@ -1158,7 +1280,10 @@ if(temDOM && typeof window !== 'undefined') window.addEventListener('contextmenu
 // ---- a luta ----
 async function comecarLuta(){
   const bt = $('btLutar'); if(bt){ bt.disabled = true; bt.innerHTML = 'Procurando adversário…'; }
-  const feitas = fundir(C.mochila, C.nivel || 1); if(feitas.length) avisar('Fusão: ' + feitas.map(id => ITEM[id].nome).join(', '), 2600);
+  const feitas = fundir(C.mochila, C.nivel || 1);
+  // a ferramenta do ofício trabalha uma vez por rodada
+  const ofi = C.oficioRodada === C.rodada ? [] : oficio(C.mochila, C.rodada); C.oficioRodada = C.rodada;
+  const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
   if(C.corrida == null && corridaPendente) await Promise.race([corridaPendente, new Promise(r => setTimeout(r, 3000))]);
@@ -1288,7 +1413,6 @@ function blocoXp(){
     ${x.ganho < Math.floor(x.base * x.mult) ? `<p class="pl-nota">Limite de experiência de hoje atingido.</p>` : ''}
     ${subiu ? `<p class="xp-subiu">${x.depois.nivel > x.antes.nivel ? `Nível ${x.depois.nivel}!` : 'Nova estrela de prestígio!'}</p>` : ''}
     ${x.lib.length ? `<p class="pl-prox">Liberado: ${x.lib.map(l => `<span class="mini-item">${iconeItem(l.id)}${ITEM[l.id].nome}</span>`).join('')}</p>` : ''}
-    ${x.depois.nivel >= NIVEL_CAMINHO && x.antes.nivel < NIVEL_CAMINHO ? '<p class="pl-nota">Agora você escolhe um caminho no lobby.</p>' : ''}
     ${x.bronze || Object.keys(x.cartas).length ? `<p class="pl-prox">Ganhou: <span class="mini-item bronze">${ic('moeda')} ${x.bronze} de bronze</span>${Object.entries(x.cartas).map(([id, q]) => ITEM[id] ? `<span class="mini-item">${iconeItem(id)}${q}× ${ITEM[id].nome}</span>` : '').join('')}</p>` : ''}</div>`;
 }
 function telaFim(){

@@ -36,6 +36,24 @@ const DESC = {
   muralha:'an enormous tower shield like a castle wall with a war banner on top', prismaGelado:'a floating ice prism crystal refracting cold blue light',
   cajadoInfernal:'a blackened staff crowned with roaring hellfire and embers', zarabatanaPeconha:'a dark bamboo blowgun dripping green venom with snake carvings',
   veuNoite:'a flowing midnight-blue hooded veil with stars and wisps of smoke',
+  // classes de ofício, Onda 1
+  bigorna:'a heavy black iron blacksmith anvil with a glowing orange-hot spot', marteloForja:'a sturdy blacksmith forging hammer with a wooden handle', lingote:'a shiny stack of iron ingots',
+  fole:'a leather blacksmith bellows with a brass nozzle puffing a little flame', armaduraPlacas:'a full shining steel plate armor chest piece with gold trim', laminaMestre:'a masterwork longsword with a rippled damascus blade and a gold-inlaid hilt',
+  tenaz:'a pair of long blacksmith tongs holding a glowing hot metal piece', rebites:'a handful of big iron rivets and a small rivet hammer', baldeTempera:'a wooden quenching bucket of water with steam rising',
+  montante:'a huge two-handed greatsword with a long steel blade', pedraAfiar:'a fine blue sharpening whetstone in a small wooden holder', elmoFechado:'a closed great helm of polished steel with a narrow visor and red plume',
+  escarpas:'a pair of armored steel sabatons boots', forjaPortatil:'a small portable brick forge with glowing coals', bigornaAncestral:'an ancient anvil carved with glowing golden runes',
+  kitHerbal:'an open herbalism kit with little jars, dried herbs and a tiny sickle in a leather case', salvia:'a fresh sprig of sage leaves glowing softly', raizAmarga:'a twisted bitter purple root dripping a little green juice',
+  florVigor:'a bright yellow sun-like flower glowing with energy', cogumeloGigante:'a big plump red-capped mushroom with white spots', arvoreAncia:'a small ancient bonsai tree in a clay pot with glowing leaves',
+  regador:'a copper watering can with a few water droplets', pilao:'a stone mortar and pestle with crushed green herbs', musgo:'a soft clump of glowing healing green moss',
+  chaCamomila:'a steaming cup of chamomile tea with little daisies', balsamo:'a small round tin of healing balm with a golden lid', beladona:'a deadly nightshade plant with dark purple berries',
+  espinheiro:'a thorny hawthorn branch with sharp thorns and small white flowers', estufa:'a tiny glass greenhouse case full of green sprouts', sementeMundo:'a glowing golden seed sprouting a tiny world tree',
+  panela:'a sturdy copper cooking pot with a lid and steam', colherPau:'a big wooden cooking spoon', temperos:'a little wooden box of colorful spices and peppercorns',
+  caldeirao:'a bubbling iron cauldron of hot soup with steam', banquete:'a lavish feast platter with roast meat, bread, fruit and cheese', livroReceitas:'an old recipe book with a ribbon bookmark and food stains',
+  avental:'a clean white cooking apron with a red-checkered pocket', facaCozinha:'a sharp kitchen chef knife', pimenta:'a fiery red chili pepper with tiny flames',
+  bolo:'a festive layered cake with cream, strawberries and a candle', mel:'a clay honey pot with a wooden dipper dripping golden honey', espeto:'a skewer of grilled meat with flames',
+  carvao:'a few glowing red-hot charcoal lumps', roloMassa:'a wooden rolling pin dusted with flour', fogao:'a small cast-iron wood stove with glowing fire inside',
+  marteloRunico:'a blacksmith hammer with glowing blue runes on the head', armaduraErica:'a steel plate armor covered with sharp spikes', elixirVerde:'a round flask of bright glowing green elixir with leaves',
+  extratoMortal:'a small dark vial of deadly purple-green extract with a skull cork', sanduiche:'a big tasty sandwich with cheese, ham and lettuce', ensopadoVovo:'a big rustic clay bowl of grandma stew with vegetables and steam',
 };
 const temPintura = it => fs.existsSync(path.join(__dirname, '..', 'imagens', 'item-' + it.id + '.webp'));
 const BASE = 'Single fantasy game item painted in the same style as the reference image: stylized painterly rendering with realistic textures (wood grain, leather, polished metal, glass), warm cinematic lighting with a soft colored rim light, a few small magical glints, vibrant but harmonious colors, clean readable silhouette, the object centered and filling most of the frame, isolated on a flat pure magenta (#FF00FF) background, no shadow on the background, no text, no letters, no logo, no watermark.';

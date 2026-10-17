@@ -11,8 +11,8 @@ function lutador(m, classe, nome){
   const L = {nome, classe, vida:C.vida, max:C.vida, vigor:3, bloq:0, forca:0, queima:0, veneno:0, regen:0, esquiva:0, gelo:0, espinhos:0, mana:0,
     atord:0, raiva:0, perdeu:0, aoCrit:[], itens:[]};
   for(const p of m.pecas){ const s = N[p.uid]; if(!s) continue;
-    L.itens.push(Object.assign(s, {x:p.x, y:p.y, g:p.g, t:0, usado:false, golpes:0}));
-    if(s.uso === 'passivo' && s.inicio) aplicarInicio(L, s.inicio);
+    L.itens.push(Object.assign(s, {x:p.x, y:p.y, g:p.g, t:0, usado:false, golpes:0, usou:0, espera:0}));
+    if(s.inicio) aplicarInicio(L, s.inicio);   // passivos, e também têmpera ou prato em itens que agem
     if(s.aoCritico) L.aoCrit.push({ao:s.aoCritico, k:L.itens.length - 1}); }
   L.vida = L.max; L.vigor = Math.min(VIGOR_MAX + 2, L.vigor);
   return L;
@@ -84,8 +84,9 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
             else if(s.semMana){ marca(lado, 'magia', {item:k, fraca:true}); efeito(eu, ini, lado, s.semMana, k); } }
           else { marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.aleatorio ? s.aleatorio[Math.floor(r() * s.aleatorio.length)] : s.ao, k); }
         }
-      } else if(s.uso === 'gatilho' && !s.usado){
-        if((s.quando === 'vidaBaixa' && eu.vida < eu.max / 2) || (s.quando === 'tempo' && t >= s.t)){ s.usado = true; marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.ao, k); }
+      } else if(s.uso === 'gatilho' && !s.usado && t >= s.espera){
+        // poção perto do Kit de Herbalismo (usos 2) volta a funcionar 5 s depois
+        if((s.quando === 'vidaBaixa' && eu.vida < eu.max / 2) || (s.quando === 'tempo' && t >= s.t)){ s.usou++; s.usado = s.usou >= (s.usos || 1); s.espera = t + 5; marca(lado, 'ativa', {item:k}); efeito(eu, ini, lado, s.ao, k); }
       }
     });
   }
@@ -102,6 +103,9 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
       });
       if(t > CANSACO){ cansaco++; [A, B].forEach((L, lado) => ferir(L, lado, cansaco, {tipo:'cansaco', direto:true})); }
     }
+    // Semente do Mundo: quem cai volta uma vez com metade da vida
+    [A, B].forEach((L, lado) => { if(L.vida > 0) return; const k = L.itens.findIndex(s => s.uso === 'gatilho' && s.quando === 'morte' && !s.usado);
+      if(k >= 0){ L.itens[k].usado = true; L.vida = Math.round(L.max / 2); marca(lado, 'ativa', {item:k}); marca(lado, 'cura', {valor:L.vida, item:k}); } });
     if(A.vida <= 0 || B.vida <= 0) fim = A.vida <= 0 && B.vida <= 0 ? (A.vida >= B.vida ? 0 : 1) : (A.vida > 0 ? 0 : 1);
   }
   if(fim === null) fim = A.vida / A.max >= B.vida / B.max ? 0 : 1;

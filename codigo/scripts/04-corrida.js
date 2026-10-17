@@ -5,15 +5,15 @@ const CHANCES = [[85, 15, 0, 0, 0], [70, 27, 3, 0, 0], [55, 32, 12, 1, 0], [45, 
 const renda = (rodada, perdeuAntes) => 7 + Math.min(rodada, 6) + (perdeuAntes ? 2 : 0);
 const precoVenda = id => ITEM[id].inicial ? 0 : Math.max(1, Math.floor(ITEM[id].preco / 2));
 const custoTroca = trocas => trocas < 4 ? 1 : 2;
-// nivel e caminho do personagem: itens da classe acima do nível, ou de outro caminho, não aparecem
-const naLoja = (it, classe, nivel, caminho) => !it.inicial && !it.fusao && (!it.classe || (it.classe === classe && it.nivel <= (nivel || 1) && (!it.caminho || it.caminho === caminho)));
-function sortearLoja(classe, rodada, r, nivel, caminho){
+// nivel do personagem: itens da classe acima dele não aparecem
+const naLoja = (it, classe, nivel) => !it.inicial && !it.fusao && (!it.classe || (it.classe === classe && it.nivel <= (nivel || 1)));
+function sortearLoja(classe, rodada, r, nivel){
   const ch = CHANCES[Math.min(rodada, CHANCES.length) - 1], L = [];
   for(let i = 0; i < TAM_LOJA; i++){
     let x = r() * 100, rar = 'comum'; for(let k = 0; k < 5; k++){ if(x < ch[k]){ rar = ORDEM_RAR[k]; break; } x -= ch[k]; }
     // os itens da classe aparecem 3 vezes mais que os comuns a todos
-    const pool = ITENS.filter(it => naLoja(it, classe, nivel, caminho) && it.rar === rar && !L.includes(it.id)).flatMap(it => it.classe ? [it, it, it] : [it]);
-    L.push(sortear(pool.length ? pool : ITENS.filter(it => naLoja(it, classe, nivel, caminho) && it.rar === 'comum'), r).id);
+    const pool = ITENS.filter(it => naLoja(it, classe, nivel) && it.rar === rar && !L.includes(it.id)).flatMap(it => it.classe ? [it, it, it] : [it]);
+    L.push(sortear(pool.length ? pool : ITENS.filter(it => naLoja(it, classe, nivel) && it.rar === 'comum'), r).id);
   }
   return L;
 }
@@ -23,12 +23,12 @@ let C = null;   // corrida em andamento
 // modo: 'ranqueada' (todos os itens no nível 0, vale ranking) ou 'normal' (cada item no nível da coleção: niveis = {id: nível})
 const VERSAO_NORMAL = 1000;
 const versaoModo = modo => VERSAO_REGRAS + (modo === 'normal' ? VERSAO_NORMAL : 0);
-function novaCorrida(classe, sem, nivel, caminho, modo, niveis){
+function novaCorrida(classe, sem, nivel, modo, niveis){
   const s = sem == null ? (Date.now() & 0xffffff) : sem;
-  nivel = nivel || 1; caminho = nivel >= NIVEL_CAMINHO ? caminho || null : null; modo = modo === 'normal' ? 'normal' : 'ranqueada';
-  C = {classe, nivel, caminho, modo, niveis:modo === 'normal' ? Object.assign({}, niveis) : {}, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
+  nivel = nivel || 1; modo = modo === 'normal' ? 'normal' : 'ranqueada';
+  C = {classe, nivel, modo, niveis:modo === 'normal' ? Object.assign({}, niveis) : {}, sem:s, rodada:1, vitorias:0, derrotas:0, ouro:OURO_INICIAL, perdeuAntes:false, trocas:0, mochila:mochilaNova(classe), loja:[], historico:[], fim:false, corrida:null};
   for(const p of C.mochila.pecas.concat(C.mochila.bancada)) if(C.niveis[p.id] > 0) p.n = C.niveis[p.id];
-  C.loja = sortearLoja(classe, 1, semente(misturar(s, 1)), nivel, caminho);
+  C.loja = sortearLoja(classe, 1, semente(misturar(s, 1)), nivel);
   return C;
 }
 function comprar(i){
@@ -46,7 +46,7 @@ function vender(p){
 }
 function trocarLoja(){
   const c = custoTroca(C.trocas); if(C.ouro < c) return false;
-  C.ouro -= c; C.trocas++; C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel, C.caminho); return true;
+  C.ouro -= c; C.trocas++; C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel); return true;
 }
 // depois da luta: soma a vitória ou a derrota, paga a renda e abre a loja da rodada seguinte
 function fecharRodada(venceu, adversario){
@@ -55,7 +55,33 @@ function fecharRodada(venceu, adversario){
   C.perdeuAntes = !venceu;
   if(C.vitorias >= VITORIAS_META || C.derrotas >= VIDAS){ C.fim = true; return; }
   C.rodada++; C.trocas = 0; C.ouro += renda(C.rodada, C.perdeuAntes);
-  C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel, C.caminho);
+  C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel);
+}
+
+// ---- classes de ofício: a cada rodada (antes da luta), a ferramenta trabalha os itens encostados nela ----
+// devolve as mensagens do que aconteceu, para o aviso na tela
+function oficio(m, rodada){
+  const msgs = [], tem = id => m.pecas.some(p => p.id === id), naoBolsa = m.pecas.filter(p => !ehBolsa(p));
+  // têmpera (Bigorna): a peça de metal mais fraca encostada; a Tenaz encostada tempera mais uma nas rodadas pares
+  const maxT = tem('bigornaAncestral') ? 4 : 3;
+  for(const b of naoBolsa.filter(p => ITEM[p.id].oficio === 'tempera')){
+    const vezes = 1 + (vizinhos(m, b).some(q => q.id === 'tenaz') && !((rodada || 0) % 2) ? 1 : 0);   // Tenaz: mais um nas rodadas pares
+    for(let i = 0; i < vezes; i++){
+      const alvo = vizinhos(m, b).filter(q => ITEM[q.id].tags.includes('metal') && ['arma', 'escudo'].includes(ITEM[q.id].tipo) && (q.tempera || 0) < maxT)
+        .sort((x, y) => (x.tempera || 0) - (y.tempera || 0) || ITEM[x.id].preco - ITEM[y.id].preco)[0];
+      if(alvo){ alvo.tempera = (alvo.tempera || 0) + 1; msgs.push(`${ITEM[alvo.id].nome}: têmpera ${alvo.tempera}`); } } }
+  // cultivo (Kit de Herbalismo, Regador, Árvore Anciã): cada erva ganha brotos, até 5
+  const arvore = tem('arvoreAncia');
+  for(const p of naoBolsa.filter(q => ERVA(ITEM[q.id]) && ITEM[q.id].uso !== 'passivo')){
+    const v = vizinhos(m, p), mais = (v.some(q => ITEM[q.id].oficio === 'cultivo') ? 1 : 0) + (v.some(q => q.id === 'regador') ? 1 : 0) + (arvore ? 1 : 0);
+    if(mais && (p.brotos || 0) < 5){ p.brotos = Math.min(5, (p.brotos || 0) + mais); msgs.push(`${ITEM[p.id].nome}: ${p.brotos} ${p.brotos === 1 ? 'broto' : 'brotos'}`); } }
+  // cozimento (Panela, Fogão): 2 rodadas encostada vira prato (1 com o Livro de Receitas ou no Fogão)
+  const livro = tem('livroReceitas');
+  for(const p of naoBolsa.filter(q => ITEM[q.id].tipo === 'comida' && !q.prato)){
+    const panelas = vizinhos(m, p).filter(q => ITEM[q.id].oficio === 'cozinha'); if(!panelas.length) continue;
+    p.cozido = (p.cozido || 0) + 1;
+    if(p.cozido >= (livro || panelas.some(q => ITEM[q.id].rapido) ? 1 : 2)){ p.prato = true; msgs.push(`${ITEM[p.id].nome} virou prato`); } }
+  return msgs;
 }
 
 // ---- o robô: monta uma mochila jogando a loja com as mesmas regras ----
@@ -67,6 +93,9 @@ function valorItem(id, m, classe){
   // quem junta mana precisa de onde gastar: com mana sobrando, magias que gastam valem mais
   if(it.gastaMana && m.pecas.some(p => ITEM[p.id].ao && ITEM[p.id].ao.mana || ITEM[p.id].acerto && ITEM[p.id].acerto.mana)) v += 3;
   if(it.tipo === 'bolsa') v -= 1;
+  // cada ofício valoriza o que a sua ferramenta trabalha
+  const of = CLASSES[classe] && CLASSES[classe].oficio;
+  if(of && ((classe === 'ferreiro' && it.tags.includes('metal') && ['arma', 'escudo'].includes(it.tipo)) || (classe === 'herbalista' && ERVA(it)) || (classe === 'cozinheiro' && it.tipo === 'comida'))) v += 2;
   // item que só ajuda os vizinhos vale pouco sem ninguém para ajudar
   if(it.viz && it.viz.modo === 'da' && !fere(it) && !m.pecas.some(p => combina(ITEM[p.id], it.viz.alvo))) v -= 3;
   return v;
@@ -100,19 +129,19 @@ function roboCompra(m, classe, loja, ouro, r){
   }
   return ouro;
 }
-// nivel e caminho: os do personagem que o robô imita (padrão: nível 10, caminho sorteado)
-function montarRobo(classe, rodada, sem, nivel, caminho){
+// nivel: o do personagem que o robô imita (padrão: nível 10)
+function montarRobo(classe, rodada, sem, nivel){
   const r = semente(sem), m = mochilaNova(classe); m.bancada = [];
-  nivel = nivel || 10; if(nivel >= NIVEL_CAMINHO && !caminho) caminho = sortear(Object.keys(CLASSES[classe].caminhos), r);
+  nivel = nivel || 10;
   let ouro = OURO_INICIAL;
   for(let rd = 1; rd <= rodada; rd++){
     if(rd > 1) ouro += renda(rd, r() < .4);
     for(let troca = 0; troca < 3; troca++){
-      ouro = roboCompra(m, classe, sortearLoja(classe, rd, r, nivel, caminho), ouro, r);
+      ouro = roboCompra(m, classe, sortearLoja(classe, rd, r, nivel), ouro, r);
       if(ouro < 4) break;
       ouro -= 1;
     }
-    fundir(m, nivel);
+    fundir(m, nivel); oficio(m, rd);
   }
   return m;
 }

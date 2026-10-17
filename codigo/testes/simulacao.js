@@ -1,7 +1,7 @@
 // Teste do jogo sem navegador: confere a mochila, a luta (sempre igual com a mesma semente) e o balanceamento das classes.
 // O robô monta mochilas jogando a loja; elas lutam entre si por rodada.
 // Uso: node codigo/testes/simulacao.js [lutas por confronto, padrão 60]
-const t = require('./carregar')('ehBolsa, nivelDe, lugarLivre, C, CLASSES, ITENS, ITEM, RECEITAS, novaCorrida, comprar, vender, trocarLoja, fecharRodada, mochilaNova, peca, por, tirar, podePor, forma, numeros, fundir, fotoMochila, deFoto, lutar, montarRobo, adversarioRobo, vizinhos, casasAbertas');
+const t = require('./carregar')('oficio, POR_TEMPERA, ehBolsa, nivelDe, lugarLivre, C, CLASSES, ITENS, ITEM, RECEITAS, novaCorrida, comprar, vender, trocarLoja, fecharRodada, mochilaNova, peca, por, tirar, podePor, forma, numeros, fundir, fotoMochila, deFoto, lutar, montarRobo, adversarioRobo, vizinhos, casasAbertas');
 const N = +(process.argv[2] || 60);
 let falhas = 0; const confere = (c, m) => { if(!c){ falhas++; if(falhas < 25) console.log('  FALHA: ' + m); } };
 
@@ -63,15 +63,16 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   for(const c of Object.keys(t.CLASSES)){
     const raras = new Set(t.ITENS.filter(it => it.classe === c && !it.fusao && !it.inicial && it.nivel === 1).map(it => it.rar));
     confere(['comum', 'incomum', 'rara', 'epica', 'lendaria'].every(r => raras.has(r)), c + ' tem item de toda raridade já no nível 1');
-    for(const cam of Object.keys(t.CLASSES[c].caminhos)) confere(t.ITENS.filter(it => it.caminho === cam).length === 2, cam + ' tem 2 itens'); }
-  // loja de nível 1 só tem itens de nível 1; de nível 5 com caminho, nunca o outro caminho
-  let errado = 0, viuCaminho = 0;
+    confere(!t.ITENS.some(it => it.caminho) && !t.CLASSES[c].caminhos, c + ' é um personagem único (sem caminhos)');
+    confere([2, 3, 4, 5, 6, 7, 9].every(n => t.ITENS.some(it => it.classe === c && !it.fusao && it.nivel === n)), c + ' libera item nos níveis 2 a 7 e 9'); }
+  // loja de nível 1 só tem itens de nível 1; a de nível 6 mostra os do 5 e do 6, nunca os do 7
+  let errado = 0, viuNivel = 0;
   for(let i = 0; i < 400; i++){ t.novaCorrida('guerreiro', i, 1); t.C.rodada = 7; t.trocarLoja(); t.C.ouro = 99;
     for(const id of t.C.loja) if(id && t.ITEM[id].nivel > 1) errado++; }
-  for(let i = 0; i < 400; i++){ t.novaCorrida('guerreiro', i, 6, 'berserker'); t.C.rodada = 7; t.C.ouro = 99; t.trocarLoja();
-    for(const id of t.C.loja) if(id){ if(t.ITEM[id].caminho === 'escudeiro') errado++; if(t.ITEM[id].caminho === 'berserker') viuCaminho++; } }
-  confere(!errado, 'loja mostrou item acima do nível ou de outro caminho (' + errado + ')');
-  confere(viuCaminho > 0, 'a loja de nível 6 berserker mostra os itens do caminho');
+  for(let i = 0; i < 400; i++){ t.novaCorrida('guerreiro', i, 6); t.C.rodada = 7; t.C.ouro = 99; t.trocarLoja();
+    for(const id of t.C.loja) if(id){ if(t.ITEM[id].nivel > 6) errado++; if(t.ITEM[id].nivel === 6) viuNivel++; } }
+  confere(!errado, 'loja mostrou item acima do nível (' + errado + ')');
+  confere(viuNivel > 0, 'a loja de nível 6 mostra os itens do nível 6');
   // receita com nível: só funde a partir dele
   const fazer = nivel => { const m = t.mochilaNova('guerreiro'); m.pecas = m.pecas.filter(p => p.id === 'mochila');
     t.por(m, t.peca('machadoFuria'), 3, 2, 0); t.por(m, t.peca('trombeta'), 5, 2, 1); return t.fundir(m, nivel); };
@@ -88,6 +89,24 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   { const r = t.lutar(so(['sorrisoHiena', 'adaga', 'adaga'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'esquiva' && e.lado === 0), 'Sorriso da Hiena: crítico dá esquiva'); }
   { const r = t.lutar(so(['bolsaTruques'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'ativa' && e.lado === 0), 'Bolsa de Truques age'); }
 }
+// ---- classes de ofício ----
+{ const base = c => { const m = t.mochilaNova(c); t.por(m, t.peca('bolsaCouro'), 6, 2, 0); t.por(m, t.peca('bolsaCouro'), 1, 2, 0); return m; };
+  // Bigorna (3,2 até 4,3) tempera a espada encostada, até 3
+  { const m = base('ferreiro'), e = t.peca('espadaCurta'); confere(t.por(m, e, 5, 2, 0), 'espada ao lado da bigorna');
+    for(let i = 0; i < 5; i++) t.oficio(m); confere(e.tempera === 3, 'Bigorna tempera até 3 (' + e.tempera + ')');
+    const n = t.numeros(m); confere(n[e.uid].dano[0] === 2 + 3 * t.POR_TEMPERA, 'têmpera soma dano (' + n[e.uid].dano + ')');
+    const f = t.deFoto(JSON.parse(JSON.stringify(t.fotoMochila(m)))); confere(f.pecas.find(p => p.id === 'espadaCurta').tempera === 3, 'a foto leva a têmpera'); }
+  // Kit (3,2 e 3,3): sálvia encostada ganha brotos; poção encostada funciona duas vezes
+  { const m = base('herbalista'), s = t.peca('salvia'), p = t.peca('pocaoCura'); t.por(m, s, 4, 2, 0); t.por(m, p, 4, 3, 0);
+    t.oficio(m); t.oficio(m); confere(s.brotos === 2, 'sálvia com 2 brotos (' + s.brotos + ')');
+    const n = t.numeros(m); confere(n[s.uid].ao.cura === 3 && n[p.uid].usos === 2, 'brotos aumentam a cura e a poção no kit tem 2 usos'); }
+  // Panela (3,2 até 4,3): maçã vira prato em 2 rodadas
+  { const m = base('cozinheiro'), a = t.peca('maca'); t.por(m, a, 5, 2, 0); t.oficio(m); confere(!a.prato && a.cozido === 1, 'maçã cozinhando');
+    t.oficio(m); confere(a.prato, 'maçã virou prato'); const n = t.numeros(m); confere(n[a.uid].ao.cura >= 3 && n[a.uid].inicio.vida === 4, 'prato cura mais e dá vida'); }
+  // Semente do Mundo: volta uma vez
+  { const m = base('herbalista'); t.por(m, t.peca('sementeMundo'), 5, 2, 0); const a = base('guerreiro'); t.por(a, t.peca('martelo'), 5, 2, 0); t.por(a, t.peca('espadaLonga'), 1, 2, 0);
+    const r = t.lutar(a, 'guerreiro', 'A', m, 'herbalista', 'B', 3); confere(r.eventos.some(e => e.tipo === 'cura' && e.lado === 1 && e.valor >= 20), 'Semente do Mundo ressuscita'); }
+}
 // ---- nível dos itens pelas cartas (modo normal) ----
 { const m = t.mochilaNova('guerreiro'); m.pecas = m.pecas.filter(p => p.id === 'mochila');
   const e = t.peca('espadaLonga', 0, 0, 0, 10), b = t.peca('escudoMadeira', 0, 0, 0, 4); t.por(m, e, 3, 2, 0); t.por(m, b, 4, 2, 0);
@@ -96,16 +115,16 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   confere(t.ITEM.espadaLonga.dano[0] === 6, 'o nível não mexe na tabela de itens');
   const f = t.fotoMochila(m), m2 = t.deFoto(JSON.parse(JSON.stringify(f)));
   confere(m2.pecas.find(p => p.id === 'espadaLonga').n === 10 && !('n' in f.find(x => x.id === 'mochila')), 'a foto leva o nível dos itens');
-  t.novaCorrida('guerreiro', 3, 1, null, 'normal', {insignia:3, clava:5});
+  t.novaCorrida('guerreiro', 3, 1, 'normal', {insignia:3, clava:5});
   confere(t.C.mochila.pecas.find(p => p.id === 'insignia').n === 3, 'modo normal: item inicial no nível da coleção');
   t.C.loja[0] = 'clava'; t.C.ouro = 99; confere(t.comprar(0).n === 5, 'modo normal: item comprado no nível da coleção');
-  t.novaCorrida('guerreiro', 3, 1, null, 'ranqueada', {insignia:3, clava:5}); t.C.loja[0] = 'clava'; t.C.ouro = 99;
+  t.novaCorrida('guerreiro', 3, 1, 'ranqueada', {insignia:3, clava:5}); t.C.loja[0] = 'clava'; t.C.ouro = 99;
   confere(!t.comprar(0).n && !t.C.mochila.pecas.some(p => p.n), 'ranqueada: todos no nível 0');
   // a mesma mochila do robô no nível 10 contra ela mesma no nível 0
   let v = 0; for(let i = 0; i < 60; i++){ const c = classes[i % 3], a = t.montarRobo(c, 6, 400 + i), b2 = t.deFoto(t.fotoMochila(a)); for(const p of a.pecas) if(!t.ehBolsa(p)) p.n = 10;
     if(t.lutar(a, c, 'n10', b2, c, 'n0', i).vencedor === 0) v++; }
   console.log('Mesma mochila, itens nível 10 contra nível 0: ' + Math.round(v / 60 * 100) + '% de vitórias do nível 10'); }
-// nível 1 contra nível 10 da mesma classe (regra de ouro: opções, não poder) e cada caminho contra todos
+// nível 1 contra nível 10 da mesma classe (regra de ouro: opções, não poder)
 { const lin = [];
   for(const c of classes){ let v = 0, n = 0;
     for(const rodada of [3, 5, 7, 9]) for(let i = 0; i < N / 2; i++){ id++;
@@ -113,12 +132,6 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
       const r = t.lutar(a, c, 'n1', b, c, 'n10', id); n++; if(r.vencedor === 0) v++; }
     lin.push(`${t.CLASSES[c].nome} ${(v / n * 100).toFixed(0)}%`); }
   console.log('Nível 1 contra nível 10 (vitórias do nível 1): ' + lin.join(' · '));
-  const cam = [];
-  for(const c of classes) for(const k of Object.keys(t.CLASSES[c].caminhos)){ let v = 0, n = 0;
-    for(const rodada of [5, 7, 9]) for(const o of classes) for(let i = 0; i < N / 4; i++){ id++;
-      const a = t.montarRobo(c, rodada, 7000 + id * 3, 10, k), b = t.montarRobo(o, rodada, 8000 + id * 7, 10);
-      const r = t.lutar(a, c, 'a', b, o, 'b', id); n++; if(r.vencedor === 0) v++; }
-    cam.push(`${t.CLASSES[c].caminhos[k].nome} ${(v / n * 100).toFixed(0)}%`); }
-  console.log('Caminhos (nível 10) contra todos: ' + cam.join(' · ')); }
+}
 console.log(falhas ? `\n✘ ${falhas} falha(s)` : '\n✔ Tudo certo');
 process.exit(falhas ? 1 : 0);

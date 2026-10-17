@@ -270,3 +270,26 @@ Decisões do usuário:
 2. Os dois modos e o nível dos itens na luta, com medição no simulador. Esforço **médio**.
 3. Telas de coleção, loja de cartas e recompensas. Esforço **alto**.
 4. Pinturas das cartas: a pintura do item vira a carta, com moldura de raridade feita em código, sem arte nova. Esforço **baixo**.
+
+## 11. Onda 1 implementada (16/10/2026)
+Ferreiro, Herbalista e Cozinheiro estão no jogo, com os itens da seção 6. Mudanças em relação ao plano:
+- **Têmpera:** a arma ganha +2 de dano por nível, e a armadura +3 de bloqueio.
+  - A Tenaz encostada na Bigorna tempera mais um item por rodada.
+  - A Bigorna Ancestral leva a têmpera até 4.
+  - A Forja Portátil virou um item que dá força e bloqueio durante a luta.
+- **Cultivo:** cada broto dá +25% no efeito da erva, até 5 brotos.
+  - Recebem brotos as ervas encostadas no Kit, no Regador e, com a Árvore Anciã, todas as ervas da mochila.
+  - Poção encostada no Kit funciona duas vezes, com 5 segundos de intervalo.
+  - O Pilão ficou como apoio: +1 no efeito e as ervas vizinhas agem mais rápido.
+  - A Estufa é uma bolsa.
+- **Cozimento:** a comida encostada na Panela por 2 rodadas vira prato, com +60% no efeito e +4 de vida.
+  - Com o Livro de Receitas, ou encostada no Fogão de Ferro, fica pronta em 1 rodada.
+- **Prato e ofício na foto:** a têmpera, os brotos e o prato vão na foto da mochila, para valer também contra jogadores online.
+- **Equilíbrio:** ajustado no simulador, com os números finais na resposta da publicação.
+
+## 12. Sem especializações (16/10/2026, decisão do usuário)
+- Cada personagem é **único**: não existem mais caminhos nem especializações (como Berserker e Escudeiro ou Armeiro e Couraceiro).
+- Os 4 itens que eram dos caminhos foram para a trilha de níveis:
+  - as duas incomuns no **nível 5**;
+  - uma épica no **nível 6** e a outra no **nível 7**.
+- Os níveis 5, 6 e 7 agora liberam itens novos.
