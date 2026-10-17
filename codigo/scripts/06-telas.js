@@ -330,11 +330,34 @@ function tocarLuta(){
   };
   requestAnimationFrame(passo);
 }
+// estatísticas da luta, pelos eventos: dano (com o que o bloqueio segurou), cura e bloqueio de cada item, dos dois lados
+const EFEITOS_SEM_ITEM = {queimadura:'Queimadura', venenoDano:'Veneno', espinhos:'Espinhos'};
+function estatisticas(r){
+  const S = [0, 1].map(k => ({itens:r.lados[k].itens.map(s => ({id:s.id, dano:0, cura:0, bloq:0})), extra:{}, cura:0}));
+  for(const e of r.eventos){
+    if(['dano', 'magia'].includes(e.tipo) && e.valor != null && e.item != null){ const it = S[1 - e.lado].itens[e.item]; if(it) it.dano += e.valor + (e.bloqueado || 0); }
+    else if(EFEITOS_SEM_ITEM[e.tipo] && e.valor != null){ const x = S[1 - e.lado].extra; x[e.tipo] = (x[e.tipo] || 0) + e.valor + (e.bloqueado || 0); }
+    else if(e.tipo === 'cura'){ if(e.item != null && S[e.lado].itens[e.item]) S[e.lado].itens[e.item].cura += e.valor; else S[e.lado].cura += e.valor; }
+    else if(e.tipo === 'bloqueio' && e.item != null && S[e.lado].itens[e.item]) S[e.lado].itens[e.item].bloq += e.valor;
+  }
+  return S;
+}
+function statsHtml(r){
+  const S = estatisticas(r), lado = k => { const s = S[k], linhas = s.itens.filter(i => i.dano || i.cura || i.bloq).sort((a, b) => (b.dano + b.cura + b.bloq) - (a.dano + a.cura + a.bloq));
+    const tot = {dano:linhas.reduce((a, i) => a + i.dano, 0) + Object.values(s.extra).reduce((a, v) => a + v, 0), cura:linhas.reduce((a, i) => a + i.cura, 0) + s.cura, bloq:linhas.reduce((a, i) => a + i.bloq, 0)};
+    return `<div class="st-lado"><h3>${r.lados[k].nome}</h3><table><tr><th></th><th>Dano</th><th>Cura</th><th>Bloq.</th></tr>
+      ${linhas.map(i => `<tr><td><span class="st-ic">${iconeItem(i.id)}</span>${ITEM[i.id].nome}</td><td>${i.dano || ''}</td><td>${i.cura || ''}</td><td>${i.bloq || ''}</td></tr>`).join('')}
+      ${Object.entries(s.extra).map(([t, v]) => `<tr class="st-ef"><td>${EFEITOS_SEM_ITEM[t]}</td><td>${v}</td><td></td><td></td></tr>`).join('')}
+      ${s.cura ? `<tr class="st-ef"><td>Regeneração</td><td></td><td>${s.cura}</td><td></td></tr>` : ''}
+      <tr class="st-tot"><td>Total</td><td>${tot.dano}</td><td>${tot.cura}</td><td>${tot.bloq}</td></tr></table></div>`; };
+  return lado(0) + lado(1);
+}
 function mostrarResultado(){
   const L = lutaAtual; if(L.fechada) return; L.fechada = true;
   const el = $('resultado'); el.hidden = false;
   el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu');
-  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (L.venceu && C.modo !== 'normal' ? ': +10 pontos no ranking.' : '.') : ''}</p><button class="btn primario grande" id="btSeguir">Continuar</button>`;
+  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (L.venceu && C.modo !== 'normal' ? ': +10 pontos no ranking.' : '.') : ''}</p><div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
+  $('btStats').onclick = () => { const st = $('stats'); st.hidden = !st.hidden; el.classList.toggle('largo', !st.hidden); };
   $('btSeguir').onclick = () => {
     fecharRodada(L.venceu, L.adv.nome); lutaAtual = null;
     if(C.fim){ PERFIL.corridas++; if(C.vitorias >= VITORIAS_META) PERFIL.vitoriasCorrida++; PERFIL.melhor = Math.max(PERFIL.melhor, C.vitorias); gravarPerfil(); tela = 'fim'; fecharNoServidor(); }

@@ -205,3 +205,16 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .acoes-fim{ display:flex; gap:8px; justify-content:center; margin-top:6px; }
 @media (max-width:420px){ .cartas{ grid-template-columns:repeat(2, 1fr); } .modos{ grid-template-columns:1fr; } }
 .carta .btn.sm, .oferta .btn.sm{ display:flex; flex-direction:row; align-items:center; justify-content:center; gap:4px; } .carta .btn.sm .ic, .oferta .btn.sm .ic{ width:15px; height:15px; filter:sepia(1) hue-rotate(-25deg) saturate(1.3) brightness(.85); }
+
+/* ---------- estatísticas no fim da luta ---------- */
+.res-btns{ display:flex; gap:8px; justify-content:center; align-items:center; }
+.resultado.largo{ background:#1d1b24; width:min(94vw, 760px); max-height:88vh; overflow-y:auto; }
+.stats{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; text-align:left; }
+.st-lado h3{ font-size:17px; color:var(--ambar); margin-bottom:4px; }
+.stats table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+.stats th{ font-weight:600; color:var(--suave); font-size:11px; text-align:right; padding:2px 4px; }
+.stats td{ padding:3px 4px; border-top:1px solid var(--borda); text-align:right; font-variant-numeric:tabular-nums; }
+.stats td:first-child{ text-align:left; display:flex; align-items:center; gap:5px; }
+.st-ic{ width:22px; height:22px; flex:none; display:inline-flex; } .st-ic img, .st-ic .ic{ width:100%; height:100%; object-fit:contain; }
+.st-ef td{ color:var(--suave); font-style:italic; } .st-tot td{ font-weight:800; color:var(--texto); border-top:1px solid var(--borda2); }
+@media (max-width:560px){ .stats{ grid-template-columns:1fr; } }
