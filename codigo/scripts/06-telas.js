@@ -48,7 +48,7 @@ function pecaHtml(p, tam, extra){
   const f = forma(p.id, p.g), d = ITEM[p.id], bolsa = d.tipo === 'bolsa';
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
-  return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
+  return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" data-rar="${d.rar}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
     <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.lapida > 0 ? `<b class="ofp lp">L${p.lapida}</b>` : p.costura > 0 ? `<b class="ofp cs">C${p.costura}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
@@ -140,8 +140,8 @@ function telaLoja(){
   const ligadas = sel && sel.onde === 'mochila' ? new Set(vizinhos(m, sel.p).map(q => q.uid)) : new Set();
   const pecas = m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => `<div class="posto" style="left:${p.x * TAM}px;top:${p.y * TAM}px">${pecaHtml(p, TAM, (sel && sel.p === p ? ' sel' : '') + (ligadas.has(p.uid) ? ' viz' : '') + (N[p.uid] && N[p.uid].recebeu.length ? ' turbinada' : ''))}</div>`).join('');
   const banc = m.bancada.map(p => `<div class="nabanc">${pecaHtml(p, Math.round(TAM * .62), sel && sel.p === p ? ' sel' : '')}</div>`).join('');
-  const loja = C.loja.map((id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}">
-      <span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><span class="preco">${ic('moeda')} ${ITEM[id].preco}</span></button>` : `<div class="item-loja vazio">vendido</div>`).join('');
+  const loja = C.loja.map((id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
+      <span class="rar-tag">${raridade(id).nome}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><span class="preco">${ic('moeda')} ${ITEM[id].preco}</span></button>` : `<div class="item-loja vazio">vendido</div>`).join('');
   return `<section class="loja-tela">${hud()}
     <div class="area">
       <div class="lado-mochila">

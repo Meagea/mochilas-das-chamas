@@ -224,3 +224,21 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .classe .sem-retrato{ width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--cc) 50%, #222), #15131a); font-family:var(--fonte-titulo); font-size:64px; font-weight:800; color:rgba(255,255,255,.85); }
 .classes{ grid-template-columns:repeat(3, 1fr); }
 .ofp.lp{ background:#1c2a4a; color:#a8c8ff; border:1px solid #7a9ad8; } .ofp.cs{ background:#3a2814; color:#e0b080; border:1px solid #a0703a; }
+
+/* ---------- cartões por raridade: cor, borda e brilho cada vez mais fortes ---------- */
+.peca:not(.bolsa) > i{ border-width:2px; background:radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--rar) 42%, #3a3546), color-mix(in srgb, var(--rar) 16%, #1e1b26) 75%); }
+.peca[data-rar="incomum"]:not(.bolsa) > i{ box-shadow:inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 10px color-mix(in srgb, var(--rar) 30%, transparent), 0 3px 8px rgba(0,0,0,.45); }
+.peca[data-rar="rara"]:not(.bolsa) > i{ box-shadow:inset 0 0 14px color-mix(in srgb, var(--rar) 45%, transparent), 0 0 8px color-mix(in srgb, var(--rar) 35%, transparent), 0 3px 8px rgba(0,0,0,.45); }
+.peca[data-rar="epica"]:not(.bolsa) > i{ box-shadow:inset 0 0 16px color-mix(in srgb, var(--rar) 55%, transparent), 0 0 12px color-mix(in srgb, var(--rar) 50%, transparent), 0 3px 8px rgba(0,0,0,.45); }
+.peca[data-rar="lendaria"]:not(.bolsa) > i{ box-shadow:inset 0 0 18px color-mix(in srgb, var(--rar) 60%, transparent), 0 0 16px color-mix(in srgb, var(--rar) 65%, transparent), 0 3px 8px rgba(0,0,0,.45); animation:lenda 2.4s ease-in-out infinite; }
+@keyframes lenda{ 50%{ box-shadow:inset 0 0 22px color-mix(in srgb, var(--rar) 75%, transparent), 0 0 24px color-mix(in srgb, var(--rar) 85%, transparent), 0 3px 8px rgba(0,0,0,.45); } }
+/* um losango da cor da raridade no canto de cada item */
+.peca:not(.bolsa)::before{ content:''; position:absolute; left:5px; bottom:5px; width:7px; height:7px; transform:rotate(45deg); background:var(--rar); box-shadow:0 0 6px var(--rar); z-index:2; pointer-events:none; }
+.peca[data-rar="comum"]:not(.bolsa)::before{ opacity:.6; box-shadow:none; }
+/* loja: faixa com o nome da raridade, fundo mais forte e brilho nas raras para cima */
+.item-loja{ border-width:2px; background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--rar) 34%, var(--painel2)), var(--painel2) 75%); padding-top:16px; }
+.item-loja .rar-tag{ position:absolute; left:0; right:0; top:0; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:2px 0; color:#15131a; background:var(--rar); }
+.item-loja[data-rar="rara"]{ box-shadow:0 0 10px color-mix(in srgb, var(--rar) 40%, transparent); }
+.item-loja[data-rar="epica"]{ box-shadow:0 0 14px color-mix(in srgb, var(--rar) 55%, transparent); }
+.item-loja[data-rar="lendaria"]{ box-shadow:0 0 18px color-mix(in srgb, var(--rar) 70%, transparent); animation:lendaLoja 2.4s ease-in-out infinite; }
+@keyframes lendaLoja{ 50%{ box-shadow:0 0 28px color-mix(in srgb, var(--rar) 90%, transparent); } }

@@ -267,6 +267,24 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .classe .sem-retrato{ width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--cc) 50%, #222), #15131a); font-family:var(--fonte-titulo); font-size:64px; font-weight:800; color:rgba(255,255,255,.85); }
 .classes{ grid-template-columns:repeat(3, 1fr); }
 .ofp.lp{ background:#1c2a4a; color:#a8c8ff; border:1px solid #7a9ad8; } .ofp.cs{ background:#3a2814; color:#e0b080; border:1px solid #a0703a; }
+
+/* ---------- cartões por raridade: cor, borda e brilho cada vez mais fortes ---------- */
+.peca:not(.bolsa) > i{ border-width:2px; background:radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--rar) 42%, #3a3546), color-mix(in srgb, var(--rar) 16%, #1e1b26) 75%); }
+.peca[data-rar="incomum"]:not(.bolsa) > i{ box-shadow:inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 10px color-mix(in srgb, var(--rar) 30%, transparent), 0 3px 8px rgba(0,0,0,.45); }
+.peca[data-rar="rara"]:not(.bolsa) > i{ box-shadow:inset 0 0 14px color-mix(in srgb, var(--rar) 45%, transparent), 0 0 8px color-mix(in srgb, var(--rar) 35%, transparent), 0 3px 8px rgba(0,0,0,.45); }
+.peca[data-rar="epica"]:not(.bolsa) > i{ box-shadow:inset 0 0 16px color-mix(in srgb, var(--rar) 55%, transparent), 0 0 12px color-mix(in srgb, var(--rar) 50%, transparent), 0 3px 8px rgba(0,0,0,.45); }
+.peca[data-rar="lendaria"]:not(.bolsa) > i{ box-shadow:inset 0 0 18px color-mix(in srgb, var(--rar) 60%, transparent), 0 0 16px color-mix(in srgb, var(--rar) 65%, transparent), 0 3px 8px rgba(0,0,0,.45); animation:lenda 2.4s ease-in-out infinite; }
+@keyframes lenda{ 50%{ box-shadow:inset 0 0 22px color-mix(in srgb, var(--rar) 75%, transparent), 0 0 24px color-mix(in srgb, var(--rar) 85%, transparent), 0 3px 8px rgba(0,0,0,.45); } }
+/* um losango da cor da raridade no canto de cada item */
+.peca:not(.bolsa)::before{ content:''; position:absolute; left:5px; bottom:5px; width:7px; height:7px; transform:rotate(45deg); background:var(--rar); box-shadow:0 0 6px var(--rar); z-index:2; pointer-events:none; }
+.peca[data-rar="comum"]:not(.bolsa)::before{ opacity:.6; box-shadow:none; }
+/* loja: faixa com o nome da raridade, fundo mais forte e brilho nas raras para cima */
+.item-loja{ border-width:2px; background:radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--rar) 34%, var(--painel2)), var(--painel2) 75%); padding-top:16px; }
+.item-loja .rar-tag{ position:absolute; left:0; right:0; top:0; font-size:9px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:2px 0; color:#15131a; background:var(--rar); }
+.item-loja[data-rar="rara"]{ box-shadow:0 0 10px color-mix(in srgb, var(--rar) 40%, transparent); }
+.item-loja[data-rar="epica"]{ box-shadow:0 0 14px color-mix(in srgb, var(--rar) 55%, transparent); }
+.item-loja[data-rar="lendaria"]{ box-shadow:0 0 18px color-mix(in srgb, var(--rar) 70%, transparent); animation:lendaLoja 2.4s ease-in-out infinite; }
+@keyframes lendaLoja{ 50%{ box-shadow:0 0 28px color-mix(in srgb, var(--rar) 90%, transparent); } }
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -357,13 +375,13 @@ const NOME_TIPO = {arma:'Arma', escudo:'Defesa', comida:'Comida', pocao:'Poção
 const CLASSES = {
   guerreiro:{nome:'Guerreiro', vida:59, cor:'#d9483b', inicial:'insignia', desc:'Força e bloqueio. Aguenta a pancada e devolve mais forte.'},
   mago:     {nome:'Mago', vida:58, cor:'#3d8fb5', inicial:'grimorio', desc:'Junta mana e solta magias fortes de fogo e gelo.'},
-  ladino:   {nome:'Ladino', vida:46, cor:'#5aa84a', inicial:'kitVeneno', desc:'Golpes rápidos, veneno e esquiva. Vence pelo cansaço.'},
+  ladino:   {nome:'Ladino', vida:48, cor:'#5aa84a', inicial:'kitVeneno', desc:'Golpes rápidos, veneno e esquiva. Vence pelo cansaço.'},
   // classes de ofício (ferramentas de artesão): a ferramenta inicial trabalha os itens encostados nela a cada rodada (oficio em 04-corrida.js)
   ferreiro:  {nome:'Ferreiro', vida:55, cor:'#c8783a', inicial:'bigorna', oficio:true, desc:'A Bigorna tempera as armas e armaduras de metal encostadas, rodada após rodada.'},
   herbalista:{nome:'Herbalista', vida:57, cor:'#4fae6a', inicial:'kitHerbal', oficio:true, desc:'As ervas encostadas no Kit criam brotos e ficam mais fortes a cada rodada.'},
   alquimista:{nome:'Alquimista', vida:57, cor:'#d8603a', inicial:'kitAlquimia', oficio:true, desc:'O Kit de Alquimia fabrica um frasco instável a cada rodada: fogo, gelo ou ácido.'},
   coureiro:  {nome:'Coureiro', vida:60, cor:'#a0703a', inicial:'ferramentasCouro', oficio:true, desc:'As Ferramentas de Couro costuram as bolsas: itens dentro de bolsa costurada ficam mais fortes.'},
-  joalheiro: {nome:'Joalheiro', vida:58, cor:'#7a9ad8', inicial:'lupa', oficio:true, desc:'A Lupa lapida as gemas encostadas; gemas dão bônus às armas vizinhas, mais a cada lapidação.'},
+  joalheiro: {nome:'Joalheiro', vida:61, cor:'#7a9ad8', inicial:'lupa', oficio:true, desc:'A Lupa lapida as gemas encostadas; gemas dão bônus às armas vizinhas, mais a cada lapidação.'},
   cozinheiro:{nome:'Cozinheiro', vida:64, cor:'#e0a040', inicial:'panela', oficio:true, desc:'A comida encostada na Panela vira um prato melhor depois de 2 rodadas.'},
 };
 // experiência total para chegar a cada nível (o índice 0 é o nível 1); depois do 10, cada estrela de prestígio custa mais XP_ESTRELA
@@ -378,7 +396,7 @@ function nivelDe(xp){
 const I = (id, nome, o) => Object.assign({id, nome, rar:'comum', tipo:'acessorio', tags:[], classe:null, forma:['#'], arte:'estrela'}, o);
 const ITENS = [
   // ---- bolsas ----
-  I('mochila', 'Mochila Velha', {tipo:'bolsa', forma:['###', '###', '###'], arte:'etiqueta', inicial:true, preco:0, texto:'A sua mochila. Não pode ser vendida.'}),
+  I('mochila', 'Mochila Velha', {tipo:'bolsa', forma:['####', '####', '####', '####'], arte:'etiqueta', inicial:true, preco:0, texto:'A sua mochila. Não pode ser vendida.'}),
   I('bolsaCouro', 'Bolsa de Couro', {tipo:'bolsa', forma:['##', '##'], arte:'etiqueta', preco:4, texto:'Abre 4 casas na mochila.'}),
   I('bolsaLonga', 'Bolsa Comprida', {tipo:'bolsa', forma:['###'], arte:'etiqueta', preco:3, texto:'Abre 3 casas em fila.'}),
   I('bolsaErvas', 'Bolsa de Ervas', {tipo:'bolsa', rar:'incomum', forma:['##', '##'], arte:'folha', preco:6, dentro:{alvo:{tipo:['comida', 'pocao']}, bonus:{cd:.2}}, texto:'Abre 4 casas. Comida e poções dentro dela agem 20% mais rápido.'}),
@@ -547,9 +565,9 @@ const ITENS = [
   I('mascaraGas', 'Máscara de Gás', {classe:'alquimista', nivel:7, rar:'rara', tipo:'escudo', forma:['##'], arte:'nevoa', uso:'passivo', inicio:{bloqueio:9, regen:1}, texto:'Começa com 9 de bloqueio e 1 de regeneração.'}),
   I('atanor', 'Atanor', {classe:'alquimista', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['fogo'], uso:'passivo', oficio:'alquimia', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{aoMais:{dano:2}}}, texto:'Fabrica frascos como o Kit, e a mochila comporta até 5. Começa com 6 de bloqueio.'}),
   // os frascos instáveis só nascem do Kit (não aparecem na loja e não valem ouro)
-  I('frascoFogo', 'Frasco Instável de Fogo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'chama', tags:['frasco', 'fogo'], uso:'gatilho', quando:'tempo', t:2.5, ao:{dano:8, queimar:3}, texto:'Explode depois de 2,5 s: 8 de dano e queima 3.'}),
-  I('frascoGelo', 'Frasco Instável de Gelo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gelo', tags:['frasco', 'gelo'], uso:'gatilho', quando:'tempo', t:2, ao:{gelo:5, dano:4}, texto:'Explode depois de 2 s: 4 de dano e 5 de gelo.'}),
-  I('frascoAcido', 'Frasco Instável de Ácido', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], uso:'gatilho', quando:'tempo', t:3, ao:{corroer:10, envenenar:3}, texto:'Explode depois de 3 s: corrói 10 de bloqueio e envenena 3.'}),
+  I('frascoFogo', 'Frasco Instável de Fogo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'chama', tags:['frasco', 'fogo'], uso:'gatilho', quando:'tempo', t:2.5, ao:{dano:6, queimar:2}, texto:'Explode depois de 2,5 s: 6 de dano e queima 2.'}),
+  I('frascoGelo', 'Frasco Instável de Gelo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gelo', tags:['frasco', 'gelo'], uso:'gatilho', quando:'tempo', t:2, ao:{gelo:4, dano:3}, texto:'Explode depois de 2 s: 3 de dano e 4 de gelo.'}),
+  I('frascoAcido', 'Frasco Instável de Ácido', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], uso:'gatilho', quando:'tempo', t:3, ao:{corroer:8, envenenar:2}, texto:'Explode depois de 3 s: corrói 8 de bloqueio e envenena 2.'}),
 
   // ---- Coureiro: costura (bolsa costurada: +20% nos itens dentro dela por nível, até 3) ----
   I('ferramentasCouro', 'Ferramentas de Couro', {classe:'coureiro', forma:['##'], arte:'ferramenta', inicial:true, preco:0, uso:'passivo', oficio:'costura', texto:'A cada rodada, costura as bolsas em que encosta (até 3 vezes cada): os itens dentro delas ficam 20% mais fortes por costura.'}),
@@ -626,7 +644,7 @@ const RECEITAS = [
   ['agulhao', 'amolar', 'sovela', 6], ['gibao', 'escudoMadeira', 'couracaReforcada', 8],
   ['quartzo', 'espadaCurta', 'espadaJoias', 6], ['rubi', 'safira', 'pedraPrisma', 8],
 ];
-const VERSAO_REGRAS = 5;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
+const VERSAO_REGRAS = 6;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
 // ---------- A mochila: grade, formatos girados, bolsas, vizinhança e fusões ----------
 // A área da mochila tem LARG × ALT casas. Só as casas abertas por bolsas aceitam itens. Cada peça na mochila é
 // {uid, id, x, y, g}: (x, y) é o canto de cima à esquerda do formato já girado; g é o giro (0 a 3, de 90 em 90 graus).
@@ -1195,7 +1213,7 @@ function pecaHtml(p, tam, extra){
   const f = forma(p.id, p.g), d = ITEM[p.id], bolsa = d.tipo === 'bolsa';
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
-  return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
+  return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" data-rar="${d.rar}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
     <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.lapida > 0 ? `<b class="ofp lp">L${p.lapida}</b>` : p.costura > 0 ? `<b class="ofp cs">C${p.costura}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
@@ -1287,8 +1305,8 @@ function telaLoja(){
   const ligadas = sel && sel.onde === 'mochila' ? new Set(vizinhos(m, sel.p).map(q => q.uid)) : new Set();
   const pecas = m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => `<div class="posto" style="left:${p.x * TAM}px;top:${p.y * TAM}px">${pecaHtml(p, TAM, (sel && sel.p === p ? ' sel' : '') + (ligadas.has(p.uid) ? ' viz' : '') + (N[p.uid] && N[p.uid].recebeu.length ? ' turbinada' : ''))}</div>`).join('');
   const banc = m.bancada.map(p => `<div class="nabanc">${pecaHtml(p, Math.round(TAM * .62), sel && sel.p === p ? ' sel' : '')}</div>`).join('');
-  const loja = C.loja.map((id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}">
-      <span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><span class="preco">${ic('moeda')} ${ITEM[id].preco}</span></button>` : `<div class="item-loja vazio">vendido</div>`).join('');
+  const loja = C.loja.map((id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
+      <span class="rar-tag">${raridade(id).nome}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><span class="preco">${ic('moeda')} ${ITEM[id].preco}</span></button>` : `<div class="item-loja vazio">vendido</div>`).join('');
   return `<section class="loja-tela">${hud()}
     <div class="area">
       <div class="lado-mochila">

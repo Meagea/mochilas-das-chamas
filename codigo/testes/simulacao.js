@@ -9,12 +9,12 @@ let falhas = 0; const confere = (c, m) => { if(!c){ falhas++; if(falhas < 25) co
 confere(t.forma('martelo', 0).w === 2 && t.forma('martelo', 0).h === 3 && t.forma('martelo', 1).w === 3 && t.forma('martelo', 1).h === 2, 'giro do martelo');
 for(const it of t.ITENS) for(let g = 0; g < 4; g++) confere(t.forma(it.id, g).casas.length === t.forma(it.id, 0).casas.length, 'giro muda o tamanho de ' + it.id);
 // mochila: começa com a bolsa 3x3 e o item da classe
-for(const c of Object.keys(t.CLASSES)){ const m = t.mochilaNova(c); confere(t.casasAbertas(m).size === 9 && m.pecas.length === 2, 'mochila inicial de ' + c); }
+for(const c of Object.keys(t.CLASSES)){ const m = t.mochilaNova(c); confere(t.casasAbertas(m).size === 16 && m.pecas.length === 2, 'mochila inicial de ' + c); }
 { const m = t.mochilaNova('guerreiro'), b = t.peca('bolsaCouro');
   confere(!t.por(m, b, 4, 3, 0), 'bolsa por cima de outra bolsa deveria ser recusada');
-  confere(t.por(m, b, 6, 2, 0), 'bolsa ao lado deveria caber');
-  const e = t.peca('espadaCurta'); confere(t.por(m, e, 6, 2, 0), 'espada em cima da bolsa nova');
-  confere(t.por(m, b, 6, 4, 0) && e.y === 4, 'mover a bolsa leva a espada junto');
+  confere(t.por(m, b, 7, 2, 0), 'bolsa ao lado deveria caber');
+  const e = t.peca('espadaCurta'); confere(t.por(m, e, 7, 2, 0), 'espada em cima da bolsa nova');
+  confere(t.por(m, b, 7, 4, 0) && e.y === 4, 'mover a bolsa leva a espada junto');
   confere(!t.por(m, t.peca('espadaLonga'), 0, 0, 0), 'item fora das bolsas deveria ser recusado');
   const fora = t.tirar(m, b); confere(fora.length === 2, 'tirar a bolsa leva o que está em cima'); }
 // vizinhança e fusão
@@ -78,7 +78,7 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
     t.por(m, t.peca('machadoFuria'), 3, 2, 0); t.por(m, t.peca('trombeta'), 5, 2, 1); return t.fundir(m, nivel); };
   confere(!fazer(5).length && fazer(6).includes('machadoClamor'), 'Machado do Clamor só funde no nível 6');
   // mecânicas novas
-  const so = (ids, classe) => { const m = t.mochilaNova(classe); m.pecas = m.pecas.filter(p => p.id === 'mochila'); t.por(m, t.peca('bolsaCouro'), 6, 2, 0); t.por(m, t.peca('bolsaCouro'), 0, 2, 0);
+  const so = (ids, classe) => { const m = t.mochilaNova(classe); m.pecas = m.pecas.filter(p => p.id === 'mochila'); t.por(m, t.peca('bolsaCouro'), 7, 2, 0); t.por(m, t.peca('bolsaCouro'), 0, 2, 0);
     for(const id of ids){ const l = t.lugarLivre(m, id); if(l) t.por(m, t.peca(id), l.x, l.y, l.g); } return m; };
   const alvo = so(['escudoMadeira'], 'mago');
   { const r = t.lutar(so(['marteloCerco'], 'guerreiro'), 'guerreiro', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'atordoado' && e.lado === 1), 'Martelo de Cerco atordoa'); }
@@ -90,7 +90,7 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   { const r = t.lutar(so(['bolsaTruques'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'ativa' && e.lado === 0), 'Bolsa de Truques age'); }
 }
 // ---- classes de ofício ----
-{ const base = c => { const m = t.mochilaNova(c); t.por(m, t.peca('bolsaCouro'), 6, 2, 0); t.por(m, t.peca('bolsaCouro'), 1, 2, 0); return m; };
+{ const base = c => { const m = t.mochilaNova(c); t.por(m, t.peca('bolsaCouro'), 7, 2, 0); t.por(m, t.peca('bolsaCouro'), 1, 2, 0); return m; };
   // Bigorna (3,2 até 4,3) tempera a espada encostada, até 3
   { const m = base('ferreiro'), e = t.peca('espadaCurta'); confere(t.por(m, e, 5, 2, 0), 'espada ao lado da bigorna');
     for(let i = 0; i < 5; i++) t.oficio(m); confere(e.tempera === 3, 'Bigorna tempera até 3 (' + e.tempera + ')');
