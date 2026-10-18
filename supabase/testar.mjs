@@ -24,6 +24,7 @@ const XP = fs.readFileSync(new URL('./03-experiencia.sql', import.meta.url), 'ut
 const CARTAS = fs.readFileSync(new URL('./04-cartas.sql', import.meta.url), 'utf8'); await db.exec(CARTAS); await db.exec(CARTAS); ok(true, '04-cartas.sql rodou (duas vezes)');
 await db.exec(SQL); ok(true, 'esquema.sql rodou de novo (pode repetir sem estragar)');
 const NOMES = fs.readFileSync(new URL('./05-nomes.sql', import.meta.url), 'utf8'); await db.exec(NOMES); await db.exec(NOMES); ok(true, '05-nomes.sql rodou (duas vezes)');
+const RANKED = fs.readFileSync(new URL('./06-ranked.sql', import.meta.url), 'utf8'); await db.exec(RANKED); await db.exec(RANKED); ok(true, '06-ranked.sql rodou (duas vezes)');
 
 const U1 = '11111111-1111-1111-1111-111111111111', U2 = '22222222-2222-2222-2222-222222222222';
 await db.exec(`insert into auth.users values ('${U1}'), ('${U2}')`);
@@ -44,11 +45,12 @@ ok(adv.length === 1 && adv[0].nome === 'Mirelle' && adv[0].itens.length === 2, '
 ok((await como(U2, `select * from sortear_adversario(4, 1, 0)`)).length === 0, 'rodada sem mochilas: nada (o jogo usa as do próprio jogo)');
 let pts; for(let i = 0; i < 3; i++) pts = (await como(U2, `select registrar_luta(true, 3) as p`))[0].p;
 await como(U2, `select registrar_luta(false, 3)`);
-ok(pts === 30, '3 vitórias = 30 pontos (' + pts + ')');
+{ const l = (await db.query(`select vitorias, derrotas, pontos from ranking where jogador_id = '${U2}'`)).rows[0];
+  ok(l.vitorias === 3 && l.derrotas === 1 && l.pontos === 0, 'luta online conta vitórias e derrotas, sem pontos de liga (' + JSON.stringify(l) + ')'); }
 const rk = await como(null, `select * from ranking_temporada(10)`);
-ok(rk.length === 1 && rk[0].nome === 'Torvald' && rk[0].pontos === 30 && Number(rk[0].posicao) === 1, 'ranking: Torvald em 1º com 30');
+ok(rk.length === 0, 'ranking só mostra quem já fez corrida ranqueada');
 for(let i = 0; i < 70; i++) pts = (await como(U1, `select registrar_luta(true, 1) as p`))[0].p;
-ok(pts === 600, 'teto de 60 lutas por dia (' + pts + ' pontos)');
+ok(Number((await db.query(`select lutas_hoje from ranking where jogador_id = '${U1}'`)).rows[0].lutas_hoje) === 60, 'teto de 60 lutas por dia');
 for(let i = 0; i < 305; i++) await como(U1, `select enviar_mochila(5, 'mago', 1, $1::jsonb, 0, 5)`, [itens]);
 ok(Number((await db.query(`select count(*) c from mochilas where rodada = 5`)).rows[0].c) === 300, 'só as 300 mochilas mais recentes da rodada ficam');
 
@@ -194,5 +196,42 @@ await db.exec('reset role');
   ok(!(await como(null, `select * from ranking_temporada(50)`)).some(r => r.nome === 'Torvald'), 'jogador bloqueado some do ranking');
   ok((await como(U2, `select registrar_luta(true, 1) as p`))[0].p === 0, 'jogador bloqueado não pontua');
   await db.exec(`update jogadores set bloqueado = false where id = '${U2}'`);
+}
+
+// ---- ranked com ligas (06-ranked.sql) ----
+{
+  const relogio = async c => db.exec(`update corridas set ultima_rodada_em = now() - interval '1 minute' where id = ${c}`);
+  const corrida = async (uid, modo, rodadas, vit) => {
+    const c = (await como(uid, `select iniciar_corrida('mago', $1) as c`, [modo]))[0].c;
+    for(let r = 1; r <= rodadas; r++){ await como(uid, `select enviar_mochila($1, 'mago', 9, '[]'::jsonb, 0, 3, $2)`, [r, c]); await relogio(c); }
+    return (await como(uid, `select * from fechar_corrida($1, $2)`, [c, vit]))[0];
+  };
+  const meu = async uid => (await como(uid, `select * from meu_rank()`))[0];
+  await db.exec(`update multiplicadores set dia = current_date - 1, xp_hoje = 0`);
+  const f1 = await corrida(U1, 'ranqueada', 9, 7);
+  ok(f1.rank_antes === 0 && f1.rank_depois === 104, 'Bronze, 7 vitórias: 84 + 20 = 104 pontos (' + f1.rank_antes + ' → ' + f1.rank_depois + ')');
+  const f2 = await corrida(U1, 'normal', 9, 7);
+  ok(f2.rank_antes === null && Number((await meu(U1)).pontos) === 104, 'corrida normal não mexe nos pontos de liga');
+  await db.exec(`update ranking set pontos = 900 where jogador_id = '${U1}' and temporada = temporada_atual()`);
+  const f3 = await corrida(U1, 'ranqueada', 5, 2);
+  ok(f3.rank_depois === 894 && (await meu(U1)).liga === 2, 'Ouro, 2 vitórias: 24 − 30 = −6 (' + f3.rank_depois + ')');
+  await db.exec(`update ranking set pontos = 410 where jogador_id = '${U1}' and temporada = temporada_atual()`);
+  const f4 = await corrida(U1, 'ranqueada', 3, 0);
+  ok(f4.rank_depois === 390 && (await meu(U1)).liga === 0, 'Prata sem vitórias: −20 e cai para o Bronze (' + f4.rank_depois + ')');
+  await db.exec(`update ranking set pontos = 10 where jogador_id = '${U1}' and temporada = temporada_atual()`);
+  ok((await corrida(U1, 'ranqueada', 3, 0)).rank_depois === 10, 'Bronze sem entrada: nunca perde abaixo do começo');
+  await db.exec(`update ranking set pontos = 1700 where jogador_id = '${U1}' and temporada = temporada_atual()`);
+  const idm = (await como(U1, `select enviar_mochila(3, 'mago', 9, '[]'::jsonb, 0, 3) as id`))[0].id;
+  ok(Number((await db.query(`select liga from mochilas where id = ${idm}`)).rows[0].liga) === 4, 'mochila guarda a liga de quem montou (Diamante)');
+  const rk = await como(null, `select * from ranking_temporada(10)`);
+  ok(rk.length >= 1 && rk[0].pontos === 1700 && rk[0].liga === 4, 'ranking mostra a liga');
+  const eu = await meu(U1); ok(Number(eu.posicao) === 1 && eu.melhor_pontos >= 894, 'meu_rank: posição e melhor da temporada');
+  // temporada nova: começa com metade
+  await db.exec(`insert into temporadas (id, nome, inicio, fim) values (99, 'Teste', current_date, current_date + 60)`);
+  await como(U1, `select registrar_luta(true, 1)`);
+  ok(Number((await meu(U1)).pontos) === 850, 'temporada nova começa com metade dos pontos (1700 → 850)');
+  await db.exec(`delete from ranking where temporada = 99; delete from temporadas where id = 99`);
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select aplicar_rank(1, 7);`, 'jogador chamando aplicar_rank direto'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; update ranking set pontos = 9999;`, 'jogador escrevendo pontos de liga'); await db.exec('reset role');
 }
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo');

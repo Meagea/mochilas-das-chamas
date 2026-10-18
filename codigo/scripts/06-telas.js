@@ -19,13 +19,23 @@ function liberadosNo(c, n){
   const receitas = RECEITAS.filter(r => r[3] === n && ITEM[r[2]].classe === c).map(r => ({id:r[2], receita:[r[0], r[1]]}));
   return itens.concat(receitas);
 }
+// ---- ligas da ranqueada (supabase/06-ranked.sql): 400 pontos por liga, com divisões III, II e I até o Diamante ----
+const LIGAS = [{nome:'Bronze', cor:'#c07a45'}, {nome:'Prata', cor:'#b8c2cc'}, {nome:'Ouro', cor:'#f2c14e'}, {nome:'Platina', cor:'#5ec8c0'},
+  {nome:'Diamante', cor:'#7ab8ff'}, {nome:'Mestre', cor:'#c27aff'}, {nome:'Grão-Mestre', cor:'#ff6a5a'}];
+function ligaDe(pontos){
+  const p = Math.max(0, pontos | 0), i = Math.min(6, Math.floor(p / 400)), L = LIGAS[i], dentro = p - i * 400;
+  const div = i < 5 ? Math.min(2, Math.floor(dentro / 134)) : null;   // 0 = III, 1 = II, 2 = I
+  const inicioDiv = i < 5 ? i * 400 + div * 134 : i * 400, fimDiv = i < 5 ? (div < 2 ? inicioDiv + 134 : (i + 1) * 400) : (i < 6 ? (i + 1) * 400 : null);
+  return {i, nome:L.nome + (div != null ? ' ' + ['III', 'II', 'I'][div] : ''), cor:L.cor, pontos:p, falta:fimDiv != null ? fimDiv - p : null, fracao:fimDiv != null ? (p - inicioDiv) / (fimDiv - inicioDiv) : 1};
+}
+const seloLiga = (pontos, cls) => { const l = ligaDe(pontos); return `<span class="selo-liga ${cls || ''}" style="--lg:${l.cor}"><i></i>${l.nome}</span>`; };
 const barraXp = (nv, cls) => `<span class="xpbar ${cls || ''}"><i style="width:${Math.round(nv.fracao * 100)}%"></i></span>`;
 const selo = nv => `<span class="selo-nivel">Nv ${nv.nivel}${nv.estrelas ? ` <em>${'★'.repeat(Math.min(nv.estrelas, 5))}${nv.estrelas > 5 ? '+' : ''}</em>` : ''}</span>`;
 // a corrida no servidor: começa ao abrir a loja; a rodada só conta para a experiência com o número dela
 let corridaPendente = null, ultimoEnvio = null;
 function iniciarNoServidor(){
   const alvo = C; C.corrida = null;
-  corridaPendente = onlineIniciar(C.classe).then(id => { if(alvo === C && id){ C.corrida = Number(id); salvarCorrida(); } return id; });
+  corridaPendente = onlineIniciar(C.classe, C.modo).then(id => { if(alvo === C && id){ C.corrida = Number(id); salvarCorrida(); } return id; });
 }
 const raiz = () => $('jogo');
 
@@ -66,6 +76,7 @@ function telaLobby(){
   const s = ler('tdg-corrida', null);
   return `<section class="lobby">
     <header class="logo"><div class="etiqueta"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1></div></header>
+    ${PERFIL.rank ? `<button class="painel-rank" id="btRank" style="--lg:${ligaDe(PERFIL.rank.pontos).cor}">${seloLiga(PERFIL.rank.pontos, 'grande')}<span><b>${PERFIL.rank.pontos} pontos</b><small>${ligaDe(PERFIL.rank.pontos).falta != null ? `faltam ${ligaDe(PERFIL.rank.pontos).falta} para subir` : 'topo da temporada'}${PERFIL.rank.posicao ? ` · ${PERFIL.rank.posicao}º lugar` : ''}</small></span></button>` : ''}
     <div class="nome"><label for="campoNome">Seu nome no ranking</label><div><input id="campoNome" maxlength="20" placeholder="Aventureiro" value="${(PERFIL.nome || '').replace(/"/g, '')}"><span class="status ${conexao.ok === false ? 'off' : conexao.ok ? 'on' : ''}">${conexao.ok === false ? 'Offline' : conexao.ok ? 'Online' : 'Conectando'}</span></div></div>
     <div class="classes">${Object.keys(CLASSES).map(k => { const c = CLASSES[k], ini = ITEM[c.inicial], nv = nivelClasse(k);
       return `<button class="classe${k === classeEscolhida ? ' on' : ''}" data-classe="${k}" style="--cc:${c.cor}">${retrato(k) ? `<img class="rosto" src="${retrato(k)}" alt="" draggable="false">` : `<span class="sem-retrato">${c.nome[0]}</span>`}${selo(nv)}
@@ -93,7 +104,7 @@ function ligarLobby(){
     comecarCorrida(classeEscolhida); };
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
   raiz().querySelectorAll('[data-modo]').forEach(b => b.onclick = () => { PERFIL.modo = b.dataset.modo; gravarPerfil(); desenhar(); });
-  $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
+  $('btColecao').onclick = abrirColecao; const br = $('btRank'); if(br) br.onclick = abrirRanking; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
   const c = $('btContinuar'); if(c) c.onclick = () => { if(continuarCorrida()){ tela = 'loja'; desenhar(); } };
   $('btRanking').onclick = abrirRanking;
 }
@@ -364,7 +375,7 @@ function mostrarResultado(){
   const L = lutaAtual; if(L.fechada) return; L.fechada = true;
   const el = $('resultado'); el.hidden = false;
   el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu');
-  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (L.venceu && C.modo !== 'normal' ? ': +10 pontos no ranking.' : '.') : ''}</p><div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
+  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (C.modo === 'ranqueada' ? ': os pontos de liga vêm no fim da corrida.' : '.') : ''}</p><div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
   $('btStats').onclick = () => { const st = $('stats'); st.hidden = !st.hidden; el.classList.toggle('largo', !st.hidden); };
   $('btSeguir').onclick = () => {
     fecharRodada(L.venceu, L.adv.nome); lutaAtual = null;
@@ -384,11 +395,18 @@ async function fecharNoServidor(){
     if(r){ PERFIL.xp[alvo.classe] = Number(r.xp) || 0; gravarPerfil();
       const depois = nivelClasse(alvo.classe), lib = [];
       for(let n = antes.nivel + 1; n <= depois.nivel; n++) lib.push(...liberadosNo(alvo.classe, n));
+      if(r.rank_depois != null){ alvo.rankRes = {antes:Number(r.rank_antes), depois:Number(r.rank_depois)}; PERFIL.rank = Object.assign(PERFIL.rank || {}, {pontos:Number(r.rank_depois)}); gravarPerfil(); }
       alvo.xpRes = {ganho:Number(r.ganho), base:Number(r.base), mult:Number(r.multiplicador), limite:Number(r.limite_hoje), antes, depois, lib, bronze:Number(r.bronze) || 0, cartas:r.cartas || {}};
       sincronizarColecao(); }
     else alvo.xpRes = 'offline';
   }
   if(tela === 'fim' && alvo === C) desenhar();
+}
+function blocoRank(){
+  const k = C.rankRes; if(!k) return C.modo === 'ranqueada' && C.xpRes && C.xpRes !== 'calculando' && C.xpRes !== 'offline' ? '' : '';
+  const a = ligaDe(k.antes), d = ligaDe(k.depois), delta = k.depois - k.antes, mudou = a.nome !== d.nome;
+  return `<div class="rankfim${delta > 0 ? ' subiu' : delta < 0 ? ' caiu' : ''}" style="--lg:${d.cor}"><div class="pl-topo">${seloLiga(k.depois, 'grande')}<b>${delta > 0 ? '+' : ''}${delta} pontos de liga</b><span class="pl-xp">${k.depois} pontos</span></div>
+    ${mudou ? `<p class="xp-subiu">${d.i > a.i || (d.i === a.i && delta > 0) ? 'Subiu para' : 'Caiu para'} ${d.nome}!</p>` : d.falta != null ? `<p class="pl-nota">Faltam ${d.falta} pontos para a próxima divisão.</p>` : ''}</div>`;
 }
 function blocoXp(){
   const x = C.xpRes;
@@ -406,7 +424,7 @@ function telaFim(){
   return `<section class="fim-tela ${venceu ? 'venceu' : 'perdeu'}"><h1>${venceu ? 'Corrida vencida!' : 'Fim da corrida'}</h1>
     <p>${venceu ? `Sete vitórias com o ${CLASSES[C.classe].nome}. A tralha certa, no lugar certo.` : `${C.vitorias} ${C.vitorias === 1 ? 'vitória' : 'vitórias'} antes das 3 derrotas.`}</p>
     <div class="dadosfim"><div><b>${C.vitorias}</b><small>vitórias</small></div><div><b>${C.derrotas}</b><small>derrotas</small></div><div><b>${C.historico.length}</b><small>rodadas</small></div></div>
-    ${blocoXp()}
+    ${blocoRank()}${blocoXp()}
     <div class="mochila final" style="width:${LARG * 26}px;height:${ALT * 26}px">${C.mochila.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => `<div class="posto" style="left:${p.x * 26}px;top:${p.y * 26}px">${pecaHtml(p, 26, '')}</div>`).join('')}</div>
     <div class="acoes"><button class="btn primario grande" id="btDeNovo">Nova corrida</button><button class="btn" id="btRanking">Ranking</button><button class="btn" id="btLobby">Lobby</button></div></section>`;
 }
@@ -474,13 +492,19 @@ function ligarCartas(){
 }
 
 // ---- ranking ----
-async function abrirRanking(){ rankingDados = 'carregando'; tela = 'ranking'; desenhar(); rankingDados = await onlineRanking(); if(tela === 'ranking') desenhar(); }
+async function abrirRanking(){ rankingDados = 'carregando'; tela = 'ranking'; desenhar();
+  const [L, eu] = await Promise.all([onlineRanking(), onlineMeuRank()]); rankingDados = L;
+  if(eu){ PERFIL.rank = {pontos:Number(eu.pontos), posicao:Number(eu.posicao), melhor:Number(eu.melhor_pontos), fim:eu.fim}; gravarPerfil(); }
+  if(tela === 'ranking') desenhar(); }
 function telaRanking(){
   const L = Array.isArray(rankingDados) ? rankingDados : null;
-  return `<section class="ranking-tela"><h1>Ranking da temporada</h1><p class="sub">10 pontos por vitória contra jogadores online. Derrota não tira pontos.</p>
+  const eu = PERFIL.rank, dias = eu && eu.fim ? Math.max(0, Math.ceil((new Date(eu.fim) - Date.now()) / 864e5)) : null;
+  return `<section class="ranking-tela"><h1>Ranking da temporada</h1>
+    ${eu ? `<div class="painel-rank" style="--lg:${ligaDe(eu.pontos).cor}">${seloLiga(eu.pontos, 'grande')}<span><b>${eu.pontos} pontos${eu.posicao ? ` · ${eu.posicao}º lugar` : ''}</b><small>${ligaDe(eu.pontos).falta != null ? `faltam ${ligaDe(eu.pontos).falta} para subir` : 'topo'}${eu.melhor ? ` · melhor: ${ligaDe(eu.melhor).nome}` : ''}${dias != null ? ` · temporada termina em ${dias} ${dias === 1 ? 'dia' : 'dias'}` : ''}</small></span></div>` : ''}
+    <p class="sub">Só a <b>Ranqueada</b> vale pontos, pela corrida inteira: 12 por vitória e 20 a mais ao fechar 7 vitórias, menos a entrada da liga (Prata 20, Ouro 30, Platina 40, Diamante 50, Mestre 60, Grão-Mestre 70). Na temporada nova você começa com metade dos pontos.</p>
     ${rankingDados === 'carregando' ? '<p class="nota">Carregando…</p>' : !L ? '<p class="nota">Sem conexão com o servidor agora. O jogo continua offline; tente de novo mais tarde.</p>'
       : !L.length ? '<p class="nota">Ninguém pontuou ainda nesta temporada. Seja o primeiro!</p>'
-      : `<ol class="lista">${L.map(l => `<li class="${PERFIL.nome && l.nome === PERFIL.nome ? 'eu' : ''}"><span class="pos">${l.posicao}</span><b>${String(l.nome).replace(/</g, '&lt;')}</b><span>${l.vitorias} vitórias</span><em>${l.pontos}</em></li>`).join('')}</ol>`}
+      : `<ol class="lista">${L.map(l => `<li class="${PERFIL.nome && l.nome === PERFIL.nome ? 'eu' : ''}"><span class="pos">${l.posicao}</span>${seloLiga(l.pontos)}<b>${String(l.nome).replace(/</g, '&lt;')}</b><span>${l.vitorias} vitórias</span><em>${l.pontos}</em></li>`).join('')}</ol>`}
     <button class="btn" id="btVoltar">Voltar</button></section>`;
 }
 function ligarRanking(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; }

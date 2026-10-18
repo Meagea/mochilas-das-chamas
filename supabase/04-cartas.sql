@@ -335,10 +335,10 @@ $$;
 -- ---------- fim da corrida: experiência (como antes) + moedas e cartas ----------
 drop function if exists public.fechar_corrida(bigint, int);
 create or replace function public.fechar_corrida(p_corrida bigint, p_vitorias int)
-returns table (ganho integer, xp integer, base integer, multiplicador numeric, limite_hoje integer, bronze integer, cartas jsonb)
+returns table (ganho integer, xp integer, base integer, multiplicador numeric, limite_hoje integer, bronze integer, cartas jsonb, rank_antes integer, rank_depois integer)
 language plpgsql security definer set search_path = public as $$
 declare c corridas; m multiplicadores; v int; b int; mult numeric := 1; lim int; g int; total int;
-        fator numeric; moedas int; n int; pecas text[]; ganhas jsonb := '{}'::jsonb; it text; i int;
+        fator numeric; moedas int; n int; pecas text[]; ganhas jsonb := '{}'::jsonb; it text; i int; ra int; rd int;
 begin
   if auth.uid() is null then raise exception 'sem login'; end if;
   select * into c from corridas where id = p_corrida and jogador_id = auth.uid() and not fechada for update;
@@ -375,7 +375,9 @@ begin
     perform dar_cartas(auth.uid(), it, 1);
     ganhas := jsonb_set(ganhas, array[it], to_jsonb(coalesce((ganhas->>it)::int, 0) + 1));
   end loop;
-  return query select g, total, b, mult, lim - (m.xp_hoje + g), moedas, ganhas;
+  -- pontos de liga (06-ranked.sql), só nas corridas ranqueadas
+  if to_regprocedure('public.aplicar_rank(bigint, integer)') is not null then select * into ra, rd from aplicar_rank(c.id, v); end if;
+  return query select g, total, b, mult, lim - (m.xp_hoje + g), moedas, ganhas, ra, rd;
 end $$;
 
 -- ---------- coleção ----------

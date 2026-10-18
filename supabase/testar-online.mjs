@@ -27,9 +27,9 @@ ok(adv.status === 200 && adv.dado.length === 1 && adv.dado[0].nome === 'Teste Cl
 const proprio = await chamar('/rest/v1/rpc/sortear_adversario', {p_rodada:30, p_versao:0, p_vitorias:2}, A.token);
 ok(proprio.status === 200 && !proprio.dado.some(m => Number(m.id) === Number(env.dado)), 'A não cai contra a própria mochila');  // pode vir a de um teste antigo
 const luta = await chamar('/rest/v1/rpc/registrar_luta', {p_venceu:true, p_campanha:1}, B.token);
-ok(luta.status === 200 && luta.dado === 10, 'B venceu e ganhou 10 pontos');
+ok(luta.status === 200 && luta.dado === 0, 'luta online registrada (os pontos de liga vêm da corrida ranqueada)');
 const rk = await chamar('/rest/v1/rpc/ranking_temporada', {p_limite:50});
-ok(rk.dado.some(l => l.nome === 'Teste Claude B' && l.pontos === 10), 'B aparece no ranking');
+ok(rk.status === 200 && rk.dado.every(l => 'liga' in l), 'ranking abre e traz a liga de cada jogador');
 // o que tem de ser barrado
 const lerMochilas = await chamar('/rest/v1/mochilas?select=*', null, A.token, 'GET');
 ok(lerMochilas.status >= 400 || (Array.isArray(lerMochilas.dado) && !lerMochilas.dado.length), 'ler as mochilas direto é barrado (' + lerMochilas.status + ')');

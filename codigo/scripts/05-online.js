@@ -46,7 +46,9 @@ const onlineNome = async nome => { try{ await rpc('definir_nome', {novo_nome:nom
 // corrida: o número da partida no servidor (de onlineIniciar); com ele, a rodada conta para a experiência
 const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida, modo) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:versaoModo(modo), p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
 // experiência (supabase/03-experiencia.sql): o servidor conta as rodadas e calcula o ganho; o jogo só informa as vitórias
-const onlineIniciar = classe => tentar(() => rpc('iniciar_corrida', {p_classe:classe}, true));
+const onlineIniciar = (classe, modo) => tentar(() => rpc('iniciar_corrida', {p_classe:classe, p_modo:modo || 'ranqueada'}, true));
+// ranked com ligas (supabase/06-ranked.sql)
+const onlineMeuRank = () => tentar(async () => { const L = await rpc('meu_rank', {}, true); return L && L[0] || null; });
 const onlineFechar = (corrida, vitorias) => tentar(async () => { const L = await rpc('fechar_corrida', {p_corrida:corrida, p_vitorias:vitorias}, true); return L && L[0] || null; });
 const onlineExperiencia = () => tentar(() => rpc('minha_experiencia', {}, true));
 // quantos jogadores diferentes já deixaram mochila nesta rodada e o mínimo para lutar só contra gente (guardado no servidor)

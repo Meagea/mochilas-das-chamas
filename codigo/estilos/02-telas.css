@@ -244,3 +244,14 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 @keyframes lendaLoja{ 50%{ box-shadow:0 0 28px color-mix(in srgb, var(--rar) 90%, transparent); } }
 .ofp.ap{ background:#22303a; color:#b8d0e0; border:1px solid #8aa0b0; } .ofp.fm{ background:#3a2c10; color:#f0c870; border:1px solid #c89a3a; }
 .receita.travada{ opacity:.75; border-left:3px solid var(--apagado); padding-left:8px; }
+
+/* ---------- ligas da ranqueada ---------- */
+.selo-liga{ display:inline-flex; align-items:center; gap:5px; font-family:var(--fonte-titulo); font-weight:800; font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--lg); white-space:nowrap; }
+.selo-liga i{ width:11px; height:11px; transform:rotate(45deg); background:linear-gradient(135deg, #fff8, var(--lg) 45%, color-mix(in srgb, var(--lg) 50%, #000)); box-shadow:0 0 8px var(--lg); border-radius:2px; }
+.selo-liga.grande{ font-size:18px; } .selo-liga.grande i{ width:18px; height:18px; }
+.painel-rank{ font:inherit; color:var(--texto); text-align:left; display:flex; align-items:center; gap:14px; padding:10px 14px; border-radius:var(--raio); cursor:pointer;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--lg) 22%, var(--painel)), var(--painel)); border:1px solid color-mix(in srgb, var(--lg) 55%, transparent); }
+.painel-rank > span{ display:flex; flex-direction:column; } .painel-rank b{ font-size:15px; } .painel-rank small{ color:var(--suave); font-size:12px; }
+.rankfim{ background:var(--painel); border:1px solid color-mix(in srgb, var(--lg) 55%, transparent); border-radius:var(--raio); padding:12px 14px; display:flex; flex-direction:column; gap:6px; }
+.rankfim.subiu{ box-shadow:0 0 22px color-mix(in srgb, var(--lg) 35%, transparent); } .rankfim.caiu b{ color:#ff8a78; }
+.ranking-tela .lista .selo-liga{ margin-right:6px; }

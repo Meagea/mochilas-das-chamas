@@ -1,6 +1,6 @@
 {
- "versao": 14,
- "tamanho": 10260799,
- "sha256": "bcf2eed66845657671915c8f30f605867268e6072f173007191d765df55b8987",
- "resumo": "Receitas: aviso do nivel que libera e receitas de classe so na propria classe"
+ "versao": 15,
+ "tamanho": 10265743,
+ "sha256": "f2378b1ef1cbfc8c181801d6607328c30011c6777e6e5cd80233564e02a6f3ac",
+ "resumo": "Ranked com ligas: Bronze a Grao-Mestre, pontos por corrida, sorteio por liga"
 }
