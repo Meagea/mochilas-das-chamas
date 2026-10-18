@@ -407,6 +407,18 @@ body.arrastando .loja2 .casa.pode{ background:radial-gradient(circle, rgba(108,1
 }
 .vt-topo .btn{ white-space:nowrap; display:inline-flex; align-items:center; gap:4px; } .vt-topo .btn img.ic{ width:15px; height:15px; }
 .vt-topo .btn{ flex-direction:row !important; }
+
+/* ---------- Ranking: abas e a aba Personagens (vitórias reais por personagem) ---------- */
+.ranking-tela .abas, .ranking-tela .filtros{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.chip{ font:inherit; font-size:13px; font-weight:600; color:var(--suave); padding:6px 12px; border-radius:999px; border:1px solid var(--borda2); background:var(--painel); cursor:pointer; }
+.chip.on{ color:#1a1206; background:var(--ambar); border-color:var(--ambar); }
+.lista.estat{ width:100%; } .lista.estat li{ display:grid; grid-template-columns:36px minmax(0, 1fr) minmax(70px, 1.2fr) 44px; grid-template-areas:'r n b p' 'r s s s'; align-items:center; column-gap:10px; row-gap:2px; text-align:left; }
+.lista.estat .mini-ret{ grid-area:r; width:36px; height:36px; border-radius:10px; object-fit:cover; object-position:50% 20%; border:1px solid color-mix(in srgb, var(--cc) 60%, transparent); }
+.lista.estat b{ grid-area:n; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .lista.estat em{ grid-area:p; text-align:right; font-style:normal; font-weight:800; }
+.lista.estat small{ grid-area:s; font-size:11.5px; color:var(--suave); }
+.barra-50{ grid-area:b; position:relative; height:10px; border-radius:5px; background:rgba(255,255,255,.08); overflow:hidden; }
+.barra-50 i{ position:absolute; left:0; top:0; bottom:0; border-radius:5px; background:var(--cc); }
+.barra-50::after{ content:''; position:absolute; left:50%; top:-2px; bottom:-2px; width:2px; background:rgba(255,255,255,.55); }
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -1506,8 +1518,12 @@ const onlineCarrinho = tipo => tentar(() => rpc('meu_carrinho', {p_tipo:tipo}, t
 const onlineComprar = (tipo, vaga) => tentar(() => rpc('comprar_oferta', {p_tipo:tipo, p_vaga:vaga}, true));
 const onlineLuta = (venceu, campanha) => tentar(() => rpc('registrar_luta', {p_venceu:venceu, p_campanha:campanha}, true));
 const onlineRanking = () => tentar(() => rpc('ranking_temporada', {p_limite:100}, false));
+// vitórias reais de cada personagem nos últimos 30 dias (supabase/07-estatisticas.sql): só totais, sem nomes
+const onlineEstatisticas = () => tentar(() => rpc('estatisticas_classes', {p_dias:30}, false));
 // ---------- Telas: lobby, loja com a mochila, luta, fim de corrida e ranking ----------
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
+// aba Personagens do ranking: os dados do servidor e os filtros (modo e faixa de nível)
+let estatDados = null, rankingAba = 'jogadores', estatFiltro = {modo:'todas', faixa:0};
 let PERFIL = temDOM ? ler('tdg-perfil', null) : null;
 if(!PERFIL) PERFIL = {nome:'', corridas:0, vitoriasCorrida:0, melhor:0, pontos:0, colecao:{}};
 PERFIL.xp = PERFIL.xp || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
@@ -2052,13 +2068,34 @@ function ligarCartas(){
 
 // ---- ranking ----
 async function abrirRanking(){ rankingDados = 'carregando'; tela = 'ranking'; desenhar();
-  const [L, eu] = await Promise.all([onlineRanking(), onlineMeuRank()]); rankingDados = L;
+  const [L, eu, E] = await Promise.all([onlineRanking(), onlineMeuRank(), onlineEstatisticas()]); rankingDados = L; estatDados = E;
   if(eu){ PERFIL.rank = {pontos:Number(eu.pontos), posicao:Number(eu.posicao), melhor:Number(eu.melhor_pontos), fim:eu.fim}; gravarPerfil(); }
   if(tela === 'ranking') desenhar(); }
+// aba Personagens: a taxa de vitória por luta de cada personagem (a meta do equilíbrio é perto de 50%)
+const POUCOS_DADOS = 20;
+function abaPersonagens(){
+  if(rankingDados === 'carregando') return '<p class="nota">Carregando…</p>';
+  if(!Array.isArray(estatDados)) return '<p class="nota">Sem conexão com o servidor agora. Tente de novo mais tarde.</p>';
+  const f = estatFiltro, L = estatDados.filter(l => (f.modo === 'todas' || l.modo === f.modo) && (!f.faixa || Number(l.faixa) === f.faixa));
+  const T = Object.keys(CLASSES).map(c => { const ls = L.filter(l => l.classe === c), s = k => ls.reduce((a, l) => a + Number(l[k] || 0), 0);
+    const corr = s('corridas'), rod = s('rodadas'); return {c, corr, taxa:rod ? s('vitorias') / rod : null, media:corr ? s('vitorias') / corr : null, sete:corr ? s('sete') / corr : null}; })
+    .sort((a, b) => (b.taxa == null ? -1 : b.taxa) - (a.taxa == null ? -1 : a.taxa));
+  const bt = (k, v, txt) => `<button class="chip${f[k] === v ? ' on' : ''}" data-filtro="${k}" data-valor="${v}">${txt}</button>`;
+  const pct = x => x == null ? '—' : Math.round(x * 100) + '%';
+  return `<p class="sub">Vitórias por luta de cada personagem nos últimos 30 dias, somando todos os jogadores. Num jogo equilibrado, todos ficam perto de 50%.</p>
+    <div class="filtros">${bt('modo', 'todas', 'Todas')}${bt('modo', 'ranqueada', 'Ranqueada')}${bt('modo', 'normal', 'Normal')}</div>
+    <div class="filtros">${bt('faixa', 0, 'Todos os níveis')}${bt('faixa', 1, 'Nível 1 a 3')}${bt('faixa', 2, '4 a 6')}${bt('faixa', 3, '7 a 10')}</div>
+    <ol class="lista estat">${T.map(x => { const K = CLASSES[x.c];
+      return `<li style="--cc:${K.cor}">${retrato(x.c) ? `<img class="mini-ret" src="${retrato(x.c)}" alt="">` : ''}<b>${K.nome}</b>
+        <span class="barra-50" title="50% é o equilíbrio"><i style="width:${x.taxa == null ? 0 : Math.round(x.taxa * 100)}%"></i></span>
+        <em>${pct(x.taxa)}</em><small>${x.corr} ${x.corr === 1 ? 'corrida' : 'corridas'}${x.corr ? ` · ${x.media.toFixed(1).replace(".", ",")} vitórias em média · ${pct(x.sete)} fecham 7` : ''}${x.corr && x.corr < POUCOS_DADOS ? ' · poucos dados' : ''}</small></li>`; }).join('')}</ol>`;
+}
 function telaRanking(){
   const L = Array.isArray(rankingDados) ? rankingDados : null;
   const eu = PERFIL.rank, dias = eu && eu.fim ? Math.max(0, Math.ceil((new Date(eu.fim) - Date.now()) / 864e5)) : null;
-  return `<section class="ranking-tela"><h1>Ranking da temporada</h1>
+  const abas = `<div class="abas"><button class="chip${rankingAba === 'jogadores' ? ' on' : ''}" data-aba="jogadores">Jogadores</button><button class="chip${rankingAba === 'personagens' ? ' on' : ''}" data-aba="personagens">Personagens</button></div>`;
+  if(rankingAba === 'personagens') return `<section class="ranking-tela"><h1>Personagens</h1>${abas}${abaPersonagens()}<button class="btn" id="btVoltar">Voltar</button></section>`;
+  return `<section class="ranking-tela"><h1>Ranking da temporada</h1>${abas}
     ${eu ? `<div class="painel-rank" style="--lg:${ligaDe(eu.pontos).cor}">${seloLiga(eu.pontos, 'grande')}<span><b>${eu.pontos} pontos${eu.posicao ? ` · ${eu.posicao}º lugar` : ''}</b><small>${ligaDe(eu.pontos).falta != null ? `faltam ${ligaDe(eu.pontos).falta} para subir` : 'topo'}${eu.melhor ? ` · melhor: ${ligaDe(eu.melhor).nome}` : ''}${dias != null ? ` · temporada termina em ${dias} ${dias === 1 ? 'dia' : 'dias'}` : ''}</small></span></div>` : ''}
     <p class="sub">Só a <b>Ranqueada</b> vale pontos, pela corrida inteira: 12 por vitória e 20 a mais ao fechar 7 vitórias, menos a entrada da liga (Prata 20, Ouro 30, Platina 40, Diamante 50, Mestre 60, Grão-Mestre 70). Na temporada nova você começa com metade dos pontos.</p>
     ${rankingDados === 'carregando' ? '<p class="nota">Carregando…</p>' : !L ? '<p class="nota">Sem conexão com o servidor agora. O jogo continua offline; tente de novo mais tarde.</p>'
@@ -2066,7 +2103,9 @@ function telaRanking(){
       : `<ol class="lista">${L.map(l => `<li class="${PERFIL.nome && l.nome === PERFIL.nome ? 'eu' : ''}"><span class="pos">${l.posicao}</span>${seloLiga(l.pontos)}<b>${String(l.nome).replace(/</g, '&lt;')}</b><span>${l.vitorias} vitórias</span><em>${l.pontos}</em></li>`).join('')}</ol>`}
     <button class="btn" id="btVoltar">Voltar</button></section>`;
 }
-function ligarRanking(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); }; }
+function ligarRanking(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); };
+  raiz().querySelectorAll('[data-aba]').forEach(b => b.onclick = () => { rankingAba = b.dataset.aba; desenhar(); });
+  raiz().querySelectorAll('[data-filtro]').forEach(b => b.onclick = () => { const k = b.dataset.filtro; estatFiltro[k] = k === 'faixa' ? +b.dataset.valor : b.dataset.valor; desenhar(); }); }
 
 // ---- desenhar a tela atual ----
 const TELAS = {colecao:[telaColecao, ligarColecao], cartas:[telaCartas, ligarCartas], trilha:[telaTrilha, ligarTrilha], lobby:[telaLobby, ligarLobby], loja:[telaLoja, ligarLoja], luta:[telaLuta, ligarLuta], fim:[telaFim, ligarFim], ranking:[telaRanking, ligarRanking]};

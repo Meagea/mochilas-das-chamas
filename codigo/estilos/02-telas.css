@@ -364,3 +364,15 @@ body.arrastando .loja2 .casa.pode{ background:radial-gradient(circle, rgba(108,1
 }
 .vt-topo .btn{ white-space:nowrap; display:inline-flex; align-items:center; gap:4px; } .vt-topo .btn img.ic{ width:15px; height:15px; }
 .vt-topo .btn{ flex-direction:row !important; }
+
+/* ---------- Ranking: abas e a aba Personagens (vitórias reais por personagem) ---------- */
+.ranking-tela .abas, .ranking-tela .filtros{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.chip{ font:inherit; font-size:13px; font-weight:600; color:var(--suave); padding:6px 12px; border-radius:999px; border:1px solid var(--borda2); background:var(--painel); cursor:pointer; }
+.chip.on{ color:#1a1206; background:var(--ambar); border-color:var(--ambar); }
+.lista.estat{ width:100%; } .lista.estat li{ display:grid; grid-template-columns:36px minmax(0, 1fr) minmax(70px, 1.2fr) 44px; grid-template-areas:'r n b p' 'r s s s'; align-items:center; column-gap:10px; row-gap:2px; text-align:left; }
+.lista.estat .mini-ret{ grid-area:r; width:36px; height:36px; border-radius:10px; object-fit:cover; object-position:50% 20%; border:1px solid color-mix(in srgb, var(--cc) 60%, transparent); }
+.lista.estat b{ grid-area:n; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .lista.estat em{ grid-area:p; text-align:right; font-style:normal; font-weight:800; }
+.lista.estat small{ grid-area:s; font-size:11.5px; color:var(--suave); }
+.barra-50{ grid-area:b; position:relative; height:10px; border-radius:5px; background:rgba(255,255,255,.08); overflow:hidden; }
+.barra-50 i{ position:absolute; left:0; top:0; bottom:0; border-radius:5px; background:var(--cc); }
+.barra-50::after{ content:''; position:absolute; left:50%; top:-2px; bottom:-2px; width:2px; background:rgba(255,255,255,.55); }

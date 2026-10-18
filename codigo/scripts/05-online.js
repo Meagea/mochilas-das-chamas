@@ -64,3 +64,5 @@ const onlineCarrinho = tipo => tentar(() => rpc('meu_carrinho', {p_tipo:tipo}, t
 const onlineComprar = (tipo, vaga) => tentar(() => rpc('comprar_oferta', {p_tipo:tipo, p_vaga:vaga}, true));
 const onlineLuta = (venceu, campanha) => tentar(() => rpc('registrar_luta', {p_venceu:venceu, p_campanha:campanha}, true));
 const onlineRanking = () => tentar(() => rpc('ranking_temporada', {p_limite:100}, false));
+// vitórias reais de cada personagem nos últimos 30 dias (supabase/07-estatisticas.sql): só totais, sem nomes
+const onlineEstatisticas = () => tentar(() => rpc('estatisticas_classes', {p_dias:30}, false));

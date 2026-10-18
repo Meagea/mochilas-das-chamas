@@ -25,6 +25,7 @@ const CARTAS = fs.readFileSync(new URL('./04-cartas.sql', import.meta.url), 'utf
 await db.exec(SQL); ok(true, 'esquema.sql rodou de novo (pode repetir sem estragar)');
 const NOMES = fs.readFileSync(new URL('./05-nomes.sql', import.meta.url), 'utf8'); await db.exec(NOMES); await db.exec(NOMES); ok(true, '05-nomes.sql rodou (duas vezes)');
 const RANKED = fs.readFileSync(new URL('./06-ranked.sql', import.meta.url), 'utf8'); await db.exec(RANKED); await db.exec(RANKED); ok(true, '06-ranked.sql rodou (duas vezes)');
+const ESTAT = fs.readFileSync(new URL('./07-estatisticas.sql', import.meta.url), 'utf8'); await db.exec(ESTAT); await db.exec(ESTAT); ok(true, '07-estatisticas.sql rodou (duas vezes)');
 
 const U1 = '11111111-1111-1111-1111-111111111111', U2 = '22222222-2222-2222-2222-222222222222';
 await db.exec(`insert into auth.users values ('${U1}'), ('${U2}')`);
@@ -233,5 +234,18 @@ await db.exec('reset role');
   await db.exec(`delete from ranking where temporada = 99; delete from temporadas where id = 99`);
   await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select aplicar_rank(1, 7);`, 'jogador chamando aplicar_rank direto'); await db.exec('reset role');
   await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; update ranking set pontos = 9999;`, 'jogador escrevendo pontos de liga'); await db.exec('reset role');
+}
+// ---- estatísticas dos personagens (07-estatisticas.sql) ----
+{
+  const estat = async () => (await como(null, `select * from estatisticas_classes(30)`));
+  const antes = await estat(), soma = (L, c, m) => L.filter(l => l.classe === c && l.modo === m).reduce((a, l) => a + Number(l.rodadas), 0);
+  const c = (await como(U2, `select iniciar_corrida('ladino', 'normal') as c`))[0].c;
+  for(let r = 1; r <= 4; r++){ await como(U2, `select enviar_mochila($1, 'ladino', 9, '[]'::jsonb, 0, 3, $2)`, [r, c]); await db.exec(`update corridas set ultima_rodada_em = now() - interval '1 minute' where id = ${c}`); }
+  await como(U2, `select * from fechar_corrida($1, $2)`, [c, 2]);
+  const depois = await estat(), l = depois.find(x => x.classe === 'ladino' && x.modo === 'normal');
+  ok(soma(depois, 'ladino', 'normal') - soma(antes, 'ladino', 'normal') === 4 && l && Number(l.vitorias) >= 2 && Number(l.faixa) === 1, 'estatísticas: corrida normal do Ladino somou 4 rodadas e as vitórias, na faixa 1 (' + JSON.stringify(l) + ')');
+  ok(depois.every(x => !('jogador_id' in x)), 'estatísticas não trazem quem jogou');
+  await erro(`set role anon; select * from estatisticas_classe;`, 'ler a tabela de estatísticas direto'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; insert into estatisticas_classe (classe, modo, faixa, vitorias) values ('mago', 'normal', 1, 999);`, 'jogador forjando estatísticas'); await db.exec('reset role');
 }
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo');
