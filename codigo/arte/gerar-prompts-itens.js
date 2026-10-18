@@ -25,14 +25,14 @@ const DESC = {
   // liberados por nível (PROGRESSAO.md)
   cantil:'a dented leather-wrapped metal canteen with a brass cap and a strap', manopla:'a heavy riveted iron gauntlet', gritoGuerra:'a carved bone war horn with red cloth, sound waves of golden light bursting out',
   cotaMalha:'a chainmail shirt of interlocking steel rings', machadoDuplo:'a brutal double-headed axe with notched blades and bone grip', colarDentes:'a tribal necklace of big beast fangs on a leather cord',
-  paves:'a huge tall rectangular pavise shield with iron spikes on the rim', brasao:'a small heraldic crest badge with a gold lion on red enamel', marteloCerco:'a massive siege maul with a huge iron head and chains',
+  paves:'a huge tall rectangular pavise shield with iron spikes on the rim', brasao:'a small heraldic crest badge with a golden jaguar head on red enamel', marteloCerco:'a massive siege maul with a huge iron head and chains',
   coroaCampeao:'a golden champion crown with red gems and a laurel wreath', vela:'a melting candle in a brass holder with a small magic flame and runes floating', runaGelo:'a flat stone rune tablet carved with a glowing icy blue rune',
   ampolaEter:'a delicate glass ampoule with swirling violet ether and silver stopper', meteorito:'a blazing meteor rock with molten cracks and a fiery tail', brasaViva:'a glowing living ember coal with tiny flames and a little smiling spirit face',
   lancaGelo:'a long spear made of solid sharp ice crystal with frost mist', coroaGeada:'a crown made of icicles and frost crystals glowing pale blue', espelhoArcano:'an oval hand mirror with brass frame and a glowing purple arcane surface',
   tomoProibido:'a forbidden dark tome with an eye on the cover, chains and glowing green runes', gazua:'a ring of thin lockpicks and a small key', facas:'three throwing knives fanned out with leather-wrapped handles',
   mascara:'a dark leather thief mask covering the eyes', laminaOculta:'a hidden wrist blade sliding out of a leather bracer', luvas:'a pair of thin supple dark leather gloves',
   alambique:'a small copper alchemy still with bubbling green poison and glass tubes', cogumelo:'a toxic purple-spotted mushroom glowing faintly green', bolsaTruques:'a small trickster pouch spilling marbles, smoke and playing cards',
-  sorrisoHiena:'a grinning hyena skull amulet with emerald eyes on a chain', machadoClamor:'a great battle axe with a war horn fused to the haft and red runes glowing',
+  sorrisoHiena:'a grinning ocelot skull amulet with emerald eyes on a chain', machadoClamor:'a great battle axe with a war horn fused to the haft and red runes glowing',
   muralha:'an enormous tower shield like a castle wall with a war banner on top', prismaGelado:'a floating ice prism crystal refracting cold blue light',
   cajadoInfernal:'a blackened staff crowned with roaring hellfire and embers', zarabatanaPeconha:'a dark bamboo blowgun dripping green venom with snake carvings',
   veuNoite:'a flowing midnight-blue hooded veil with stars and wisps of smoke',
@@ -56,7 +56,7 @@ const DESC = {
   extratoMortal:'a small dark vial of deadly purple-green extract with a skull cork', sanduiche:'a big tasty sandwich with cheese, ham and lettuce', ensopadoVovo:'a big rustic clay bowl of grandma stew with vegetables and steam',
   // classes de ofício, Onda 2
   kitAlquimia:'an alchemy kit case with bubbling colorful flasks, a small burner and copper tubes', polvora:'a small leather pouch of black gunpowder with a fuse', acido:'a thick glass flask of glowing yellow-green corrosive acid eating its cork',
-  caldeira:'a small bubbling copper alchemy boiler with three-colored steam', pedraFilosofal:'a glowing crimson philosopher stone with golden light', elixirDragao:'an ornate flask of fiery red dragon elixir with a dragon-shaped stopper',
+  caldeira:'a small bubbling copper alchemy boiler with three-colored steam', pedraFilosofal:'a glowing crimson philosopher stone with golden light', elixirDragao:'an ornate flask of fiery red elixir with a stopper shaped like the boitata, the glowing fire serpent of Brazilian folklore',
   funil:'a copper alchemy funnel', saisVolateis:'a small jar of sparkling volatile smelling salts', catalisador:'a glowing violet catalyst crystal in a brass cage',
   bombaGelo:'a round glass ice bomb filled with frost and snowflakes', nevoaToxica:'a corked flask releasing a swirl of toxic green mist', canhaoAlquimico:'a small brass hand cannon with alchemical tubes and a smoking barrel',
   homunculo:'a tiny cute homunculus creature inside a glass jar with glowing eyes', mascaraGas:'a leather plague-doctor gas mask with brass filters', atanor:'a small alchemist furnace athanor with a glowing tower chimney',
@@ -81,16 +81,57 @@ const DESC = {
   drone:'a small flying brass clockwork drone with propellers and a lens eye', oficinaMestre:'a master inventor workshop desk with blueprints, gears and tools', morteiro:'a small brass mortar cannon with a smoking shell',
   bastiao:'a fortified mechanical turret tower with brass armor plates',
   barril:'a big oak beer barrel with a brass tap', caneca:'a wooden beer mug overflowing with foam', hidromel:'a bottle of golden honey mead',
-  aguardente:'a small bottle of strong clear spirit with a cork', cervejaDragao:'a mug of fiery red dragon beer with flames and foam', elixirFuria:'a fierce red elixir bottle with a boar skull stopper',
+  aguardente:'a small bottle of strong clear spirit with a cork', cervejaDragao:'a mug of fiery red beer with foam and a small glowing fire serpent (boitata) coiling around it', elixirFuria:'a fierce red elixir bottle with a peccary skull stopper',
   canecao:'a heavy iron tankard mug used as a club', lupulo:'a bunch of fresh green hop cones', tonel:'a wooden oak cask with iron hoops',
   garrafada:'a thrown glass bottle flying with liquid splashing', barrigaDura:'a sturdy leather belly armor plate', barrilRolante:'a wooden barrel rolling with iron bands',
   brindeGuerra:'two clinking beer mugs in a war toast with foam splashing', cervejariaMestre:'a master brewery with copper kettles, barrels and pipes', rodada:'a wooden tray with several foamy beer mugs',
-  bafoDragao:'a bottle of dragon breath liquor with fire bursting from the neck',
+  bafoDragao:'a bottle of liquor with a glowing fire serpent (boitata) bursting out of the neck in flames',
+  // evoluções (EVOLUCOES.md)
+  laminaSorte:'a short steel sword with a four-leaf clover engraved on the blade and a golden lucky shine', macaCruzado:'a holy crusader flanged mace with a small round shield emblem and white cloth wrapped on the grip',
+  tocha:'a burning wooden torch with cloth wrap and bright flames', machadosArremesso:'two small throwing axes crossed together with leather-wrapped handles',
+  lancaFalange:'a long phalanx spear leaning on a small round bronze shield', arcoPeconhento:'a short dark wooden bow wrapped in thorny vines with green poison dripping from an arrow tip',
+  arcoCacador:'an elegant hunter longbow with a feathered quiver and a golden target emblem', espadaVampirica:'a dark longsword with a blood-red glowing blade and bat-wing crossguard',
+  marteloJuizo:'a massive silver war hammer of judgement with golden scales engraved and holy light', escudoCastelo:'a huge heavy shield shaped like a stone castle gate with iron towers',
+  escudoChamas:'a round wooden shield with an iron rim engulfed in orange flames', escudoLaminas:'an iron shield with sharp steel blades sticking out of its rim',
+  armaduraCompleta:'a full suit of plate armor chest piece with a matching iron helmet on top', couracaViva:'a leather cuirass with a glowing red heart gem in the center and living vines',
+  mantoTempo:'a flowing grey cloak with a brass hourglass clasp and swirling golden sand', tortaFarta:'a big golden meat pie with a thick crust and steam',
+  tabuaFrios:'a wooden board with cheese wedges, apple slices and sausage', sopaFarta:'a large steaming bowl of hearty soup with a bread loaf on the side',
+  pocaoGrande:'a large round glass potion flask with glowing red liquid and a big cork', elixirFolego:'a tall slender glass bottle with bubbling bright yellow liquid and wind swirls',
+  frascoPeconhento:'a glass flask full of thick bubbling dark green poison with a skull stopper', bombaIncendiaria:'a round black bomb wrapped in flames with a burning fuse',
+  amuletoSorte:'a lucky amulet made of an iron horseshoe with a four-leaf clover in the center on a cord',
+  insigniaCapitao:'a golden captain medal with a red ribbon and crossed swords', racaoCampanha:'a soldier field ration pack with bread, dried meat and a canteen tied with a strap',
+  manoplaCravada:'a heavy iron gauntlet with sharp spikes on the knuckles', bradoCampeao:'a great golden war horn with a jaguar head and shockwaves of golden light',
+  cotaReforcada:'a reinforced chainmail shirt with steel plates on the shoulders and chest', trofeuBatalha:'a battle trophy made of a beast skull with horns mounted on a wooden plaque with fangs',
+  grimorioDesperto:'an awakened spellbook floating open with glowing blue runes and an eye on the cover', coracaoFogo:'a living heart made of fire and molten rock with flames pulsing out',
+  coroaInverno:'a tall regal crown of sharp ice crystals with snowflakes and cold mist', elixirArcano:'an ornate crystal potion bottle with swirling violet and blue arcane liquid and stars',
+  espelhoPrismatico:'an oval mirror with a brass frame whose surface splits light into a rainbow prism', nevasca:'a swirling blizzard orb of snow and ice shards with frosty wind',
+  kitEnvenenador:'an open leather poisoner case with many small poison vials, needles and a snake emblem', luvasGatuno:'a pair of black thief gloves with hidden lockpicks and small blades on the fingers',
+  lequeLaminas:'a fan of five throwing knives spread out in a half circle', mascaraFantasma:'a pale white ghost mask with dark eye holes and wisps of smoke',
+  baralhoMarcado:'a deck of marked playing cards fanned out with a sly golden glint', ferrao:'a curved dagger shaped like a scorpion stinger dripping green venom',
+  soproMorte:'a dark carved bone blowgun with a skull mouthpiece and green toxic mist',
+  tinaTempera:'a wooden quenching tub full of water with a hot glowing blade hissing steam',
+  nectarVital:'a small glass jar of glowing golden flower nectar with petals and a honey dipper', unguentoEspinhos:'a clay pot of green healing ointment with thorny brambles around it',
+  orvalhoVida:'a giant glowing dewdrop resting on a green leaf with tiny sparkles of life',
+  colherMel:'a wooden spoon dripping with golden honey', aventalMestre:'a clean white master chef apron with a golden embroidered spoon',
+  cutelo:'a big butcher cleaver with a wide steel blade and wooden handle', macaCaramelada:'a shiny red caramel apple on a stick',
+  caldoPicante:'a steaming bowl of spicy red broth with chili peppers and small flames',
+  bombaVapor:'a brass and glass flask splitting into fire and ice halves with hissing steam', fogoGrego:'a clay flask with green-orange liquid fire bursting out and dripping acid',
+  nevoaGelida:'a frosted glass flask releasing pale blue-green icy toxic mist', bombaGlacial:'a round bomb made of solid blue ice with a frozen fuse and frost cracks',
+  nuvemCorrosiva:'a cracked glass flask releasing a thick yellow-green corrosive cloud',
+  chicoteDomador:'a coiled beast tamer leather whip with a brass handle and a small paw emblem',
+  geodo:'a split-open geode rock full of purple and white sparkling crystals', granada:'a deep red garnet gemstone cut into a sharp faceted shape with a burning glint',
+  colarReal:'a royal golden necklace with a large purple amethyst and small gems around it',
+  balista:'a small wooden clockwork ballista with brass gears and a loaded bolt', mina:'a round iron spring-loaded landmine with spikes and a red trigger button',
+  escudoGiratorio:'a round mechanical shield with spinning brass gears and rotating blades on the rim',
+  canecoGuerra:'a heavy iron war tankard with spikes on the side and foam spilling over', coquetel:'a glass bottle with a burning cloth rag in the neck',
+  pancaBlindada:'a round armored iron belly plate with rivets and a beer foam stain',
 };
-const temPintura = it => fs.existsSync(path.join(__dirname, '..', 'imagens', 'item-' + it.id + '.webp'));
+// pinturas que existem mas precisam ser refeitas (elenco brasileiro, 2026-10-18): aparecem de novo na lista
+const REFAZER = new Set(['brasao', 'sorrisoHiena', 'elixirDragao', 'cervejaDragao', 'bafoDragao', 'elixirFuria']);
+const temPintura = it => !REFAZER.has(it.id) && fs.existsSync(path.join(__dirname, '..', 'imagens', 'item-' + it.id + '.webp'));
 const BASE = 'Single fantasy game item painted in the same style as the reference image: stylized painterly rendering with realistic textures (wood grain, leather, polished metal, glass), warm cinematic lighting with a soft colored rim light, a few small magical glints, vibrant but harmonious colors, clean readable silhouette, the object centered and filling most of the frame, isolated on a flat pure magenta (#FF00FF) background, no shadow on the background, no text, no letters, no logo, no watermark.';
 let md = `# Tralha de Guerra: pintura dos itens\n\nUm item por imagem, no mesmo estilo da coruja (\`retrato-mago.png\`). Só os que ainda não têm pintura: ${t.ITENS.filter(it => !temPintura(it)).length} itens (os outros já estão no jogo).\n\n## Como gerar\n- Quadrado **1:1** (ex.: **1024 × 1024**), o item no centro ocupando quase tudo.\n- **Fundo magenta puro (#FF00FF)**, liso: eu recorto para o item ficar solto em cima das casas da mochila.\n- **Anexe \`retrato-mago.png\` como referência de estilo** em todos os pedidos.\n- Salvar em \`tralha-de-guerra/codigo/arte/originais/itens/\` com o nome da tabela.\n- Dá para gerar aos poucos: enquanto a pintura de um item não existir, ele usa o ícone provisório.\n\n### Estilo base (cole no começo de todo prompt)\n\`\`\`\n${BASE}\n\`\`\`\n\n`;
-const grupos = [['Bolsas', it => it.tipo === 'bolsa'], ['Comuns a todas as classes', it => !it.classe && it.tipo !== 'bolsa' && !it.fusao], ...Object.keys(t.CLASSES).map(c => [t.CLASSES[c].nome, it => it.classe === c && !it.fusao]), ['Fusões', it => it.fusao]];
+const grupos = [['Bolsas', it => it.tipo === 'bolsa'], ['Comuns a todas as classes', it => !it.classe && it.tipo !== 'bolsa' && !it.fusao], ...Object.keys(t.CLASSES).map(c => [t.CLASSES[c].nome, it => it.classe === c && !it.fusao]), ['Evoluções gerais', it => it.fusao && !it.classe], ...Object.keys(t.CLASSES).map(c => ['Evoluções: ' + t.CLASSES[c].nome, it => it.fusao && it.classe === c])];
 for(const [nome, f] of grupos){
   const L = t.ITENS.filter(it => f(it) && !temPintura(it)); if(!L.length) continue;
   md += `## ${nome} (${L.length})\n| Arquivo | Item | Prompt (depois do estilo base) |\n|---|---|---|\n`;

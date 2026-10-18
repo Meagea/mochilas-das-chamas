@@ -97,7 +97,7 @@ Os itens atuais ficam todos no nível 1. Os novos vão sendo liberados.
 ### Ladino (hiena), ferramenta: Kit de Venenos
 | Nível | Item | Raridade | Ideia |
 |---|---|---|---|
-| 1 | Adaga, Zarabatana, Capa das Sombras, Bomba de Fumaça, Adagas Gêmeas, Presa da Serpente | atuais | |
+| 1 | Adaga, Zarabatana, Capa das Sombras, Bomba de Fumaça, Adagas Gêmeas, Presa da Jararaca | atuais | |
 | 2 | Gazua | comum | armas vizinhas ganham 10% de crítico |
 | 3 | Facas de Arremesso | incomum | arma rápida que perfura bloqueio |
 | 4 | Máscara de Ladrão | rara | começa a luta com esquiva |
@@ -106,7 +106,7 @@ Os itens atuais ficam todos no nível 1. Os novos vão sendo liberados.
 | 6 | Receita: Zarabatana + Frasco de Veneno = **Zarabatana da Peçonha** | | |
 | 7 | Bolsa de Truques | rara | a cada 6 s, um efeito aleatório: esquiva, veneno ou crítico |
 | 8 | Receita: Capa das Sombras + Bomba de Fumaça = **Véu da Noite** | | |
-| 9 | Sorriso da Hiena | lendária | críticos envenenam e dão esquiva |
+| 9 | Sorriso da Jaguatirica | lendária | críticos envenenam e dão esquiva |
 
 ## 6. Classes de ofício (ferramentas de artesão do D&D)
 Cada classe de ofício começa com a sua **ferramenta** na mochila, e a mecânica da classe gira em torno dela e dos itens encostados.

@@ -59,13 +59,14 @@ function fecharRodada(venceu, adversario){
 }
 
 // ---- classes de ofício: a cada rodada (antes da luta), a ferramenta trabalha os itens encostados nela ----
+// a ferramenta mestre (mestre: true) já traz a peça de apoio embutida: trabalha mais uma vez nas rodadas pares
 // devolve as mensagens do que aconteceu, para o aviso na tela
 function oficio(m, rodada){
   const msgs = [], tem = id => m.pecas.some(p => p.id === id), naoBolsa = m.pecas.filter(p => !ehBolsa(p));
   // têmpera (Bigorna): a peça de metal mais fraca encostada; a Tenaz encostada tempera mais uma nas rodadas pares
   const maxT = tem('bigornaAncestral') ? 4 : 3;
   for(const b of naoBolsa.filter(p => ITEM[p.id].oficio === 'tempera')){
-    const vezes = 1 + (vizinhos(m, b).some(q => q.id === 'tenaz') && !((rodada || 0) % 2) ? 1 : 0);   // Tenaz: mais um nas rodadas pares
+    const vezes = 1 + ((ITEM[b.id].mestre || vizinhos(m, b).some(q => q.id === 'tenaz')) && !((rodada || 0) % 2) ? 1 : 0);   // Tenaz: mais um nas rodadas pares
     for(let i = 0; i < vezes; i++){
       const alvo = vizinhos(m, b).filter(q => ITEM[q.id].tags.includes('metal') && ['arma', 'escudo'].includes(ITEM[q.id].tipo) && (q.tempera || 0) < maxT)
         .sort((x, y) => (x.tempera || 0) - (y.tempera || 0) || ITEM[x.id].preco - ITEM[y.id].preco)[0];
@@ -84,7 +85,7 @@ function oficio(m, rodada){
   // aprimoramento (Bancada, Oficina): a engenhoca encostada menos aprimorada, até 3 (5 com a Oficina); a Chave Inglesa aprimora mais uma nas pares
   const maxE = tem('oficinaMestre') ? 5 : 3;
   for(const b of naoBolsa.filter(p => ITEM[p.id].oficio === 'aprimora')){
-    const vezes = 1 + (vizinhos(m, b).some(q => q.id === 'chaveInglesa') && !((rodada || 0) % 2) ? 1 : 0);
+    const vezes = 1 + ((ITEM[b.id].mestre || vizinhos(m, b).some(q => q.id === 'chaveInglesa')) && !((rodada || 0) % 2) ? 1 : 0);
     for(let i = 0; i < vezes; i++){
       const e = vizinhos(m, b).filter(q => ITEM[q.id].tags.includes('engenhoca') && (q.engrenagem || 0) < maxE).sort((x, y) => (x.engrenagem || 0) - (y.engrenagem || 0))[0];
       if(e){ e.engrenagem = (e.engrenagem || 0) + 1; msgs.push(`${ITEM[e.id].nome}: aprimorado ${e.engrenagem}`); } } }
@@ -92,9 +93,9 @@ function oficio(m, rodada){
   for(const p of naoBolsa.filter(q => ITEM[q.id].tags.includes('bebida') && (q.fermento || 0) < 5)){
     if(vizinhos(m, p).some(q => ITEM[q.id].oficio === 'fermenta')){ p.fermento = (p.fermento || 0) + 1; msgs.push(`${ITEM[p.id].nome}: fermentação ${p.fermento}`); } }
   // transmutação (Kit de Alquimia, Atanor): um frasco instável por ofício, numa casa livre (sem casa: na bancada); o Funil dá mais um nas pares
-  const frascos = () => m.pecas.concat(m.bancada || []).filter(q => ITEM[q.id].gerado).length, maxF = tem('atanor') ? 5 : 3;
+  const frascos = () => m.pecas.concat(m.bancada || []).filter(q => ITEM[q.id].gerado).length, maxF = tem('atanor') ? 4 : 3;
   for(const k of naoBolsa.filter(p => ITEM[p.id].oficio === 'alquimia')){
-    const vezes = 1 + (vizinhos(m, k).some(q => q.id === 'funil') && !((rodada || 0) % 2) ? 1 : 0);
+    const vezes = 1 + ((ITEM[k.id].mestre || vizinhos(m, k).some(q => q.id === 'funil')) && !((rodada || 0) % 2) ? 1 : 0);
     for(let i = 0; i < vezes && frascos() < maxF; i++){
       const id = ['frascoFogo', 'frascoGelo', 'frascoAcido'][(m.pecas.length + (rodada || 0) + i) % 3], p = peca(id), l = lugarLivre(m, id);
       if(l) por(m, p, l.x, l.y, l.g); else if(m.bancada) m.bancada.push(p); else continue;
@@ -103,14 +104,14 @@ function oficio(m, rodada){
   const maxC = tem('mesaCoureiro') ? 5 : 3;
   for(const f of naoBolsa.filter(p => ITEM[p.id].oficio === 'costura')){
     const perto = new Set(); for(const [x, y] of casasDe(f)) for(const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) perto.add(chave(x + dx, y + dy));
-    const vezes = 1 + (vizinhos(m, f).some(q => q.id === 'dedal') && !((rodada || 0) % 2) ? 1 : 0);
+    const vezes = 1 + ((ITEM[f.id].mestre || vizinhos(m, f).some(q => q.id === 'dedal')) && !((rodada || 0) % 2) ? 1 : 0);
     for(let i = 0; i < vezes; i++){
       const b = m.pecas.filter(q => ehBolsa(q) && (q.costura || 0) < maxC && casasDe(q).some(c => perto.has(chave(...c)))).sort((x, y) => (x.costura || 0) - (y.costura || 0))[0];
       if(b){ b.costura = (b.costura || 0) + 1; msgs.push(`${ITEM[b.id].nome}: costura ${b.costura}`); } } }
   // lapidação (Lupa, Coroa de Joias): a gema encostada menos lapidada, até 3 (5 com a Coroa); as Pinças lapidam mais uma vez nas pares
   const maxL = tem('coroaJoias') ? 5 : 3;
   for(const l of naoBolsa.filter(p => ITEM[p.id].oficio === 'lapida')){
-    const vezes = 1 + (vizinhos(m, l).some(q => q.id === 'pincas') && !((rodada || 0) % 2) ? 1 : 0);
+    const vezes = 1 + ((ITEM[l.id].mestre || vizinhos(m, l).some(q => q.id === 'pincas')) && !((rodada || 0) % 2) ? 1 : 0);
     for(let i = 0; i < vezes; i++){
       const g = vizinhos(m, l).filter(q => ITEM[q.id].tags.includes('gema') && (q.lapida || 0) < maxL).sort((x, y) => (x.lapida || 0) - (y.lapida || 0))[0];
       if(g){ g.lapida = (g.lapida || 0) + 1; msgs.push(`${ITEM[g.id].nome}: lapidação ${g.lapida}`); } } }
@@ -133,6 +134,9 @@ function valorItem(id, m, classe){
   if(it.viz && it.viz.modo === 'da' && !fere(it) && !m.pecas.some(p => combina(ITEM[p.id], it.viz.alvo))) v -= 3;
   return v;
 }
+// os pares de receita, para o robô encostar um no outro
+let PARES = null;
+const parReceita = (a, b) => (PARES || (PARES = new Set(RECEITAS.flatMap(r => [r[0] + '+' + r[1], r[1] + '+' + r[0]])))).has(a + '+' + b);
 // o melhor lugar para a peça: o que mais encosta em vizinhos que combinam (e, para bolsas, encostado nas outras bolsas)
 function melhorLugar(m, id){
   let melhor = null, nota = -1;
@@ -141,7 +145,9 @@ function melhorLugar(m, id){
     const tmp = {pecas:m.pecas.concat([{uid:-1, id, x, y, g}]), bancada:[]}, eu = tmp.pecas[tmp.pecas.length - 1];
     let n = 0;
     if(ITEM[id].tipo === 'bolsa'){ const S = casasAbertas(m); n = casasDe(eu).filter(([a, b]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => S.has(chave(a + dx, b + dy)))).length * 2 - Math.abs(x + 1 - LARG / 2) * .1 - Math.abs(y + 1 - ALT / 2) * .1; }
-    else { const V = ITEM[id].viz; for(const q of vizinhos(tmp, eu)){ if(V && combina(ITEM[q.id], V.alvo)) n += 2; const W = ITEM[q.id].viz; if(W && combina(ITEM[id], W.alvo)) n += 2; n += .1; } }
+    else { const V = ITEM[id].viz; for(const q of vizinhos(tmp, eu)){ if(V && combina(ITEM[q.id], V.alvo)) n += 2; const W = ITEM[q.id].viz; if(W && combina(ITEM[id], W.alvo)) n += 2; n += .1;
+      // encostar no par de uma receita: a fusão vale mais que qualquer bônus de vizinhança
+      if(parReceita(id, q.id)) n += 3; } }
     if(n > nota){ nota = n; melhor = {x, y, g}; }
   }
   return melhor;
@@ -174,7 +180,12 @@ function montarRobo(classe, rodada, sem, nivel){
       if(ouro < 4) break;
       ouro -= 1;
     }
-    fundir(m, nivel, classe); oficio(m, rd);
+    // o que fundiu cai onde couber: o robô, como um jogador, leva a peça nova para o melhor lugar
+    const antes = new Set(m.pecas.concat(m.bancada).map(p => p.uid));
+    if(fundir(m, nivel, classe).length) for(const p of m.pecas.concat(m.bancada).filter(p => !antes.has(p.uid))){
+      m.pecas = m.pecas.filter(q => q !== p); m.bancada = m.bancada.filter(q => q !== p);
+      const l = melhorLugar(m, p.id); if(l) por(m, p, l.x, l.y, l.g); else m.bancada.push(p); }
+    oficio(m, rd);
   }
   return m;
 }

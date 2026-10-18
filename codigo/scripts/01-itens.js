@@ -115,7 +115,7 @@ const ITENS = [
   I('capaSombras', 'Capa das Sombras', {classe:'ladino', rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'nevoa', cd:5, ao:{esquiva:1}, texto:'Ganha 1 de esquiva a cada 5 s.'}),
   I('fumaca', 'Bomba de Fumaça', {classe:'ladino', rar:'incomum', tipo:'pocao', forma:['#'], arte:'bomba', preco:4, uso:'gatilho', quando:'vidaBaixa', ao:{esquiva:3}, texto:'Uma vez: quando a vida cai abaixo da metade, ganha 3 de esquiva.'}),
   I('adagasGemeas', 'Adagas Gêmeas', {classe:'ladino', rar:'epica', tipo:'arma', forma:['##', '##'], arte:'espadas', tags:['metal'], cd:1.6, custo:1, dano:[2, 4], crit:.2, acerto:{golpes:2}, texto:'Golpeia duas vezes. 20% de chance de crítico.'}),
-  I('presaSerpente', 'Presa da Serpente', {classe:'ladino', rar:'lendaria', forma:['#', '#'], arte:'serpente', tags:['veneno'], cd:3, ao:{envenenar:3}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.2}}, texto:'Envenena 3 a cada 3 s. Armas vizinhas ganham 20% de crítico.'}),
+  I('presaSerpente', 'Presa da Jararaca', {classe:'ladino', rar:'lendaria', forma:['#', '#'], arte:'serpente', tags:['veneno'], cd:3, ao:{envenenar:3}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.2}}, texto:'Envenena 3 a cada 3 s. Armas vizinhas ganham 20% de crítico.'}),
 
   // ---- liberados pelo nível do personagem (PROGRESSAO.md) ----
   I('cantil', 'Cantil de Campanha', {classe:'guerreiro', tipo:'comida', forma:['#', '#'], arte:'xicara', cd:4, ao:{cura:2, vigor:1}, texto:'Cura 2 e dá 1 de vigor a cada 4 s.'}),
@@ -147,7 +147,7 @@ const ITENS = [
   I('alambique', 'Alambique', {classe:'ladino', nivel:7, rar:'epica', tipo:'pocao', forma:['##', '##'], arte:'frasco', tags:['veneno'], cd:5, ao:{envenenar:4, multVeneno:.6}, texto:'A cada 5 s, envenena 4 e o veneno do inimigo cresce 60%.'}),
   I('cogumelo', 'Cogumelo Tóxico', {classe:'ladino', nivel:5, rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['veneno'], preco:3, cd:1.8, ao:{envenenar:1}, viz:{modo:'da', alvo:{tag:'veneno'}, bonus:{cd:.15}}, texto:'Envenena 1 a cada 1,8 s. Itens de veneno vizinhos agem 15% mais rápido.'}),
   I('bolsaTruques', 'Bolsa de Truques', {classe:'ladino', nivel:7, rar:'rara', forma:['##'], arte:'bomba', cd:5, ao:{}, aleatorio:[{esquiva:2}, {envenenar:4}, {forca:1, vigor:2}], texto:'A cada 5 s, um truque: 2 de esquiva, envenenar 4, ou 1 de força e 2 de vigor.'}),
-  I('sorrisoHiena', 'Sorriso da Hiena', {classe:'ladino', nivel:9, rar:'lendaria', forma:['#', '#'], arte:'serpente', uso:'passivo', aoCritico:{envenenar:2, esquiva:1}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.1}}, texto:'Cada crítico seu envenena 2 e dá 1 de esquiva. Armas vizinhas +10% de crítico.'}),
+  I('sorrisoHiena', 'Sorriso da Jaguatirica', {classe:'ladino', nivel:9, rar:'lendaria', forma:['#', '#'], arte:'serpente', uso:'passivo', aoCritico:{envenenar:2, esquiva:1}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.1}}, texto:'Cada crítico seu envenena 2 e dá 1 de esquiva. Armas vizinhas +10% de crítico.'}),
 
   // ---- Ferreiro: têmpera (cada nível: arma +1 de dano, armadura +2 de bloqueio) ----
   I('bigorna', 'Bigorna', {classe:'ferreiro', forma:['##', '##'], arte:'ferramenta', tags:['metal'], inicial:true, preco:0, uso:'passivo', oficio:'tempera', viz:{modo:'da', alvo:{tag:'metal'}, bonus:{}}, texto:'A cada rodada, tempera a arma ou armadura de metal mais fraca encostada nela (até 3 vezes cada): arma +2 de dano, armadura +3 de bloqueio.'}),
@@ -164,7 +164,7 @@ const ITENS = [
   I('elmoFechado', 'Elmo Fechado', {classe:'ferreiro', nivel:7, rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'coroa', tags:['metal'], cd:3.5, ao:{bloqueio:10, espinhos:1}, inicio:{bloqueio:5}, texto:'Começa com 5 de bloqueio. A cada 3,5 s: 10 de bloqueio e 1 de espinhos.'}),
   I('escarpas', 'Escarpas', {classe:'ferreiro', nivel:5, rar:'incomum', tipo:'escudo', forma:['##'], arte:'escudo', tags:['metal'], uso:'passivo', inicio:{vida:9, bloqueio:3}, texto:'+9 de vida e começa com 3 de bloqueio.'}),
   I('forjaPortatil', 'Forja Portátil', {classe:'ferreiro', nivel:7, rar:'epica', forma:['##', '##'], arte:'chama', tags:['metal', 'fogo'], cd:7, ao:{forca:1, bloqueio:4}, texto:'A cada 7 s: 1 de força e 4 de bloqueio.'}),
-  I('bigornaAncestral', 'Bigorna Ancestral', {classe:'ferreiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', tags:['metal'], uso:'passivo', oficio:'tempera', viz:{modo:'da', alvo:{tag:'metal'}, bonus:{}}, inicio:{bloqueio:6}, texto:'Tempera como a Bigorna, e a têmpera de toda a mochila vai até 4. Começa com 6 de bloqueio.'}),
+  I('bigornaAncestral', 'Bigorna Ancestral', {mestre:true, classe:'ferreiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', tags:['metal'], uso:'passivo', oficio:'tempera', viz:{modo:'da', alvo:{tag:'metal'}, bonus:{}}, inicio:{bloqueio:6}, texto:'Tempera como a Bigorna com a Tenaz (mais uma vez nas rodadas pares), e a têmpera de toda a mochila vai até 4. Começa com 6 de bloqueio.'}),
 
   // ---- Herbalista: cultivo (cada broto: +20% no efeito da erva, até 5) ----
   I('kitHerbal', 'Kit de Herbalismo', {classe:'herbalista', forma:['#', '#'], arte:'folha', inicial:true, preco:0, uso:'passivo', oficio:'cultivo', viz:{modo:'da', alvo:{tag:'erva'}, bonus:{}}, texto:'A cada rodada, as ervas encostadas ganham 1 broto (até 5; cada broto +25% no efeito). Poções encostadas funcionam duas vezes.'}),
@@ -172,7 +172,7 @@ const ITENS = [
   I('raizAmarga', 'Raiz Amarga', {classe:'herbalista', rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['erva', 'veneno'], cd:2.5, ao:{envenenar:1}, texto:'Envenena 1 a cada 2,5 s.'}),
   I('florVigor', 'Flor de Vigor', {classe:'herbalista', rar:'rara', tipo:'comida', forma:['#'], arte:'sol', tags:['erva'], cd:3, ao:{vigor:1, cura:2}, texto:'A cada 3 s: 1 de vigor e cura 2.'}),
   I('cogumeloGigante', 'Cogumelo Gigante', {classe:'herbalista', rar:'epica', tipo:'comida', forma:['##', '##'], arte:'comida', tags:['erva'], cd:4, ao:{cura:4, regen:1}, texto:'A cada 4 s: cura 4 e soma 1 de regeneração.'}),
-  I('arvoreAncia', 'Árvore Anciã', {classe:'herbalista', rar:'lendaria', forma:['#', '#', '#'], arte:'folha', tags:['erva'], uso:'passivo', inicio:{vida:10}, texto:'Todas as ervas da mochila ganham 1 broto a mais por rodada. +10 de vida.'}),
+  I('arvoreAncia', 'Árvore Anciã', {classe:'herbalista', rar:'lendaria', forma:['#', '#', '#'], arte:'folha', tags:['erva'], uso:'passivo', oficio:'cultivo', inicio:{vida:10}, texto:'Trabalha como o Kit de Herbalismo nas ervas e poções encostadas, e todas as ervas da mochila ganham 1 broto a mais por rodada. +10 de vida.'}),
   I('regador', 'Regador', {classe:'herbalista', nivel:2, forma:['##'], arte:'xicara', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'erva'}, bonus:{}}, texto:'Ervas encostadas nele ganham 1 broto a mais por rodada.'}),
   I('pilao', 'Pilão', {classe:'herbalista', nivel:3, rar:'incomum', forma:['#'], arte:'pedra', uso:'passivo', viz:{modo:'da', alvo:{tag:'erva'}, bonus:{aoMais:{cura:1, envenenar:1, vigor:1}, cd:.1}}, texto:'Ervas vizinhas: +1 no efeito e agem 10% mais rápido.'}),
   I('musgo', 'Musgo Curativo', {classe:'herbalista', nivel:4, rar:'rara', tipo:'pocao', forma:['#'], arte:'folha', tags:['erva'], uso:'gatilho', quando:'vidaBaixa', ao:{cura:14, regen:1}, texto:'Uma vez: quando a vida cai abaixo da metade, cura 14 e soma 1 de regeneração.'}),
@@ -206,7 +206,7 @@ const ITENS = [
   I('acido', 'Ácido Corrosivo', {classe:'alquimista', rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], cd:4, ao:{envenenar:1, corroer:4}, texto:'A cada 4 s: envenena 1 e corrói 4 de bloqueio do inimigo.'}),
   I('caldeira', 'Caldeira Borbulhante', {classe:'alquimista', rar:'rara', tipo:'magia', forma:['##', '##'], arte:'xicara', tags:['frasco'], cd:5, ao:{dano:4, queimar:2, gelo:1}, texto:'A cada 5 s: 4 de dano, queima 2 e 1 de gelo.'}),
   I('pedraFilosofal', 'Pedra Filosofal', {classe:'alquimista', rar:'epica', forma:['#'], arte:'cristal', uso:'passivo', inicio:{vida:6}, viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{aoMais:{dano:3, queimar:1, envenenar:1, gelo:1}}}, texto:'+6 de vida. Frascos vizinhos ficam mais fortes.'}),
-  I('elixirDragao', 'Elixir do Dragão', {classe:'alquimista', rar:'lendaria', tipo:'pocao', forma:['#', '#'], arte:'frasco', tags:['frasco', 'fogo'], uso:'gatilho', quando:'vidaBaixa', ao:{cura:16, forca:2, queimar:4}, texto:'Uma vez: com a vida abaixo da metade, cura 16, ganha 2 de força e queima o inimigo em 4.'}),
+  I('elixirDragao', 'Elixir do Boitatá', {classe:'alquimista', rar:'lendaria', tipo:'pocao', forma:['#', '#'], arte:'frasco', tags:['frasco', 'fogo'], uso:'gatilho', quando:'vidaBaixa', ao:{cura:16, forca:2, queimar:4}, texto:'Uma vez: com a vida abaixo da metade, cura 16, ganha 2 de força e queima o inimigo em 4.'}),
   I('funil', 'Funil de Cobre', {classe:'alquimista', nivel:2, forma:['#'], arte:'xicara', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{cd:.1}}, texto:'Encostado no Kit, fabrica mais um frasco nas rodadas pares. Frascos vizinhos agem 10% mais rápido.'}),
   I('saisVolateis', 'Sais Voláteis', {classe:'alquimista', nivel:3, rar:'incomum', forma:['#'], arte:'pedra', tags:['frasco'], uso:'passivo', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{cd:.25}}, texto:'Frascos vizinhos agem 25% mais rápido.'}),
   I('catalisador', 'Catalisador', {classe:'alquimista', nivel:4, rar:'rara', forma:['#'], arte:'brilho', uso:'passivo', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{aoMais:{dano:2, queimar:1, corroer:2}}}, texto:'Frascos vizinhos: +2 de dano, +1 de queimadura e +2 de corrosão.'}),
@@ -215,7 +215,7 @@ const ITENS = [
   I('canhaoAlquimico', 'Canhão Alquímico', {classe:'alquimista', nivel:6, rar:'epica', tipo:'arma', forma:['##', '#.'], arte:'bomba', tags:['metal', 'fogo'], cd:2.5, custo:2, dano:[8, 12], acerto:{queimar:2, corroer:2}, texto:'Cada acerto queima 2 e corrói 2 de bloqueio.'}),
   I('homunculo', 'Homúnculo', {classe:'alquimista', nivel:7, rar:'epica', forma:['#', '#'], arte:'olho', cd:3, ao:{dano:4, cura:3}, texto:'A cada 3 s: 4 de dano e cura 3.'}),
   I('mascaraGas', 'Máscara de Gás', {classe:'alquimista', nivel:7, rar:'rara', tipo:'escudo', forma:['##'], arte:'nevoa', uso:'passivo', inicio:{bloqueio:9, regen:1}, texto:'Começa com 9 de bloqueio e 1 de regeneração.'}),
-  I('atanor', 'Atanor', {classe:'alquimista', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['fogo'], uso:'passivo', oficio:'alquimia', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{aoMais:{dano:2}}}, texto:'Fabrica frascos como o Kit, e a mochila comporta até 5. Começa com 6 de bloqueio.'}),
+  I('atanor', 'Atanor', {classe:'alquimista', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['fogo'], uso:'passivo', oficio:'alquimia', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{}}, texto:'Fabrica frascos como o Kit, e a mochila comporta até 4. Começa com 6 de bloqueio.'}),
   // os frascos instáveis só nascem do Kit (não aparecem na loja e não valem ouro)
   I('frascoFogo', 'Frasco Instável de Fogo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'chama', tags:['frasco', 'fogo'], uso:'gatilho', quando:'tempo', t:2.5, ao:{dano:6, queimar:2}, texto:'Explode depois de 2,5 s: 6 de dano e queima 2.'}),
   I('frascoGelo', 'Frasco Instável de Gelo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gelo', tags:['frasco', 'gelo'], uso:'gatilho', quando:'tempo', t:2, ao:{gelo:4, dano:3}, texto:'Explode depois de 2 s: 3 de dano e 4 de gelo.'}),
@@ -235,7 +235,7 @@ const ITENS = [
   I('luvasCouro', 'Luvas de Couro Grosso', {classe:'coureiro', nivel:5, rar:'incomum', tipo:'escudo', forma:['#'], arte:'mao', uso:'passivo', inicio:{bloqueio:7}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{bloqueio:1}}}, texto:'Começa com 7 de bloqueio. Armas vizinhas dão 1 de bloqueio por acerto.'}),
   I('broquel', 'Broquel de Couro Fervido', {classe:'coureiro', nivel:6, rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'escudo', cd:3, ao:{bloqueio:10}, texto:'Ganha 10 de bloqueio a cada 3 s.'}),
   I('capaViajante', 'Capa de Viajante', {classe:'coureiro', nivel:7, rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'vento', cd:4, ao:{esquiva:1, regen:1}, texto:'A cada 4 s: 1 de esquiva e 1 de regeneração.'}),
-  I('mesaCoureiro', 'Mesa do Mestre Coureiro', {classe:'coureiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', uso:'passivo', oficio:'costura', inicio:{vida:10}, texto:'Costura como as Ferramentas, e a costura de toda a mochila vai até 5. +10 de vida.'}),
+  I('mesaCoureiro', 'Mesa do Mestre Coureiro', {mestre:true, classe:'coureiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', uso:'passivo', oficio:'costura', inicio:{vida:10}, texto:'Costura como as Ferramentas com o Dedal (mais uma vez nas rodadas pares), e a costura de toda a mochila vai até 5. +10 de vida.'}),
 
   // ---- Joalheiro: lapidação (cada nível soma de novo o bônus original da gema, até 3) ----
   I('lupa', 'Lupa e Pinças', {classe:'joalheiro', forma:['#'], arte:'olho', inicial:true, preco:0, uso:'passivo', oficio:'lapida', viz:{modo:'da', alvo:{tag:'gema'}, bonus:{}}, texto:'A cada rodada, lapida a gema encostada menos lapidada (até 3 vezes cada): cada lapidação dobra o bônus original dela.'}),
@@ -252,7 +252,7 @@ const ITENS = [
   I('onix', 'Ônix', {classe:'joalheiro', nivel:5, rar:'incomum', forma:['#'], arte:'lua', tags:['gema'], uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{perfura:3}, dano:1}}, texto:'Armas vizinhas: +1 de dano e atravessam 3 de bloqueio.'}),
   I('adagaCravejada', 'Adaga Cravejada', {classe:'joalheiro', nivel:6, rar:'epica', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.5, custo:1, dano:[4, 6], crit:.15, viz:{modo:'recebe', alvo:{tag:'gema'}, bonus:{dano:1}}, texto:'Rápida. 15% de crítico. +1 de dano para cada gema vizinha.'}),
   I('cetro', 'Cetro de Joias', {classe:'joalheiro', nivel:7, rar:'epica', tipo:'arma', forma:['#', '#', '#'], arte:'raio', cd:2.2, custo:2, dano:[7, 11], viz:{modo:'recebe', alvo:{tag:'gema'}, bonus:{dano:1}}, texto:'+1 de dano para cada gema vizinha.'}),
-  I('coroaJoias', 'Coroa de Joias', {classe:'joalheiro', nivel:9, rar:'lendaria', forma:['##'], arte:'coroa', uso:'passivo', oficio:'lapida', inicio:{vida:8}, viz:{modo:'da', alvo:{tag:'gema'}, bonus:{}}, texto:'Lapida como a Lupa, e a lapidação de toda a mochila vai até 5. +8 de vida.'}),
+  I('coroaJoias', 'Coroa de Joias', {mestre:true, classe:'joalheiro', nivel:9, rar:'lendaria', forma:['##'], arte:'coroa', uso:'passivo', oficio:'lapida', inicio:{vida:8}, viz:{modo:'da', alvo:{tag:'gema'}, bonus:{}}, texto:'Lapida como a Lupa com as Pinças (mais uma vez nas rodadas pares), e a lapidação de toda a mochila vai até 5. +8 de vida.'}),
 
   // ---- Inventor: aprimoramento (cada nível: a engenhoca age 15% mais rápido, até 3) ----
   I('bancadaInventor', 'Bancada de Funileiro', {classe:'inventor', forma:['##'], arte:'ferramenta', tags:['metal'], inicial:true, preco:0, uso:'passivo', oficio:'aprimora', viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{}}, texto:'A cada rodada, aprimora a engenhoca encostada menos aprimorada (até 3 vezes cada): ela age 15% mais rápido.'}),
@@ -267,15 +267,15 @@ const ITENS = [
   I('armadilha', 'Armadilha de Molas', {classe:'inventor', nivel:5, rar:'incomum', tipo:'arma', forma:['#'], arte:'alvo', tags:['engenhoca', 'metal'], uso:'gatilho', quando:'tempo', t:1, ao:{dano:5, atordoar:.8}, texto:'Uma vez: depois de 1 s, 5 de dano e atordoa o inimigo por 0,8 s.'}),
   I('escudoMecanico', 'Escudo Mecânico', {classe:'inventor', nivel:5, rar:'incomum', tipo:'escudo', forma:['##'], arte:'escudo', tags:['engenhoca', 'metal'], cd:4, ao:{bloqueio:6}, texto:'Engenhoca: ganha 6 de bloqueio a cada 4 s.'}),
   I('lancaChamas', 'Lança-Chamas', {classe:'inventor', nivel:6, rar:'epica', tipo:'arma', forma:['#', '#'], arte:'chama', tags:['engenhoca', 'metal', 'fogo'], uso:'ativo', cd:2, ao:{dano:2, queimar:3}, texto:'Engenhoca: a cada 2 s, 2 de dano e queima 3.'}),
-  I('drone', 'Drone Batedor', {classe:'inventor', nivel:7, rar:'epica', tipo:'arma', forma:['#'], arte:'olho', tags:['engenhoca', 'metal'], uso:'ativo', cd:1.5, ao:{dano:3}, texto:'Engenhoca: 3 de dano a cada 1,5 s.'}),
-  I('oficinaMestre', 'Oficina do Mestre', {classe:'inventor', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', tags:['metal'], uso:'passivo', oficio:'aprimora', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{}}, texto:'Aprimora como a Bancada, e o aprimoramento de toda a mochila vai até 5. Começa com 6 de bloqueio.'}),
+  I('drone', 'Drone Batedor', {classe:'inventor', nivel:7, rar:'epica', tipo:'arma', forma:['#'], arte:'olho', tags:['engenhoca', 'metal'], uso:'ativo', cd:1.5, ao:{dano:4}, texto:'Engenhoca: 4 de dano a cada 1,5 s.'}),
+  I('oficinaMestre', 'Oficina do Mestre', {mestre:true, classe:'inventor', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', tags:['metal'], uso:'passivo', oficio:'aprimora', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{}}, texto:'Aprimora como a Bancada com a Chave Inglesa (mais uma vez nas rodadas pares), e o aprimoramento de toda a mochila vai até 5. Começa com 6 de bloqueio.'}),
 
   // ---- Cervejeiro: fermentação (cada nível: +20% no efeito da bebida, até 5; cada gole dá ressaca) ----
   I('barril', 'Barril', {classe:'cervejeiro', forma:['##', '##'], arte:'xicara', inicial:true, preco:0, uso:'passivo', oficio:'fermenta', viz:{modo:'da', alvo:{tag:'bebida'}, bonus:{}}, texto:'A cada rodada, as bebidas encostadas fermentam (até 5 vezes): +20% no efeito por fermentação.'}),
   I('caneca', 'Caneca de Cerveja', {classe:'cervejeiro', tipo:'pocao', forma:['#'], arte:'xicara', tags:['bebida'], cd:4, ao:{forca:1, cura:2, ressaca:1}, texto:'A cada 4 s: 1 de força e cura 2. Ressaca: 1 de dano em você.'}),
   I('hidromel', 'Hidromel', {classe:'cervejeiro', rar:'incomum', tipo:'pocao', forma:['#'], arte:'frasco', tags:['bebida'], cd:4, ao:{cura:3, regen:1}, texto:'A cada 4 s: cura 3 e soma 1 de regeneração.'}),
   I('aguardente', 'Aguardente', {classe:'cervejeiro', rar:'rara', tipo:'pocao', forma:['#'], arte:'frasco', tags:['bebida', 'fogo'], cd:5, ao:{forca:2, ressaca:2}, texto:'A cada 5 s: 2 de força. Ressaca: 2 de dano em você.'}),
-  I('cervejaDragao', 'Cerveja de Dragão', {classe:'cervejeiro', rar:'epica', tipo:'pocao', forma:['#', '#'], arte:'chama', tags:['bebida', 'fogo'], cd:4, ao:{queimar:3, forca:1, ressaca:1}, texto:'A cada 4 s: queima o inimigo em 3 e 1 de força. Ressaca: 1.'}),
+  I('cervejaDragao', 'Cerveja do Boitatá', {classe:'cervejeiro', rar:'epica', tipo:'pocao', forma:['#', '#'], arte:'chama', tags:['bebida', 'fogo'], cd:4, ao:{queimar:3, forca:1, ressaca:1}, texto:'A cada 4 s: queima o inimigo em 3 e 1 de força. Ressaca: 1.'}),
   I('elixirFuria', 'Elixir da Fúria', {classe:'cervejeiro', rar:'lendaria', tipo:'pocao', forma:['#'], arte:'frasco', tags:['bebida'], uso:'gatilho', quando:'vidaBaixa', ao:{forca:4, cura:12}, texto:'Uma vez: com a vida abaixo da metade, 4 de força e cura 12.'}),
   I('canecao', 'Canecão de Ferro', {classe:'cervejeiro', nivel:2, tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], cd:2, custo:2, dano:[5, 7], acerto:{cura:1}, texto:'Pesado. Cada acerto cura 1.'}),
   I('lupulo', 'Lúpulo', {classe:'cervejeiro', nivel:3, rar:'incomum', forma:['#'], arte:'folha', uso:'passivo', viz:{modo:'da', alvo:{tag:'bebida'}, bonus:{cd:.2}}, texto:'Bebidas vizinhas agem 20% mais rápido.'}),
@@ -313,25 +313,150 @@ const ITENS = [
   I('morteiro', 'Morteiro', {classe:'inventor', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'bomba', tags:['engenhoca', 'metal', 'fogo'], fusao:true, uso:'ativo', cd:3.5, ao:{dano:12}, texto:'Engenhoca: 12 de dano a cada 3,5 s.'}),
   I('bastiao', 'Bastião Mecânico', {classe:'inventor', rar:'lendaria', tipo:'arma', forma:['##', '##'], arte:'escudo', tags:['engenhoca', 'metal'], fusao:true, uso:'ativo', cd:3, ao:{dano:5, bloqueio:6}, texto:'Engenhoca: a cada 3 s, 5 de dano e 6 de bloqueio.'}),
   I('rodada', 'Rodada para Todos', {classe:'cervejeiro', rar:'epica', tipo:'pocao', forma:['#'], arte:'xicara', tags:['bebida'], fusao:true, cd:3, ao:{forca:1, cura:3, ressaca:1}, texto:'A cada 3 s: 1 de força e cura 3. Ressaca: 1.'}),
-  I('bafoDragao', 'Bafo de Dragão', {classe:'cervejeiro', rar:'lendaria', tipo:'pocao', forma:['#'], arte:'chama', tags:['bebida', 'fogo'], fusao:true, cd:4, ao:{dano:6, queimar:4, ressaca:1}, texto:'A cada 4 s: 6 de dano e queima 4. Ressaca: 1.'}),
+  I('bafoDragao', 'Bafo do Boitatá', {classe:'cervejeiro', rar:'lendaria', tipo:'pocao', forma:['#'], arte:'chama', tags:['bebida', 'fogo'], fusao:true, cd:4, ao:{dano:6, queimar:4, ressaca:1}, texto:'A cada 4 s: 6 de dano e queima 4. Ressaca: 1.'}),
   I('macaCravejada', 'Maça Cravejada', {rar:'rara', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], fusao:true, cd:2, custo:2, dano:[5, 8], acerto:{perfura:2}, texto:'Atravessa 2 de bloqueio.'}),
+  // ---- evoluções (EVOLUCOES.md): só nascem de receita, nunca aparecem na loja ----
+  // gerais
+  I('laminaSorte', 'Lâmina da Sorte', {rar:'rara', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], fusao:true, cd:1.6, custo:1, dano:[3, 5], crit:.25, noCrit:{vigor:1}, texto:'25% de crítico. Cada crítico dá 1 de vigor.'}),
+  I('macaCruzado', 'Maça do Cruzado', {rar:'epica', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], fusao:true, cd:2, custo:2, dano:[6, 9], acerto:{perfura:3, bloqueio:2}, texto:'Atravessa 3 de bloqueio. Cada acerto dá 2 de bloqueio.'}),
+  I('tocha', 'Tocha', {rar:'incomum', tipo:'arma', forma:['#', '#'], arte:'chama', tags:['fogo'], fusao:true, cd:1.5, custo:1, dano:[2, 3], acerto:{queimar:2}, texto:'Cada acerto queima 2.'}),
+  I('machadosArremesso', 'Machados de Arremesso', {rar:'rara', tipo:'arma', forma:['##', '#.'], arte:'machado', tags:['metal'], fusao:true, cd:2, custo:2, dano:[4, 7], acerto:{golpes:2}, texto:'Golpeia duas vezes.'}),
+  I('lancaFalange', 'Lança de Falange', {rar:'rara', tipo:'arma', forma:['#', '#', '#'], arte:'tridente', tags:['metal'], fusao:true, cd:2.2, custo:2, dano:[5, 8], acerto:{perfura:3, bloqueio:1}, viz:{modo:'recebe', alvo:{tipo:'escudo'}, bonus:{dano:1}}, texto:'Atravessa 3 de bloqueio e dá 1 de bloqueio por acerto. +1 de dano para cada escudo vizinho.'}),
+  I('arcoPeconhento', 'Arco Peçonhento', {rar:'rara', tipo:'arma', forma:['#', '#', '#'], arte:'arco', tags:['veneno'], fusao:true, cd:1.8, custo:1, dano:[2, 5], crit:.25, acerto:{envenenar:2}, texto:'25% de crítico. Cada acerto envenena 2.'}),
+  I('arcoCacador', 'Arco do Caçador', {rar:'epica', tipo:'arma', forma:['#', '#', '#'], arte:'arco', fusao:true, cd:1.8, custo:1, dano:[3, 6], crit:.3, primeirosCrit:2, texto:'Os 2 primeiros golpes são críticos. Depois, 30% de crítico.'}),
+  I('espadaVampirica', 'Espada Vampírica', {rar:'epica', tipo:'arma', forma:['#', '#', '#'], arte:'sangue', tags:['metal'], fusao:true, cd:2, custo:2, dano:[6, 9], acerto:{cura:2}, texto:'Cada acerto cura 2.'}),
+  I('marteloJuizo', 'Martelo do Juízo', {rar:'epica', tipo:'arma', forma:['##', '##', '.#'], arte:'martelo', tags:['metal'], fusao:true, cd:2.8, custo:3, dano:[10, 15], acerto:{perfura:4, atordoar:.4, bloqueio:2}, texto:'Atravessa 4 de bloqueio. Cada acerto atordoa 0,4 s e dá 2 de bloqueio.'}),
+  I('escudoCastelo', 'Escudo do Castelo', {rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], fusao:true, cd:3, ao:{bloqueio:12}, viz:{modo:'recebe', alvo:{tipo:'escudo'}, bonus:{bloqueio:2}}, texto:'Ganha 12 de bloqueio a cada 3 s, +2 para cada escudo vizinho.'}),
+  I('escudoChamas', 'Escudo em Chamas', {rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'chama', tags:['fogo'], fusao:true, cd:3, ao:{bloqueio:5, queimar:1}, texto:'A cada 3 s: 5 de bloqueio e queima 1.'}),
+  I('escudoLaminas', 'Escudo de Lâminas', {rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], fusao:true, cd:3.5, ao:{bloqueio:7}, inicio:{espinhos:2}, texto:'Ganha 7 de bloqueio a cada 3,5 s. 2 de espinhos.'}),
+  I('armaduraCompleta', 'Armadura Completa', {rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], fusao:true, uso:'passivo', inicio:{bloqueio:10, vida:12}, texto:'Começa com 10 de bloqueio e +12 de vida.'}),
+  I('couracaViva', 'Couraça Viva', {rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'coracao', fusao:true, uso:'passivo', inicio:{vida:18, regen:1}, texto:'+18 de vida e 1 de regeneração.'}),
+  I('mantoTempo', 'Manto do Tempo', {rar:'epica', tipo:'escudo', forma:['##'], arte:'ampulheta', fusao:true, cd:6, ao:{esquiva:1}, inicio:{esquiva:2}, texto:'Começa com 2 de esquiva e ganha mais 1 a cada 6 s.'}),
+  I('tortaFarta', 'Torta Farta', {rar:'rara', tipo:'comida', forma:['##'], arte:'comida', fusao:true, cd:4, ao:{cura:7}, viz:{modo:'recebe', alvo:{tipo:'comida'}, bonus:{cura:1}}, texto:'Cura 7 a cada 4 s. +1 de cura para cada comida vizinha.'}),
+  I('tabuaFrios', 'Tábua de Frios', {rar:'incomum', tipo:'comida', forma:['##'], arte:'comida', fusao:true, cd:3.5, ao:{vigor:1, cura:2}, texto:'A cada 3,5 s: 1 de vigor e cura 2.'}),
+  I('sopaFarta', 'Sopa Farta', {rar:'epica', tipo:'comida', forma:['##', '##'], arte:'xicara', fusao:true, cd:3, ao:{cura:5, regen:1, vigor:1}, texto:'A cada 3 s: cura 5, 1 de regeneração e 1 de vigor.'}),
+  I('pocaoGrande', 'Poção Grande', {rar:'rara', tipo:'pocao', forma:['#'], arte:'frasco', fusao:true, uso:'gatilho', quando:'vidaBaixa', ao:{cura:30}, texto:'Uma vez: quando a vida cai abaixo da metade, cura 30.'}),
+  I('elixirFolego', 'Elixir de Fôlego', {rar:'rara', tipo:'pocao', forma:['#'], arte:'frasco', fusao:true, cd:5, ao:{vigor:4}, texto:'Dá 4 de vigor a cada 5 s.'}),
+  I('frascoPeconhento', 'Frasco Peçonhento', {rar:'rara', tipo:'pocao', forma:['#'], arte:'caveira', tags:['veneno'], fusao:true, cd:4, ao:{envenenar:5}, texto:'Envenena o inimigo em 5 a cada 4 s.'}),
+  I('bombaIncendiaria', 'Bomba Incendiária', {rar:'rara', tipo:'pocao', forma:['#'], arte:'bomba', tags:['fogo'], fusao:true, uso:'gatilho', quando:'tempo', t:3, ao:{dano:12, queimar:3}, texto:'Uma vez: depois de 3 s, 12 de dano e queima 3.'}),
+  I('amuletoSorte', 'Amuleto da Sorte', {rar:'rara', forma:['#'], arte:'estrela', fusao:true, uso:'passivo', inicio:{vigor:2}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.2}}, texto:'Armas vizinhas ganham 20% de crítico. Começa com 2 de vigor a mais.'}),
+  // Guerreiro
+  I('insigniaCapitao', 'Insígnia do Capitão', {classe:'guerreiro', rar:'rara', forma:['#'], arte:'medalha', fusao:true, cd:10, ao:{forca:1}, inicio:{forca:1, vida:8}, texto:'Começa com 1 de força e +8 de vida. Ganha 1 de força a cada 10 s.'}),
+  I('racaoCampanha', 'Ração de Campanha', {classe:'guerreiro', rar:'incomum', tipo:'comida', forma:['##'], arte:'comida', fusao:true, cd:4, ao:{cura:3, vigor:1}, inicio:{vida:5}, texto:'+5 de vida. A cada 4 s: cura 3 e 1 de vigor.'}),
+  I('manoplaCravada', 'Manopla Cravada', {classe:'guerreiro', rar:'rara', tipo:'escudo', forma:['#'], arte:'mao', tags:['metal'], fusao:true, uso:'passivo', inicio:{bloqueio:3}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:1, acerto:{bloqueio:1}}}, texto:'Começa com 3 de bloqueio. Armas vizinhas: +1 de dano e 1 de bloqueio a cada acerto.'}),
+  I('bradoCampeao', 'Brado do Campeão', {classe:'guerreiro', rar:'epica', forma:['#'], arte:'sino', fusao:true, uso:'gatilho', quando:'vidaBaixa', ao:{forca:5, bloqueio:10, atordoar:1}, texto:'Uma vez: quando a vida cai abaixo da metade, 5 de força, 10 de bloqueio e atordoa o inimigo por 1 s.'}),
+  I('cotaReforcada', 'Cota Reforçada', {classe:'guerreiro', rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], fusao:true, cd:4, ao:{bloqueio:7}, inicio:{bloqueio:6}, viz:{modo:'recebe', alvo:{tag:'metal'}, bonus:{bloqueio:1}}, texto:'Começa com 6 de bloqueio. Ganha 7 a cada 4 s, +1 para cada metal vizinho.'}),
+  I('trofeuBatalha', 'Troféu de Batalha', {classe:'guerreiro', rar:'epica', forma:['#'], arte:'trofeu', fusao:true, uso:'passivo', inicio:{vida:6, raiva:12}, texto:'+6 de vida. Ganha 1 de força a cada 12 de vida perdida.'}),
+  // Mago
+  I('grimorioDesperto', 'Grimório Desperto', {classe:'mago', rar:'rara', tipo:'magia', forma:['#', '#'], arte:'livro', tags:['magia'], fusao:true, cd:1.6, ao:{mana:1}, viz:{modo:'da', alvo:{tipo:'magia'}, bonus:{cd:.1}}, texto:'Ganha 1 de mana a cada 1,6 s. Magias vizinhas agem 10% mais rápido.'}),
+  I('coracaoFogo', 'Coração de Fogo', {classe:'mago', rar:'epica', tipo:'magia', forma:['#'], arte:'chama', tags:['magia', 'fogo'], fusao:true, cd:2.5, ao:{queimar:2}, viz:{modo:'da', alvo:{tag:'fogo'}, bonus:{aoMais:{dano:1, queimar:1}}}, texto:'Queima 2 a cada 2,5 s. Itens de fogo vizinhos: +1 de dano e +1 de queimadura.'}),
+  I('coroaInverno', 'Coroa do Inverno', {classe:'mago', rar:'epica', forma:['##'], arte:'gelo', tags:['magia', 'gelo'], fusao:true, cd:6, ao:{gelo:1}, inicioInimigo:{gelo:5}, texto:'No começo da luta, põe 5 de gelo no inimigo. Mais 1 a cada 6 s.'}),
+  I('elixirArcano', 'Elixir Arcano', {classe:'mago', rar:'epica', tipo:'pocao', forma:['#'], arte:'frasco', tags:['magia'], fusao:true, uso:'gatilho', quando:'vidaBaixa', ao:{mana:10, cura:12, bloqueio:6}, texto:'Uma vez: quando a vida cai abaixo da metade, 10 de mana, cura 12 e 6 de bloqueio.'}),
+  I('espelhoPrismatico', 'Espelho Prismático', {classe:'mago', rar:'epica', tipo:'escudo', forma:['#', '#'], arte:'cristal', tags:['magia'], fusao:true, cd:4, ao:{bloqueio:9, mana:3, dano:4}, viz:{modo:'da', alvo:{tipo:'magia'}, bonus:{cd:.1}}, texto:'A cada 4 s: 9 de bloqueio, 3 de mana e 4 de dano. Magias vizinhas agem 10% mais rápido.'}),
+  I('nevasca', 'Nevasca', {classe:'mago', rar:'lendaria', tipo:'magia', forma:['##', '##'], arte:'gelo', tags:['magia', 'gelo'], fusao:true, cd:3, gastaMana:3, ao:{dano:8, gelo:3, danoPorGelo:1}, semMana:{dano:2, gelo:1}, texto:'Gasta 3 de mana: 8 de dano, +1 para cada gelo do inimigo, e 3 de gelo. Sem mana: 2 de dano e 1 de gelo.'}),
+  // Ladino
+  I('kitEnvenenador', 'Kit do Envenenador', {classe:'ladino', rar:'rara', forma:['#', '#'], arte:'caveira', tags:['veneno'], fusao:true, uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{acerto:{envenenar:2}}}, texto:'Armas vizinhas envenenam 2 ao acertar.'}),
+  I('luvasGatuno', 'Luvas do Gatuno', {classe:'ladino', rar:'rara', forma:['##'], arte:'mao', fusao:true, uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{cd:.2, crit:.15, dano:1}}, texto:'Armas vizinhas: 20% mais rápidas, +15% de crítico e +1 de dano.'}),
+  I('lequeLaminas', 'Leque de Lâminas', {classe:'ladino', rar:'epica', tipo:'arma', forma:['##'], arte:'espadas', tags:['metal'], fusao:true, cd:1.6, custo:1, dano:[2, 4], crit:.1, acerto:{golpes:2, perfura:3}, texto:'Golpeia duas vezes. Atravessa 3 de bloqueio. 10% de crítico.'}),
+  I('mascaraFantasma', 'Máscara do Fantasma', {classe:'ladino', rar:'epica', tipo:'escudo', forma:['#'], arte:'nevoa', fusao:true, cd:6, ao:{esquiva:1}, inicio:{esquiva:3}, viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{crit:.1}}, texto:'Começa com 3 de esquiva e ganha 1 a cada 6 s. Armas vizinhas ganham 10% de crítico.'}),
+  I('baralhoMarcado', 'Baralho Marcado', {classe:'ladino', rar:'epica', forma:['##'], arte:'pergaminho', fusao:true, cd:4, ao:{}, aleatorio:[{esquiva:2}, {envenenar:5}, {forca:1, vigor:2}, {dano:7}], texto:'A cada 4 s, um truque: 2 de esquiva, envenenar 5, 1 de força e 2 de vigor, ou 7 de dano.'}),
+  I('ferrao', 'Ferrão', {classe:'ladino', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'serpente', tags:['metal', 'veneno'], fusao:true, cd:1.2, custo:1, dano:[2, 4], crit:.2, acerto:{envenenar:2}, noCrit:{envenenar:2}, texto:'Muito rápida. Envenena 2 a cada acerto; cada crítico envenena mais 2. 20% de crítico.'}),
+  I('soproMorte', 'Sopro da Morte', {classe:'ladino', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'caveira', tags:['veneno'], fusao:true, cd:1.9, custo:1, dano:[1, 3], acerto:{envenenar:4, multVeneno:.1}, texto:'Cada acerto envenena 4 e o veneno do inimigo cresce 10%.'}),
+  // Ferreiro
+  I('tinaTempera', 'Tina de Têmpera', {classe:'ferreiro', rar:'epica', forma:['##'], arte:'xicara', tags:['metal'], fusao:true, uso:'gatilho', quando:'vidaBaixa', ao:{bloqueio:16, forca:2}, viz:{modo:'da', alvo:{tag:'metal'}, bonus:{bloqueio:1}}, texto:'Uma vez: quando a vida cai abaixo da metade, 16 de bloqueio e 2 de força. Metal vizinho dá +1 de bloqueio.'}),
+  // Herbalista
+  I('nectarVital', 'Néctar Vital', {classe:'herbalista', rar:'epica', tipo:'comida', forma:['#'], arte:'folha', tags:['erva'], fusao:true, cd:3, ao:{vigor:2, cura:3}, texto:'A cada 3 s: 2 de vigor e cura 3.'}),
+  I('unguentoEspinhos', 'Unguento de Espinhos', {classe:'herbalista', rar:'epica', tipo:'pocao', forma:['#'], arte:'folha', tags:['erva'], fusao:true, cd:4, ao:{cura:3, bloqueio:4}, inicio:{espinhos:1}, texto:'A cada 4 s: cura 3 e 4 de bloqueio. 1 de espinhos.'}),
+  I('orvalhoVida', 'Orvalho da Vida', {classe:'herbalista', rar:'lendaria', tipo:'pocao', forma:['#'], arte:'gota', tags:['erva'], fusao:true, uso:'gatilho', quando:'vidaBaixa', ao:{cura:30, regen:3}, texto:'Uma vez: quando a vida cai abaixo da metade, cura 30 e soma 3 de regeneração.'}),
+  // Cozinheiro
+  I('colherMel', 'Colher de Mel', {classe:'cozinheiro', rar:'incomum', tipo:'arma', forma:['#', '#'], arte:'comida', fusao:true, cd:1.6, custo:1, dano:[2, 4], acerto:{cura:2}, inicio:{regen:1}, texto:'Cada acerto cura 2. 1 de regeneração.'}),
+  I('aventalMestre', 'Avental do Mestre', {classe:'cozinheiro', rar:'rara', tipo:'escudo', forma:['##'], arte:'nevoa', fusao:true, uso:'passivo', inicio:{bloqueio:5, vida:1}, porComida:{bloqueio:1, vida:1}, texto:'Começa com 5 de bloqueio e +1 de vida, mais 1 de cada para cada comida na mochila.'}),
+  I('cutelo', 'Cutelo', {classe:'cozinheiro', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'machado', tags:['metal'], fusao:true, cd:1.7, custo:1, dano:[3, 5], viz:{modo:'recebe', alvo:{tipo:'comida'}, bonus:{dano:2}}, texto:'+2 de dano para cada comida vizinha.'}),
+  I('macaCaramelada', 'Maçã Caramelada', {classe:'cozinheiro', rar:'rara', tipo:'comida', forma:['#'], arte:'comida', fusao:true, cd:3, ao:{cura:3}, viz:{modo:'recebe', alvo:{tipo:'comida'}, bonus:{cura:1}}, texto:'Cura 3 a cada 3 s. +1 de cura para cada comida vizinha.'}),
+  I('caldoPicante', 'Caldo Picante', {classe:'cozinheiro', rar:'epica', tipo:'comida', forma:['##'], arte:'chama', tags:['fogo'], fusao:true, cd:4, ao:{cura:3, queimar:2}, inicio:{forca:1}, texto:'A cada 4 s: cura 3 e queima 2. Começa com 1 de força.'}),
+  // Alquimista: os frascos instáveis do Kit também se misturam (a mistura de dois frascos continua instável: conta no limite do Kit e não vende)
+  I('bombaVapor', 'Bomba de Vapor', {classe:'alquimista', rar:'incomum', tipo:'pocao', forma:['#'], arte:'nevoa', tags:['frasco', 'fogo', 'gelo'], fusao:true, gerado:true, uso:'gatilho', quando:'tempo', t:2, ao:{dano:6, gelo:3, queimar:2}, texto:'Uma vez: depois de 2 s, 6 de dano, 3 de gelo e queima 2.'}),
+  I('fogoGrego', 'Fogo Grego', {classe:'alquimista', rar:'rara', tipo:'pocao', forma:['#'], arte:'chama', tags:['frasco', 'fogo'], fusao:true, gerado:true, uso:'gatilho', quando:'tempo', t:3, ao:{dano:8, queimar:3, corroer:6}, texto:'Uma vez: depois de 3 s, 8 de dano, queima 3 e corrói 6 de bloqueio.'}),
+  I('nevoaGelida', 'Névoa Gélida', {classe:'alquimista', rar:'incomum', tipo:'pocao', forma:['#'], arte:'nevoa', tags:['frasco', 'gelo', 'veneno'], fusao:true, gerado:true, cd:3, ao:{envenenar:1, gelo:1}, texto:'A cada 3 s: envenena 1 e 1 de gelo.'}),
+  I('bombaGlacial', 'Bomba Glacial', {classe:'alquimista', rar:'rara', tipo:'pocao', forma:['#'], arte:'gelo', tags:['frasco', 'gelo'], fusao:true, uso:'gatilho', quando:'tempo', t:4, ao:{dano:10, gelo:8}, texto:'Uma vez: depois de 4 s, 10 de dano e 8 de gelo.'}),
+  I('nuvemCorrosiva', 'Nuvem Corrosiva', {classe:'alquimista', rar:'epica', tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], fusao:true, cd:3.5, ao:{envenenar:2, corroer:3}, texto:'A cada 3,5 s: envenena 2 e corrói 3 de bloqueio.'}),
+  // Coureiro
+  I('chicoteDomador', 'Chicote de Domador', {classe:'coureiro', rar:'rara', tipo:'arma', forma:['#', '#'], arte:'pata', fusao:true, cd:1.8, custo:1, dano:[3, 5], acerto:{atordoar:.3, vigor:1}, texto:'Cada acerto atordoa o inimigo por 0,3 s e dá 1 de vigor.'}),
+  // Joalheiro
+  I('geodo', 'Geodo', {classe:'joalheiro', rar:'rara', forma:['#'], arte:'cristal', tags:['gema'], fusao:true, uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:3, cd:.2}}, texto:'Armas vizinhas: +3 de dano e atacam 20% mais rápido.'}),
+  I('granada', 'Granada', {classe:'joalheiro', rar:'rara', forma:['#'], arte:'brilho', tags:['gema', 'fogo'], fusao:true, uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:2, acerto:{perfura:3, queimar:1}}}, texto:'Armas vizinhas: +2 de dano, atravessam 3 de bloqueio e queimam 1 ao acertar.'}),
+  I('colarReal', 'Colar Real', {classe:'joalheiro', rar:'epica', forma:['##'], arte:'medalha', fusao:true, uso:'passivo', inicio:{vida:16, bloqueio:8}, viz:{modo:'recebe', alvo:{tag:'gema'}, bonus:{inicio:{forca:1}}}, texto:'+16 de vida e começa com 8 de bloqueio. +1 de força para cada gema vizinha.'}),
+  // Inventor
+  I('balista', 'Balista', {classe:'inventor', rar:'rara', tipo:'arma', forma:['#', '#'], arte:'arco', tags:['engenhoca'], fusao:true, uso:'ativo', cd:2.2, ao:{dano:5}, texto:'Engenhoca: dispara sozinha, 5 de dano a cada 2,2 s.'}),
+  I('mina', 'Mina', {classe:'inventor', rar:'rara', tipo:'arma', forma:['#'], arte:'bomba', tags:['engenhoca', 'metal'], fusao:true, uso:'gatilho', quando:'tempo', t:1, ao:{dano:10, atordoar:1}, texto:'Uma vez: depois de 1 s, 10 de dano e atordoa o inimigo por 1 s.'}),
+  I('escudoGiratorio', 'Escudo Giratório', {classe:'inventor', rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['engenhoca', 'metal'], fusao:true, uso:'ativo', cd:3.5, ao:{bloqueio:8, dano:2}, texto:'Engenhoca: a cada 3,5 s, 8 de bloqueio e 2 de dano.'}),
+  // Cervejeiro
+  I('canecoGuerra', 'Caneco de Guerra', {classe:'cervejeiro', rar:'rara', tipo:'arma', forma:['#', '#'], arte:'xicara', tags:['metal'], fusao:true, cd:2, custo:2, dano:[5, 7], acerto:{cura:1}, viz:{modo:'recebe', alvo:{tag:'bebida'}, bonus:{dano:2}}, texto:'Cada acerto cura 1. +2 de dano para cada bebida vizinha.'}),
+  I('coquetel', 'Coquetel Incendiário', {classe:'cervejeiro', rar:'rara', tipo:'pocao', forma:['#'], arte:'chama', tags:['bebida', 'fogo'], fusao:true, uso:'gatilho', quando:'tempo', t:3, ao:{dano:14, queimar:3}, texto:'Uma vez: depois de 3 s, 14 de dano e queima 3.'}),
+  I('pancaBlindada', 'Pança Blindada', {classe:'cervejeiro', rar:'epica', tipo:'escudo', forma:['##', '##'], arte:'escudo', fusao:true, uso:'passivo', inicio:{vida:22, bloqueio:5, regen:1}, texto:'+22 de vida, começa com 5 de bloqueio e 1 de regeneração.'}),
 ];
 const ITEM = {}; for(const it of ITENS){ if(it.classe && !it.nivel) it.nivel = 1; it.preco = it.preco != null ? it.preco : RARIDADES[it.rar].preco; it.uso = it.uso || (it.tipo === 'bolsa' ? 'bolsa' : it.tipo === 'arma' ? 'arma' : 'ativo'); ITEM[it.id] = it; }
-// receitas: as duas peças encostadas viram o resultado no começo da próxima luta
+// receitas (EVOLUCOES.md): as duas peças encostadas viram o resultado no começo da próxima luta.
+// Sem nível: vale para todos. Com nível: só no personagem do resultado e a partir desse nível.
+// Catalisador (CATALISADORES): ajuda na fusão e não é gasto.
+const CATALISADORES = new Set(['amolar']);
 const RECEITAS = [
-  ['espadaCurta', 'pedraFogo', 'laminaFogo'], ['escudoMadeira', 'escudoMadeira', 'escudoReforcado'], ['maca', 'maca', 'torta'],
-  ['adaga', 'frascoVeneno', 'adagaVeneno'], ['varinha', 'cristalMana', 'varinhaArcana'], ['clava', 'amolar', 'macaCravejada'],
-  // as da classe com nível: só fundem quando o personagem já chegou nele
+  // gerais
+  ['espadaCurta', 'pedraFogo', 'laminaFogo'], ['espadaCurta', 'espadaCurta', 'espadaLonga'], ['espadaCurta', 'trevo', 'laminaSorte'],
+  ['clava', 'amolar', 'macaCravejada'], ['macaCravejada', 'escudoFerro', 'macaCruzado'], ['graveto', 'pedraFogo', 'tocha'],
+  ['machadinha', 'machadinha', 'machadosArremesso'], ['lanca', 'escudoMadeira', 'lancaFalange'],
+  ['arcoCurto', 'frascoVeneno', 'arcoPeconhento'], ['arcoCurto', 'trevo', 'arcoCacador'],
+  ['espadaLonga', 'gemaVida', 'espadaVampirica'], ['martelo', 'elmo', 'marteloJuizo'],
+  ['escudoMadeira', 'escudoMadeira', 'escudoReforcado'], ['escudoReforcado', 'escudoFerro', 'escudoCastelo'], ['escudoMadeira', 'pedraFogo', 'escudoChamas'],
+  ['escudoFerro', 'amolar', 'escudoLaminas'], ['elmo', 'couraca', 'armaduraCompleta'], ['couraca', 'gemaVida', 'couracaViva'], ['manto', 'ampulheta', 'mantoTempo'],
+  ['maca', 'maca', 'torta'], ['torta', 'pao', 'tortaFarta'], ['queijo', 'maca', 'tabuaFrios'], ['ensopado', 'pao', 'sopaFarta'],
+  ['pocaoCura', 'pocaoCura', 'pocaoGrande'], ['pocaoVigor', 'pocaoVigor', 'elixirFolego'], ['frascoVeneno', 'frascoVeneno', 'frascoPeconhento'],
+  ['bomba', 'pedraFogo', 'bombaIncendiaria'], ['trevo', 'ferradura', 'amuletoSorte'],
+  ['adaga', 'frascoVeneno', 'adagaVeneno'], ['varinha', 'cristalMana', 'varinhaArcana'],
+  // Guerreiro
   ['machadoFuria', 'trombeta', 'machadoClamor', 6], ['escudoTorre', 'estandarte', 'muralha', 8],
+  ['insignia', 'trombeta', 'insigniaCapitao', 1], ['cantil', 'pao', 'racaoCampanha', 1], ['manopla', 'amolar', 'manoplaCravada', 2],
+  ['espinheira', 'escudoFerro', 'paves', 7], ['gritoGuerra', 'trombeta', 'bradoCampeao', 3], ['cotaMalha', 'elmo', 'cotaReforcada', 4],
+  ['colarDentes', 'insignia', 'trofeuBatalha', 5], ['brasao', 'estandarte', 'coroaCampeao', 9],
+  // Mago
   ['orbeGelo', 'cristalMana', 'prismaGelado', 6], ['cajadoFogo', 'faisca', 'cajadoInfernal', 8],
+  ['grimorio', 'vela', 'grimorioDesperto', 2], ['faisca', 'faisca', 'bolaFogo', 1], ['brasaViva', 'pedraFogo', 'coracaoFogo', 5],
+  ['runaGelo', 'orbeGelo', 'lancaGelo', 7], ['coroaGeada', 'orbeGelo', 'coroaInverno', 5], ['ampolaEter', 'pocaoCura', 'elixirArcano', 4],
+  ['espelhoArcano', 'cristalMana', 'espelhoPrismatico', 7], ['prismaGelado', 'lancaGelo', 'nevasca', 7],
+  // Ladino
   ['zarabatana', 'frascoVeneno', 'zarabatanaPeconha', 6], ['capaSombras', 'fumaca', 'veuNoite', 8],
+  ['kitVeneno', 'frascoVeneno', 'kitEnvenenador', 1], ['adaga', 'adaga', 'adagasGemeas', 1], ['gazua', 'luvas', 'luvasGatuno', 5],
+  ['facas', 'facas', 'lequeLaminas', 3], ['cogumelo', 'frascoVeneno', 'alambique', 7], ['mascara', 'fumaca', 'mascaraFantasma', 4],
+  ['bolsaTruques', 'trevo', 'baralhoMarcado', 7], ['adagaVeneno', 'kitVeneno', 'ferrao', 3], ['zarabatanaPeconha', 'cogumelo', 'soproMorte', 7],
+  // Ferreiro
   ['marteloForja', 'lingote', 'marteloRunico', 6], ['armaduraPlacas', 'rebites', 'armaduraErica', 8],
+  ['bigorna', 'tenaz', 'bigornaAncestral', 9], ['fole', 'lingote', 'forjaPortatil', 7], ['pedraAfiar', 'espadaLonga', 'montante', 6],
+  ['escarpas', 'elmo', 'elmoFechado', 7], ['baldeTempera', 'lingote', 'tinaTempera', 4],
+  // Herbalista
   ['salvia', 'pocaoCura', 'elixirVerde', 6], ['raizAmarga', 'frascoVeneno', 'extratoMortal', 8],
+  ['kitHerbal', 'regador', 'arvoreAncia', 9], ['salvia', 'salvia', 'florVigor', 1], ['florVigor', 'pilao', 'nectarVital', 3],
+  ['balsamo', 'espinheiro', 'unguentoEspinhos', 5], ['musgo', 'elixirVerde', 'orvalhoVida', 6],
+  // Cozinheiro
   ['queijo', 'pao', 'sanduiche', 6], ['ensopado', 'temperos', 'ensopadoVovo', 8],
+  ['panela', 'carvao', 'fogao', 9], ['colherPau', 'mel', 'colherMel', 5], ['avental', 'temperos', 'aventalMestre', 2],
+  ['facaCozinha', 'amolar', 'cutelo', 3], ['mel', 'maca', 'macaCaramelada', 5], ['caldeirao', 'pimenta', 'caldoPicante', 4], ['sanduiche', 'queijo', 'banquete', 6],
+  // Alquimista
   ['polvora', 'bomba', 'barrilPolvora', 6], ['acido', 'frascoVeneno', 'acidoReal', 8],
+  ['kitAlquimia', 'funil', 'atanor', 9], ['frascoFogo', 'frascoGelo', 'bombaVapor', 1], ['frascoFogo', 'frascoAcido', 'fogoGrego', 1],
+  ['frascoGelo', 'frascoAcido', 'nevoaGelida', 1], ['bombaGelo', 'frascoGelo', 'bombaGlacial', 5], ['nevoaToxica', 'frascoAcido', 'nuvemCorrosiva', 5],
+  ['saisVolateis', 'catalisador', 'pedraFilosofal', 6], ['caldeira', 'gemaVida', 'homunculo', 7],
+  // Coureiro
   ['agulhao', 'amolar', 'sovela', 6], ['gibao', 'escudoMadeira', 'couracaReforcada', 8],
+  ['ferramentasCouro', 'dedal', 'mesaCoureiro', 9], ['chicote', 'cinto', 'chicoteDomador', 5], ['luvasCouro', 'escudoMadeira', 'broquel', 6], ['botas', 'manto', 'capaViajante', 7],
+  // Joalheiro
   ['quartzo', 'espadaCurta', 'espadaJoias', 6], ['rubi', 'safira', 'pedraPrisma', 8],
+  ['lupa', 'pincas', 'coroaJoias', 9], ['quartzo', 'ametista', 'geodo', 3], ['onix', 'rubi', 'granada', 5], ['martelinho', 'topazio', 'cetro', 7], ['colarOuro', 'ametista', 'colarReal', 4],
+  // Inventor
   ['catapultinha', 'bomba', 'morteiro', 6], ['torreta', 'escudoFerro', 'bastiao', 8],
+  ['bancadaInventor', 'chaveInglesa', 'oficinaMestre', 9], ['catapultinha', 'mola', 'balista', 3], ['torreta', 'torreta', 'drone', 7],
+  ['automato', 'bateria', 'golem', 4], ['armadilha', 'bomba', 'mina', 5], ['escudoMecanico', 'mola', 'escudoGiratorio', 5],
+  // Cervejeiro
   ['caneca', 'hidromel', 'rodada', 6], ['aguardente', 'pedraFogo', 'bafoDragao', 8],
+  ['barril', 'lupulo', 'cervejariaMestre', 9], ['canecao', 'caneca', 'canecoGuerra', 2], ['garrafada', 'pedraFogo', 'coquetel', 5], ['barrigaDura', 'hidromel', 'pancaBlindada', 5],
 ];
-const VERSAO_REGRAS = 7;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
+const VERSAO_REGRAS = 8;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas

@@ -12,6 +12,38 @@ A coruja (`retrato-mago.png`) é a referência: ela fica. O texugo e a hiena sa�
 Stylized painterly fantasy character art in the same style as the reference image: an anthropomorphic animal adventurer with slightly exaggerated charming proportions (a bit larger head and very expressive eyes), playful and charismatic personality, detailed realistic fur or feather texture, clean and colorful adventurer outfit with brass details and a few bright accent colors, small magical sparks or glints of light, warm cinematic lighting with a soft colored rim light, vibrant but harmonious palette, clean readable silhouette, crisp detailed rendering, no grime, no gritty mud, no text, no letters, no logo, no watermark, no signature.
 ```
 
+## Rodada 6 (2026-10-18): elenco 100% brasileiro
+Todos os personagens passam a ser animais nativos do Brasil. Ficam a coruja (coruja-buraqueira) e a perereca; os outros 8 são refeitos. Mesmo processo: estilo base v2, `retrato-mago.png` como referência de estilo, 1:1 (1024 × 1024), só o retrato, salvar em `codigo/arte/originais/` com o mesmo nome de arquivo (substitui o antigo).
+
+| Classe | Antes | Agora | Por quê |
+|---|---|---|---|
+| Guerreiro | Texugo-do-mel | **Onça-pintada** | a maior força da nossa mata, destemida |
+| Ladino | Hiena | **Jaguatirica** | felina pequena, noturna e furtiva |
+| Ferreiro | Urso-pardo | **Tamanduá-bandeira** | braços fortes e garras enormes de trabalho |
+| Cozinheiro | Panda | **Capivara** | calma, redonda e boa de mesa |
+| Alquimista | Salamandra-de-fogo | **Teiú** | lagarto listrado, curioso e esperto |
+| Coureiro | Castor | **Tatu-bola** | já nasce com a própria armadura costurada |
+| Joalheiro | Pega | **Tucano-toco** | bico colorido e olho para tudo que brilha |
+| Inventor | Guaxinim | **Macaco-prego** | usa ferramentas de verdade na natureza |
+| Cervejeiro | Javali | **Queixada** | o porco-do-mato brasileiro, festeiro de bando |
+| Mago | Coruja | coruja-buraqueira (fica) | já é nativa |
+| Herbalista | Perereca | perereca-verde (fica) | já é nativa |
+
+| Arquivo | Prompt (depois do estilo base v2) |
+|---|---|
+| `retrato-guerreiro.png` | Bust portrait of a brave jaguar (onça-pintada) warrior with a big confident grin and bright amber eyes, golden fur with black rosettes, bright red scarf, polished leather armor with shiny brass buckles and a round wooden shield painted with a bold yellow star on the back, one small playful scar, soft blurred warm red and orange background with floating embers. |
+| `retrato-ladino.png` | Bust portrait of a mischievous ocelot (jaguatirica) rogue giving a sly wink and a toothy grin, golden eyes, sleek spotted and striped fur, dark hood with emerald green lining, a purple sash, flipping a shiny gold coin with one paw, small daggers and jingling trinkets on the belt, soft blurred emerald and violet background with tiny golden glints. |
+| `retrato-ferreiro.png` | Bust portrait of a big friendly giant anteater (tamanduá-bandeira) blacksmith with a long snout, a proud warm smile and kind dark eyes, grey-brown fur with the black and white diagonal stripe on the shoulder, thick leather apron over rolled-up sleeves, strong arms with large claws, a heavy forging hammer resting on the shoulder, brass goggles pushed up on the head, glowing orange sparks floating around, soft blurred background of a warm forge glow in orange and copper. |
+| `retrato-cozinheiro.png` | Bust portrait of a jolly round capybara cook with a calm happy smile and twinkling eyes, warm brown fur, a tall white chef hat slightly tilted, a red-checkered neckerchief and a clean apron, holding a wooden spoon with a little steam swirl, a small copper pan hanging on the belt, soft blurred background of a cozy tavern kitchen in warm honey and amber tones with floating steam and sparkles. |
+| `retrato-alquimista.png` | Bust portrait of a clever tegu lizard (teiú) alchemist with black and white banded scales, big curious golden eyes and a mischievous smile, a forked tongue peeking out, round brass goggles, a stained leather apron full of little glass vials with glowing colored liquids, holding a bubbling flask with green smoke, soft blurred background of an alchemy lab in warm orange and violet tones with floating sparks. |
+| `retrato-coureiro.png` | Bust portrait of a hardworking cheerful three-banded armadillo (tatu-bola) leatherworker with a friendly grin and warm brown eyes, its natural banded shell looking like finely stitched leather, a leather vest with fine stitching, a measuring tape around the neck, holding a leatherworking awl and a strip of leather, soft blurred background of a cozy workshop in honey and chestnut tones with hanging leather goods. |
+| `retrato-joalheiro.png` | Bust portrait of an elegant toco toucan jeweler with glossy black feathers, white throat and a huge bright orange beak, sharp clever blue-ringed eyes, a monocle jeweler loupe over one eye, a fine vest with a golden chain, holding a sparkling cut gem up to the light, soft blurred background of a jewelry workshop in deep blue and gold with glittering light reflections. |
+| `retrato-inventor.png` | Bust portrait of an excited clever tufted capuchin monkey (macaco-prego) inventor with a mischievous grin and bright curious eyes behind big brass goggles with many lenses, a dark tuft of hair on the head, a leather vest with pockets full of screwdrivers and gears, holding a small whirring clockwork gadget, soft blurred background of a messy workshop in steel blue and copper tones with floating sparks and tiny gears. |
+| `retrato-cervejeiro.png` | Bust portrait of a jovial burly white-lipped peccary (queixada) brewer with dark bristly fur, a white jaw patch, a big hearty laugh and twinkling eyes, a leather apron over a rolled-up linen shirt, a hop wreath on the head, raising a foaming wooden beer mug, soft blurred background of a warm tavern brewery in amber and honey gold with barrels and floating foam bubbles. |
+| `icone-app.png` | A bulging worn leather backpack stuffed with gear, a sword hilt and a shield sticking out of the top, a small jaguar paw print patch sewn on the front, bold readable silhouette, centered, on a deep warm red background. |
+
+As rodadas abaixo ficam como histórico.
+
 ### Refazer
 | Arquivo | Prompt (depois do estilo base v2) |
 |---|---|

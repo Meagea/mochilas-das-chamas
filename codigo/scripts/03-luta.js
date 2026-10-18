@@ -20,7 +20,7 @@ function lutador(m, classe, nome){
 function aplicarInicio(L, ini){
   if(ini.vida){ L.max += ini.vida; }
   if(ini.raiva) L.raiva = L.raiva ? Math.min(L.raiva, ini.raiva) : ini.raiva;
-  for(const k of ['bloq', 'forca', 'esquiva', 'mana', 'espinhos', 'vigor']) { const de = k === 'bloq' ? 'bloqueio' : k; if(ini[de]) L[k] += ini[de]; }
+  for(const k of ['bloq', 'forca', 'esquiva', 'mana', 'espinhos', 'vigor', 'regen']) { const de = k === 'bloq' ? 'bloqueio' : k; if(ini[de]) L[k] += ini[de]; }
 }
 function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
   const r = semente(sem), A = lutador(mA, classeA, nomeA), B = lutador(mB, classeB, nomeB), ev = [];
@@ -66,7 +66,7 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
       const crit = s.golpes++ < s.primeirosCrit || r() < s.crit, base = entre(s.dano[0], s.dano[1], r) + eu.forca + fur, v = base * (crit ? 2 : 1);
       const feito = ferir(ini, ladoIni, v, {item:k, crit, perfura:s.acerto && s.acerto.perfura});
       if(s.acerto){ const a = Object.assign({}, s.acerto); delete a.perfura; delete a.golpes; efeito(eu, ini, ladoEu, a, k); }
-      if(crit) for(const c of eu.aoCrit) efeito(eu, ini, ladoEu, c.ao, c.k);
+      if(crit){ if(s.noCrit) efeito(eu, ini, ladoEu, s.noCrit, k); for(const c of eu.aoCrit) efeito(eu, ini, ladoEu, c.ao, c.k); }
       if(ini.espinhos && feito >= 0) ferir(eu, ladoEu, ini.espinhos, {tipo:'espinhos', direto:false});
     }
   }
@@ -92,6 +92,8 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
       }
     });
   }
+  // começo da luta: o que alguns itens põem direto no inimigo (Coroa do Inverno)
+  [A, B].forEach((L, lado) => { for(const s of L.itens) if(s.inicioInimigo){ const o = lado ? A : B; for(const k in s.inicioInimigo) o[k] = (o[k] || 0) + s.inicioInimigo[k]; } });
   marca(-1, 'inicio', {});
   for(let passo = 1; t < LIMITE_LUTA && fim === null; passo++){
     t = passo * PASSO_LUTA;

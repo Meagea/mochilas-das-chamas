@@ -208,7 +208,8 @@ function infoHtml(N){
   const rec = s && s.recebeu.length ? `<p class="bonus">Turbinado por: ${[...new Set(s.recebeu)].map(k => ITEM[k].nome).join(', ')}</p>` : '';
   // receitas deste item que valem para o personagem da corrida; as travadas dizem em que nível liberam
   const receita = RECEITAS.filter(r => (r[0] === id || r[1] === id) && (!r[3] || ITEM[r[2]].classe === C.classe)).map(r => { const outro = ITEM[r[0] === id ? r[1] : r[0]].nome, vira = ITEM[r[2]].nome;
-    return receitaVale(r, C.nivel || 1, C.classe) ? `<p class="receita">Encoste em <b>${outro}</b> para virar <b>${vira}</b> no começo da luta.</p>`
+    const cat = CATALISADORES.has(r[0]) ? r[0] : CATALISADORES.has(r[1]) ? r[1] : null, nota = cat ? ` (${cat === id ? 'este item' : ITEM[cat].nome} fica na mochila)` : '';
+    return receitaVale(r, C.nivel || 1, C.classe) ? `<p class="receita">Encoste em <b>${outro}</b> para virar <b>${vira}</b> no começo da luta${nota}.</p>`
       : `<p class="receita travada">Receita: com <b>${outro}</b> vira <b>${vira}</b>, a partir do nível ${r[3]} do ${CLASSES[C.classe].nome} (você está no ${C.nivel || 1}).</p>`; }).join('');
   const botoes = sel.onde === 'loja' ? `<button class="btn primario" id="btComprar"${d.preco > C.ouro ? ' disabled' : ''}>Comprar<small>${ic('moeda')} ${d.preco}</small></button>`
     : `<button class="btn" id="btGirar">Girar</button>${sel.onde === 'mochila' && d.id !== 'mochila' ? '<button class="btn" id="btGuardar">Para a bancada</button>' : ''}${d.inicial ? '' : `<button class="btn" id="btVender">Vender<small>${ic('moeda')} ${precoVenda(id)}</small></button>`}`;

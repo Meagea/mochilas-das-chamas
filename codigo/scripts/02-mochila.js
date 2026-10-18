@@ -10,7 +10,7 @@ const POR_NIVEL_ITEM = .05, ESCALA_NIVEL = ['dano', 'bloqueio', 'cura', 'queimar
 function escalarNivel(s, n){
   const f = 1 + POR_NIVEL_ITEM * n, esc = o => { if(!o) return o; const c = Object.assign({}, o); for(const k of ESCALA_NIVEL) if(typeof c[k] === 'number') c[k] = Math.max(c[k], Math.round(c[k] * f)); return c; };
   if(s.dano) s.dano = s.dano.map(v => Math.round(v * f));
-  s.ao = esc(s.ao); s.semMana = esc(s.semMana); s.acerto = esc(s.acerto); s.inicio = esc(s.inicio); s.aoCritico = esc(s.aoCritico);
+  s.ao = esc(s.ao); s.semMana = esc(s.semMana); s.acerto = esc(s.acerto); s.inicio = esc(s.inicio); s.aoCritico = esc(s.aoCritico); s.noCrit = esc(s.noCrit);
   if(s.aleatorio) s.aleatorio = s.aleatorio.map(esc);
 }
 // as casas do formato, giradas g vezes no sentido do relógio, com o canto em (0, 0)
@@ -83,6 +83,7 @@ function somarBonus(s, b){
   if(b.cura && s.ao && s.ao.cura) s.ao = Object.assign({}, s.ao, {cura:s.ao.cura + b.cura});
   if(b.bloqueio && s.ao && s.ao.bloqueio) s.ao = Object.assign({}, s.ao, {bloqueio:s.ao.bloqueio + b.bloqueio});
   if(b.aoMais && s.ao) for(const k in b.aoMais) if(s.ao[k]) s.ao = Object.assign({}, s.ao, {[k]:s.ao[k] + b.aoMais[k]});
+  if(b.inicio){ s.inicio = Object.assign({}, s.inicio); for(const k in b.inicio) s.inicio[k] = (s.inicio[k] || 0) + b.inicio[k]; }
   if(b.acerto && s.uso === 'arma'){ s.acerto = Object.assign({}, s.acerto); for(const k in b.acerto) s.acerto[k] = (s.acerto[k] || 0) + b.acerto[k]; }
 }
 function numeros(m){
@@ -90,7 +91,7 @@ function numeros(m){
   for(const p of m.pecas){ if(ehBolsa(p)) continue; const d = ITEM[p.id];
     R[p.uid] = {uid:p.uid, id:p.id, uso:d.uso, cd:d.cd, custo:d.custo || 0, dano:d.dano ? d.dano.slice() : null, crit:d.crit || 0, acerto:Object.assign({}, d.acerto), ao:d.ao && Object.assign({}, d.ao),
       semMana:d.semMana, gastaMana:d.gastaMana || 0, inicio:d.inicio, quando:d.quando, t:d.t, rapidez:0, recebeu:[],
-      furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico, n:p.n || 0};
+      furia:d.furia || 0, primeirosCrit:d.primeirosCrit || 0, aleatorio:d.aleatorio, aoCritico:d.aoCritico, noCrit:d.noCrit, inicioInimigo:d.inicioInimigo, n:p.n || 0};
     if(p.n > 0) escalarNivel(R[p.uid], p.n);
     oficioNumeros(m, p, R[p.uid]); }
   for(const b of m.pecas){ if(!ehBolsa(b) || !ITEM[b.id].dentro) continue; const D = ITEM[b.id].dentro;
@@ -151,8 +152,8 @@ function fundir(m, nivel, classe){
       for(const q of vizinhos(m, p)){ const r = pode.find(([a, b]) => (a === p.id && b === q.id) || (a === q.id && b === p.id)); if(r){ achou = {p, q, r}; break; } }
       if(achou) break; }
     if(!achou) break;
-    const {p, q, r} = achou; m.pecas = m.pecas.filter(x => x !== p && x !== q);
-    const nova = peca(r[2], 0, 0, 0, Math.round(((p.n || 0) + (q.n || 0)) / 2)), pr = [p, q].map(x => ({x:x.x, y:x.y, g:x.g})).concat([lugarLivre(m, r[2])].filter(Boolean)).find(l => podePor(m, r[2], l.g, l.x, l.y));
+    const {p, q, r} = achou, gastas = [p, q].filter(x => !CATALISADORES.has(x.id)); m.pecas = m.pecas.filter(x => !gastas.includes(x));
+    const nova = peca(r[2], 0, 0, 0, Math.round(((p.n || 0) + (q.n || 0)) / 2)), pr = gastas.map(x => ({x:x.x, y:x.y, g:x.g})).concat([lugarLivre(m, r[2])].filter(Boolean)).find(l => podePor(m, r[2], l.g, l.x, l.y));
     if(pr) por(m, nova, pr.x, pr.y, pr.g); else m.bancada.push(nova);
     feitas.push(r[2]);
   }

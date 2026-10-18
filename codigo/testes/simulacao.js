@@ -1,7 +1,7 @@
 // Teste do jogo sem navegador: confere a mochila, a luta (sempre igual com a mesma semente) e o balanceamento das classes.
 // O robô monta mochilas jogando a loja; elas lutam entre si por rodada.
 // Uso: node codigo/testes/simulacao.js [lutas por confronto, padrão 60]
-const t = require('./carregar')('oficio, POR_TEMPERA, ehBolsa, nivelDe, lugarLivre, C, CLASSES, ITENS, ITEM, RECEITAS, novaCorrida, comprar, vender, trocarLoja, fecharRodada, mochilaNova, peca, por, tirar, podePor, forma, numeros, fundir, fotoMochila, deFoto, lutar, montarRobo, adversarioRobo, vizinhos, casasAbertas');
+const t = require('./carregar')('oficio, POR_TEMPERA, ehBolsa, nivelDe, lugarLivre, C, CLASSES, ITENS, ITEM, RECEITAS, novaCorrida, comprar, vender, trocarLoja, fecharRodada, mochilaNova, peca, por, tirar, podePor, forma, numeros, fundir, fotoMochila, deFoto, lutar, montarRobo, adversarioRobo, vizinhos, casasAbertas, CATALISADORES');
 const N = +(process.argv[2] || 60);
 let falhas = 0; const confere = (c, m) => { if(!c){ falhas++; if(falhas < 25) console.log('  FALHA: ' + m); } };
 
@@ -88,6 +88,43 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   { const r = t.lutar(so(['alambique', 'frascoVeneno'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.filter(e => e.tipo === 'veneno' && e.lado === 1).length >= 3, 'Alambique faz o veneno crescer'); }
   { const r = t.lutar(so(['sorrisoHiena', 'adaga', 'adaga'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'esquiva' && e.lado === 0), 'Sorriso da Hiena: crítico dá esquiva'); }
   { const r = t.lutar(so(['bolsaTruques'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 5); confere(r.eventos.some(e => e.tipo === 'ativa' && e.lado === 0), 'Bolsa de Truques age'); }
+}
+// ---- evoluções (EVOLUCOES.md): cada receita funde com as duas peças encostadas, no personagem certo ----
+{ const classeDe = r => t.ITEM[r[2]].classe || t.ITEM[r[0]].classe || t.ITEM[r[1]].classe || 'guerreiro';
+  let falhou = [];
+  for(const r of t.RECEITAS){
+    const c = classeDe(r), m = t.mochilaNova(c); m.pecas = m.pecas.filter(p => p.id === 'mochila'); m.bancada = [];
+    t.por(m, t.peca('bolsaCouro'), 7, 2, 0); t.por(m, t.peca('bolsaCouro'), 1, 2, 0);
+    const a = t.peca(r[0]), la = t.lugarLivre(m, r[0]); t.por(m, a, la.x, la.y, la.g);
+    const b = t.peca(r[1]); let pos = false;
+    for(let g = 0; g < 4 && !pos; g++) for(let y = 0; y < 7 && !pos; y++) for(let x = 0; x < 9 && !pos; x++)
+      if(t.podePor(m, r[1], g, x, y)){ t.por(m, b, x, y, g); if(t.vizinhos(m, b).includes(a)) pos = true; else m.pecas = m.pecas.filter(p => p !== b); }
+    const feitas = pos ? t.fundir(m, 10, c) : [];
+    const cat = t.CATALISADORES.has(r[0]) ? r[0] : t.CATALISADORES.has(r[1]) ? r[1] : null;
+    if(!feitas.includes(r[2]) || (cat && !m.pecas.some(p => p.id === cat)) || !m.pecas.concat(m.bancada).some(p => p.id === r[2])) falhou.push(r.slice(0, 3).join('+'));
+    // receita de classe não funde em outro personagem
+    if(r[3] && t.ITEM[r[2]].classe){ const outra = c === 'mago' ? 'ladino' : 'mago', m2 = t.mochilaNova(outra); m2.pecas = m2.pecas.filter(p => p.id === 'mochila'); m2.bancada = [];
+      const a2 = t.peca(r[0]); t.por(m2, a2, a.x - 0, a.y, a.g); const b2 = t.peca(r[1]); t.por(m2, b2, b.x, b.y, b.g);
+      if(t.fundir(m2, 10, outra).includes(r[2])) falhou.push('fora da classe: ' + r[2]); }
+  }
+  confere(!falhou.length, 'receitas que não fundiram: ' + falhou.join(', '));
+  // catalisador: a Pedra de Amolar fica e funde de novo com a próxima arma
+  { const m = t.mochilaNova('guerreiro'); m.pecas = m.pecas.filter(p => p.id === 'mochila'); m.bancada = [];
+    t.por(m, t.peca('amolar'), 4, 3, 0); t.por(m, t.peca('clava'), 3, 2, 0); t.por(m, t.peca('clava'), 5, 2, 0);
+    const f = t.fundir(m, 10, 'guerreiro'); confere(f.filter(x => x === 'macaCravejada').length === 2 && m.pecas.some(p => p.id === 'amolar'), 'Pedra de Amolar funde duas clavas e continua (' + f + ')'); }
+  // efeitos novos
+  const so = (ids, classe) => { const m = t.mochilaNova(classe); m.pecas = m.pecas.filter(p => p.id === 'mochila'); t.por(m, t.peca('bolsaCouro'), 7, 2, 0); t.por(m, t.peca('bolsaCouro'), 0, 2, 0);
+    for(const id of ids){ const l = t.lugarLivre(m, id); if(l) t.por(m, t.peca(id), l.x, l.y, l.g); } return m; };
+  const alvo = so(['escudoMadeira'], 'mago');
+  { const r = t.lutar(so(['arcoCacador'], 'guerreiro'), 'guerreiro', 'A', alvo, 'mago', 'B', 5); const d = r.eventos.filter(e => e.tipo === 'dano' && e.lado === 1 && e.item != null);
+    confere(d.length >= 2 && d[0].crit && d[1].crit, 'Arco do Caçador: 2 primeiros golpes críticos'); }
+  { const r = t.lutar(so(['ferrao'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 9); const crit = r.eventos.findIndex(e => e.tipo === 'dano' && e.lado === 1 && e.crit);
+    confere(crit >= 0 && r.eventos.slice(crit, crit + 4).filter(e => e.tipo === 'veneno' && e.lado === 1).length >= 2, 'Ferrão: crítico envenena a mais'); }
+  { const r = t.lutar(so(['coroaInverno'], 'mago'), 'mago', 'A', alvo, 'mago', 'B', 5); confere(r.eventos[0].foto[1].gelo === 5, 'Coroa do Inverno começa com 5 de gelo no inimigo'); }
+  { const L = t.lutar(so(['pancaBlindada'], 'cervejeiro'), 'cervejeiro', 'A', alvo, 'mago', 'B', 5); confere(L.eventos[0].foto[0].regen === 1 && L.lados[0].max === t.CLASSES.cervejeiro.vida + 22, 'Pança Blindada: vida e regeneração no começo'); }
+  { const m = so(['colarReal'], 'joalheiro'), c = m.pecas.find(p => p.id === 'colarReal'), g = t.peca('quartzo');
+    for(let y = 0; y < 7; y++) for(let x = 0; x < 9; x++) if(!m.pecas.includes(g) && t.podePor(m, 'quartzo', 0, x, y)){ t.por(m, g, x, y, 0); if(!t.vizinhos(m, g).includes(c)) m.pecas = m.pecas.filter(p => p !== g); }
+    confere(t.numeros(m)[c.uid].inicio.forca === 1, 'Colar Real: +1 de força por gema vizinha'); }
 }
 // ---- classes de ofício ----
 { const base = c => { const m = t.mochilaNova(c); t.por(m, t.peca('bolsaCouro'), 7, 2, 0); t.por(m, t.peca('bolsaCouro'), 1, 2, 0); return m; };
