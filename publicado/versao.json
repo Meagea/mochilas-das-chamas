@@ -1,6 +1,6 @@
 {
- "versao": 12,
- "tamanho": 10255185,
- "sha256": "297defe3c88b629445fa1e9fdb3ef0ac56807c3ad0d5be5132e729ff6d46ed8c",
- "resumo": "Atualizacao automatica dos apps: baixam a versao nova do GitHub com barra de progresso"
+ "versao": 13,
+ "tamanho": 10259377,
+ "sha256": "bded6b8d3fd7d0df02b21a68ab1669b3a1065be0ea338c948519eb0527d6f785",
+ "resumo": "Tolerancia zero para nomes sexuais, +18 ou ofensivos"
 }

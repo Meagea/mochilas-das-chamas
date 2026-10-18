@@ -29,7 +29,20 @@ async function entrar(){
 const rpc = async (nome, args, login) => sb('/rest/v1/rpc/' + nome, args, login ? await entrar() : null);
 // cada função devolve null quando não deu (sem internet, servidor fora): quem chama segue offline
 const tentar = async f => { try{ return await f(); }catch(e){ return null; } };
-const onlineNome = nome => tentar(() => rpc('definir_nome', {novo_nome:nome}, true).then(() => true));
+// nomes: tolerância zero para conteúdo sexual, +18 ou ofensivo. A regra que vale é a do servidor (supabase/05-nomes.sql);
+// aqui o jogo usa a mesma lista (o build copia) só para avisar na hora, antes de enviar.
+const NOMES_PROIBIDOS = '__NOMES__';
+const TROCA_NOME = {'0':'o', '1':'i', '3':'e', '4':'a', '5':'s', '7':'t', '8':'b', '@':'a', '$':'s', '!':'i', '|':'i'};
+const nomeNormal = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[0134578@$!|]/g, c => TROCA_NOME[c]).replace(/([a-z])\1+/g, '$1');
+function nomePermitido(nome){
+  if(!Array.isArray(NOMES_PROIBIDOS)) return true;
+  const partes = nomeNormal(String(nome || '').replace(/([a-z])([A-Z])/g, '$1 $2')), junto = partes.replace(/[^a-z0-9]/g, '');
+  const palavras = partes.split(/[^a-z0-9+]+/).filter(Boolean), digitos = String(nome || '').toLowerCase().split(/[^0-9+]+/).filter(Boolean);
+  return !NOMES_PROIBIDOS.some(([t, modo]) => { const n = nomeNormal(t); return modo === 'parte' ? junto.includes(n) : palavras.includes(n) || digitos.includes(t) || junto === n; });
+}
+// devolve true (salvo), 'proibido' (o servidor recusou o nome) ou null (sem conexão)
+const onlineNome = async nome => { try{ await rpc('definir_nome', {novo_nome:nome}, true); return true; }catch(e){ return /permitido|bloqueado/.test(e.message || '') ? 'proibido' : null; } };
 // corrida: o número da partida no servidor (de onlineIniciar); com ele, a rodada conta para a experiência
 const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida, modo) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:versaoModo(modo), p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
 // experiência (supabase/03-experiencia.sql): o servidor conta as rodadas e calcula o ganho; o jogo só informa as vitórias

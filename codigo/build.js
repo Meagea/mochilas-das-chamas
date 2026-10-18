@@ -24,7 +24,10 @@ for (const f of fs.readdirSync(IMG).filter(f => /\.(png|webp|jpg)$/.test(f)).sor
   const tipo = f.endsWith('.png') ? 'image/png' : f.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
   arte[f.replace(/\.\w+$/, '')] = `data:${tipo};base64,${fs.readFileSync(path.join(IMG, f)).toString('base64')}`;
 }
-const jogo = `(() => {\n'use strict';\n${js.replace("'__ARTE__'", JSON.stringify(arte))}})();\n`;
+// nomes proibidos: a mesma lista do servidor (supabase/05-nomes.sql), para o jogo avisar na hora
+const arqNomes = path.join(ROOT, 'supabase', '05-nomes.sql');
+const nomesProibidos = fs.existsSync(arqNomes) ? [...fs.readFileSync(arqNomes, 'utf8').matchAll(/\('([^']+)', '(parte|palavra)'\)/g)].map(m => [m[1], m[2]]) : [];
+const jogo = `(() => {\n'use strict';\n${js.replace("'__ARTE__'", JSON.stringify(arte)).replace("'__NOMES__'", JSON.stringify(nomesProibidos))}})();\n`;
 
 // 3. saídas
 const cabecalho = ler('pagina/cabecalho.html'), corpo = ler('pagina/corpo.html');

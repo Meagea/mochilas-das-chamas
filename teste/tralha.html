@@ -1197,7 +1197,20 @@ async function entrar(){
 const rpc = async (nome, args, login) => sb('/rest/v1/rpc/' + nome, args, login ? await entrar() : null);
 // cada função devolve null quando não deu (sem internet, servidor fora): quem chama segue offline
 const tentar = async f => { try{ return await f(); }catch(e){ return null; } };
-const onlineNome = nome => tentar(() => rpc('definir_nome', {novo_nome:nome}, true).then(() => true));
+// nomes: tolerância zero para conteúdo sexual, +18 ou ofensivo. A regra que vale é a do servidor (supabase/05-nomes.sql);
+// aqui o jogo usa a mesma lista (o build copia) só para avisar na hora, antes de enviar.
+const NOMES_PROIBIDOS = [["termo","parte"],["parte","palavra"],["porno","parte"],["putaria","parte"],["putinha","parte"],["putona","parte"],["prostitut","parte"],["buceta","parte"],["boceta","parte"],["xoxota","parte"],["xereca","parte"],["xota","parte"],["siririca","parte"],["punheta","parte"],["boquete","parte"],["caralho","parte"],["piroca","parte"],["pirocao","parte"],["rola","palavra"],["pica","palavra"],["pau","palavra"],["cu","palavra"],["cuzao","parte"],["cuzinho","parte"],["bunda","palavra"],["bundinha","parte"],["peitao","parte"],["peitos","palavra"],["peituda","parte"],["tesao","parte"],["tesuda","parte"],["tesudo","parte"],["gostosa","parte"],["gostosao","parte"],["safada","parte"],["safadao","parte"],["safadinha","parte"],["vadia","parte"],["vagabunda","parte"],["piranha","palavra"],["puta","palavra"],["puto","palavra"],["foder","parte"],["fuder","parte"],["fodase","parte"],["fodendo","parte"],["fudido","parte"],["transar","parte"],["trepar","parte"],["trepada","parte"],["gozar","parte"],["gozada","parte"],["gozo","palavra"],["orgasmo","parte"],["orgia","parte"],["suruba","parte"],["sexo","parte"],["sexual","parte"],["pelada","palavra"],["pelado","palavra"],["nudes","parte"],["estupr","parte"],["pedofil","parte"],["incesto","parte"],["viado","parte"],["bicha","palavra"],["traveco","parte"],["pentelho","parte"],["rapariga","parte"],["meretriz","parte"],["pinto","palavra"],["pirok","parte"],["xvideos","parte"],["brasileirinhas","parte"],["camgirl","parte"],["sex","parte"],["porn","parte"],["fuck","parte"],["dick","palavra"],["cock","palavra"],["pussy","parte"],["penis","parte"],["vagina","parte"],["boobs","palavra"],["tits","palavra"],["titties","parte"],["nipple","parte"],["horny","parte"],["hentai","parte"],["milf","parte"],["anal","palavra"],["rape","palavra"],["rapist","parte"],["slut","parte"],["whore","parte"],["blowjob","parte"],["handjob","parte"],["dildo","parte"],["bdsm","parte"],["fetish","parte"],["onlyfans","parte"],["nsfw","parte"],["xxx","palavra"],["cum","palavra"],["cumshot","parte"],["nude","palavra"],["naked","parte"],["orgy","parte"],["pedo","palavra"],["pedophil","parte"],["incest","parte"],["bitch","parte"],["hooker","parte"],["stripper","parte"],["erotic","parte"],["erotico","parte"],["erotica","parte"],["ass","palavra"],["asshole","parte"],["butt","palavra"],["booty","palavra"],["twerk","parte"],["fap","palavra"],["69","palavra"],["18+","palavra"],["+18","palavra"],["24h","palavra"]];
+const TROCA_NOME = {'0':'o', '1':'i', '3':'e', '4':'a', '5':'s', '7':'t', '8':'b', '@':'a', '$':'s', '!':'i', '|':'i'};
+const nomeNormal = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[0134578@$!|]/g, c => TROCA_NOME[c]).replace(/([a-z])\1+/g, '$1');
+function nomePermitido(nome){
+  if(!Array.isArray(NOMES_PROIBIDOS)) return true;
+  const partes = nomeNormal(String(nome || '').replace(/([a-z])([A-Z])/g, '$1 $2')), junto = partes.replace(/[^a-z0-9]/g, '');
+  const palavras = partes.split(/[^a-z0-9+]+/).filter(Boolean), digitos = String(nome || '').toLowerCase().split(/[^0-9+]+/).filter(Boolean);
+  return !NOMES_PROIBIDOS.some(([t, modo]) => { const n = nomeNormal(t); return modo === 'parte' ? junto.includes(n) : palavras.includes(n) || digitos.includes(t) || junto === n; });
+}
+// devolve true (salvo), 'proibido' (o servidor recusou o nome) ou null (sem conexão)
+const onlineNome = async nome => { try{ await rpc('definir_nome', {novo_nome:nome}, true); return true; }catch(e){ return /permitido|bloqueado/.test(e.message || '') ? 'proibido' : null; } };
 // corrida: o número da partida no servidor (de onlineIniciar); com ele, a rodada conta para a experiência
 const onlineEnviar = (rodada, classe, foto, vitorias, vidas, corrida, modo) => tentar(() => rpc('enviar_mochila', {p_rodada:rodada, p_classe:classe, p_versao:versaoModo(modo), p_itens:foto, p_vitorias:vitorias, p_vidas:vidas, ...(corrida ? {p_corrida:corrida} : {})}, true));
 // experiência (supabase/03-experiencia.sql): o servidor conta as rodadas e calcula o ganho; o jogo só informa as vitórias
@@ -1301,7 +1314,13 @@ function telaLobby(){
 }
 function ligarLobby(){
   raiz().querySelectorAll('[data-classe]').forEach(b => b.onclick = () => { classeEscolhida = b.dataset.classe; desenhar(); });
-  const n = $('campoNome'); n.onchange = () => { const v = n.value.trim().slice(0, 20); PERFIL.nome = v; gravarPerfil(); if(v.length >= 2) onlineNome(v).then(ok => { if(ok) avisar('Nome salvo no ranking'); desenhar(); }); };
+  const n = $('campoNome'); n.onchange = () => { const v = n.value.trim().slice(0, 20);
+    // tolerância zero: nome com conteúdo sexual, +18 ou ofensivo não é aceito nem guardado
+    if(v && !nomePermitido(v)){ n.value = PERFIL.nome || ''; avisar('Esse nome não é permitido. Escolha outro.', 3000); return; }
+    PERFIL.nome = v; gravarPerfil();
+    if(v.length >= 2) onlineNome(v).then(r => { if(r === true) avisar('Nome salvo no ranking');
+      else if(r === 'proibido'){ PERFIL.nome = ''; gravarPerfil(); avisar('Esse nome não é permitido. Escolha outro.', 3000); }
+      desenhar(); }); };
   $('btJogar').onclick = ev => { const b = ev.currentTarget; if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     comecarCorrida(classeEscolhida); };
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
@@ -1773,7 +1792,7 @@ async function carregarJogo(){
 // ---------- Início: tela de carregamento, depois o lobby, e sincroniza com o servidor ----------
 if(uiAtiva){
   // a tela de carregamento prepara as imagens e já confirma que o servidor responde (06b-carregando.js)
-  carregarJogo().catch(() => { const c = $('carregando'); if(c) c.remove(); desenhar(); }).then(() => { if(PERFIL.nome && PERFIL.nome.length >= 2) onlineNome(PERFIL.nome);
+  carregarJogo().catch(() => { const c = $('carregando'); if(c) c.remove(); desenhar(); }).then(() => { if(PERFIL.nome && !nomePermitido(PERFIL.nome)){ PERFIL.nome = ''; gravarPerfil(); if(tela === 'lobby') desenhar(); } if(PERFIL.nome && PERFIL.nome.length >= 2) onlineNome(PERFIL.nome);
     Promise.all([sincronizarExperiencia(), sincronizarColecao()]).then(([ok]) => { if(ok && (tela === 'lobby' || tela === 'trilha')) desenhar(); }); });
   let largAnt = window.innerWidth;
   window.addEventListener('resize', () => { if(Math.abs(window.innerWidth - largAnt) > 30 && tela === 'loja' && !arr){ largAnt = window.innerWidth; desenhar(); } });

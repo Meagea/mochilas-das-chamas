@@ -23,6 +23,7 @@ const AMOSTRA = fs.readFileSync(new URL('./02-amostra-robos.sql', import.meta.ur
 const XP = fs.readFileSync(new URL('./03-experiencia.sql', import.meta.url), 'utf8'); await db.exec(XP); await db.exec(XP); ok(true, '03-experiencia.sql rodou (duas vezes)');
 const CARTAS = fs.readFileSync(new URL('./04-cartas.sql', import.meta.url), 'utf8'); await db.exec(CARTAS); await db.exec(CARTAS); ok(true, '04-cartas.sql rodou (duas vezes)');
 await db.exec(SQL); ok(true, 'esquema.sql rodou de novo (pode repetir sem estragar)');
+const NOMES = fs.readFileSync(new URL('./05-nomes.sql', import.meta.url), 'utf8'); await db.exec(NOMES); await db.exec(NOMES); ok(true, '05-nomes.sql rodou (duas vezes)');
 
 const U1 = '11111111-1111-1111-1111-111111111111', U2 = '22222222-2222-2222-2222-222222222222';
 await db.exec(`insert into auth.users values ('${U1}'), ('${U2}')`);
@@ -175,5 +176,23 @@ await db.exec('reset role');
   await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select dar_cartas('${U1}', 'martelo', 999);`, 'chamar dar_cartas de fora'); await db.exec('reset role');
   await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; update carrinho set preco = 0;`, 'mudar preço do carrinho'); await db.exec('reset role');
   await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select * from meu_carrinho('mes');`, 'carrinho que não existe'); await db.exec('reset role');
+}
+
+// ---- nomes permitidos e bloqueio (05-nomes.sql) ----
+{
+  const pode = async n => (await db.query(`select nome_permitido($1) as ok`, [n])).rows[0].ok;
+  const bons = ['Mirelle', 'Torvald', 'Paulo', 'Bob', 'Alex', 'Lucas', 'Paulo Brasil Jr', 'Mestre Pintas', 'Ana Clara', 'Rolando', 'Picasso', 'Cupido', 'Mundinho', 'Assis', 'Computador', 'Disputa', 'Teste Claude A'];
+  const ruins = ['P0rn0', 's3x0', 'Putaria', 'BigPau', 'p.u.t.a', 'Sexy Girl', 'XOXOTA', 'Buceeeeta', 'Gostosa22', 'Lucas69', '+18 gamer', 'F u c k', 'Puta', 'pica doce', 'OnlyFans', 'hentai', 'nudes', 'Safadinha', 'C4r4lh0'];
+  const errosBons = []; for(const n of bons) if(!(await pode(n))) errosBons.push(n);
+  const errosRuins = []; for(const n of ruins) if(await pode(n)) errosRuins.push(n);
+  ok(!errosBons.length, 'nomes normais passam' + (errosBons.length ? ' (barrou: ' + errosBons.join(', ') + ')' : ''));
+  ok(!errosRuins.length, 'nomes proibidos são barrados, mesmo disfarçados' + (errosRuins.length ? ' (passou: ' + errosRuins.join(', ') + ')' : ''));
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; select definir_nome('S3xy Lady');`, 'definir nome proibido'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; insert into nomes_proibidos values ('teste', 'parte');`, 'jogador mexendo na lista de nomes'); await db.exec('reset role');
+  await db.exec(`update jogadores set bloqueado = true where id = '${U2}'`);
+  await erro(`select set_config('request.jwt.claim.sub', '${U2}', false); set role authenticated; select definir_nome('Novo Nome');`, 'jogador bloqueado mudando o nome'); await db.exec('reset role');
+  ok(!(await como(null, `select * from ranking_temporada(50)`)).some(r => r.nome === 'Torvald'), 'jogador bloqueado some do ranking');
+  ok((await como(U2, `select registrar_luta(true, 1) as p`))[0].p === 0, 'jogador bloqueado não pontua');
+  await db.exec(`update jogadores set bloqueado = false where id = '${U2}'`);
 }
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo');

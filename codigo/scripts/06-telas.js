@@ -82,7 +82,13 @@ function telaLobby(){
 }
 function ligarLobby(){
   raiz().querySelectorAll('[data-classe]').forEach(b => b.onclick = () => { classeEscolhida = b.dataset.classe; desenhar(); });
-  const n = $('campoNome'); n.onchange = () => { const v = n.value.trim().slice(0, 20); PERFIL.nome = v; gravarPerfil(); if(v.length >= 2) onlineNome(v).then(ok => { if(ok) avisar('Nome salvo no ranking'); desenhar(); }); };
+  const n = $('campoNome'); n.onchange = () => { const v = n.value.trim().slice(0, 20);
+    // tolerância zero: nome com conteúdo sexual, +18 ou ofensivo não é aceito nem guardado
+    if(v && !nomePermitido(v)){ n.value = PERFIL.nome || ''; avisar('Esse nome não é permitido. Escolha outro.', 3000); return; }
+    PERFIL.nome = v; gravarPerfil();
+    if(v.length >= 2) onlineNome(v).then(r => { if(r === true) avisar('Nome salvo no ranking');
+      else if(r === 'proibido'){ PERFIL.nome = ''; gravarPerfil(); avisar('Esse nome não é permitido. Escolha outro.', 3000); }
+      desenhar(); }); };
   $('btJogar').onclick = ev => { const b = ev.currentTarget; if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     comecarCorrida(classeEscolhida); };
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
