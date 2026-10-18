@@ -255,3 +255,55 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .rankfim{ background:var(--painel); border:1px solid color-mix(in srgb, var(--lg) 55%, transparent); border-radius:var(--raio); padding:12px 14px; display:flex; flex-direction:column; gap:6px; }
 .rankfim.subiu{ box-shadow:0 0 22px color-mix(in srgb, var(--lg) 35%, transparent); } .rankfim.caiu b{ color:#ff8a78; }
 .ranking-tela .lista .selo-liga{ margin-right:6px; }
+
+/* ---------- lobby no estilo do Backpack Battles ---------- */
+.lobby2{ position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:18px 16px 24px; display:flex; flex-direction:column; gap:16px; min-height:100%; box-sizing:border-box; }
+.lb-topo{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+.lb-logo small{ font-family:var(--fonte-titulo); letter-spacing:.3em; text-transform:uppercase; color:var(--ambar); font-size:12px; font-weight:700; }
+.lb-logo h1{ font-size:clamp(34px, 5vw, 52px); line-height:.9; text-shadow:0 4px 20px rgba(0,0,0,.6); }
+.lb-conta{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.lb-conta .nome{ display:flex; align-items:center; gap:8px; } .lb-conta .nome input{ width:190px; }
+.lb-meio{ display:grid; grid-template-columns:260px 1fr; gap:18px; align-items:stretch; flex:1; }
+.lb-menu{ display:flex; flex-direction:column; gap:10px; }
+.lb-menu .btn.grande{ text-align:left; padding:14px 18px; display:flex; flex-direction:column; align-items:flex-start; }
+.lb-menu .jogar{ font-size:28px; }
+.lb-sec{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; } .lb-sec .btn{ padding:10px 6px; font-size:13px; }
+.lb-menu .nota{ margin:4px 0 0; color:var(--suave); font-size:12.5px; }
+.lb-heroi{ position:relative; display:grid; grid-template-columns:auto minmax(180px, 300px) auto minmax(240px, 1fr); align-items:center; gap:14px; padding:18px; border-radius:22px;
+  background:radial-gradient(ellipse at 30% 40%, color-mix(in srgb, var(--cc) 35%, transparent), transparent 70%), rgba(18,17,23,.72); border:1px solid color-mix(in srgb, var(--cc) 40%, transparent); }
+.lb-retrato{ position:relative; aspect-ratio:1; border-radius:20px; overflow:hidden; border:3px solid var(--cc); box-shadow:0 18px 50px rgba(0,0,0,.55), 0 0 40px color-mix(in srgb, var(--cc) 35%, transparent); }
+.lb-retrato img{ width:100%; height:100%; object-fit:cover; object-position:50% 20%; display:block; }
+.lb-retrato .sem-retrato{ width:100%; height:100%; font-size:120px; }
+.lb-retrato .selo-nivel{ position:absolute; left:10px; top:10px; font-size:16px; }
+.lb-seta{ font:inherit; font-size:40px; line-height:1; width:46px; height:64px; border-radius:14px; cursor:pointer; color:var(--texto); background:rgba(0,0,0,.35); border:1px solid var(--borda2); }
+.lb-seta:hover{ border-color:var(--cc); color:var(--cc); }
+.lb-info{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+.lb-info h2{ font-size:clamp(30px, 3.4vw, 46px); overflow-wrap:anywhere; line-height:.9; color:var(--cc); text-shadow:0 2px 14px rgba(0,0,0,.6); }
+.lb-desc{ margin:0; font-size:15px; } .lb-ini{ margin:0; color:var(--suave); font-size:13.5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.lb-ini img.ic, .lb-ini .ic{ width:24px; height:24px; } .lb-xp small{ color:var(--suave); font-size:12px; }
+.lb-info #btTrilha{ align-self:flex-start; }
+.lb-carrossel{ display:flex; gap:10px; overflow-x:auto; padding:4px 2px 8px; scroll-snap-type:x mandatory; scrollbar-width:none; } .lb-carrossel::-webkit-scrollbar{ display:none; }
+.lb-mini{ position:relative; flex:none; width:96px; font:inherit; color:var(--texto); cursor:pointer; border-radius:14px; overflow:hidden; padding:0; scroll-snap-align:center;
+  background:var(--painel); border:2px solid transparent; display:flex; flex-direction:column; opacity:.72; transition:opacity .15s, transform .15s; }
+.lb-mini img, .lb-mini .sem-retrato{ width:100%; aspect-ratio:1; object-fit:cover; object-position:50% 20%; display:block; font-size:40px; }
+.lb-mini b{ font-family:var(--fonte-titulo); font-size:14px; text-transform:uppercase; padding:4px 6px 0; text-align:left; }
+.lb-mini i{ font-style:normal; font-size:11px; color:var(--ambar); padding:0 6px 6px; text-align:left; }
+.lb-mini.on{ border-color:var(--cc); opacity:1; transform:translateY(-3px); box-shadow:0 0 18px color-mix(in srgb, var(--cc) 45%, transparent); }
+.lb-mini:hover{ opacity:1; }
+@media (max-width:900px){
+  .lb-meio{ grid-template-columns:1fr; } .lb-menu{ order:2; } .lb-heroi{ order:1; }
+  .lb-heroi{ grid-template-columns:auto 1fr auto; } .lb-info{ grid-column:1 / -1; }
+  .lb-conta{ width:100%; } .lb-conta .nome{ flex:1; } .lb-conta .nome input{ width:100%; }
+}
+@media (max-width:420px){ .lb-seta{ width:36px; height:52px; font-size:32px; } .lb-mini{ width:78px; } .lb-sec .btn{ font-size:12px; } }
+@media (max-width:900px){
+  .lb-meio{ display:contents; } .lobby2{ gap:12px; }
+  .lb-topo{ order:0; } .lb-heroi{ order:1; padding:12px; gap:10px; } .lb-carrossel{ order:2; } .lb-menu{ order:3; }
+  .lb-heroi{ grid-template-columns:auto minmax(0, 210px) auto; justify-content:center; }
+  .lb-info{ gap:5px; } .lb-desc{ font-size:13.5px; } .lb-logo h1{ font-size:32px; }
+  .lb-conta .painel-rank{ flex:1; padding:6px 10px; } .lb-conta .painel-rank .selo-liga.grande{ font-size:14px; }
+}
+@media (max-width:900px){
+  .lb-heroi{ grid-template-columns:auto min(220px, 54vw) auto; }
+  .lb-conta{ flex-direction:column; align-items:stretch; } .lb-conta .nome{ width:100%; } .lb-conta .nome input{ flex:1; }
+}

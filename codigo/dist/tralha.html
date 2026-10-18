@@ -294,6 +294,58 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .rankfim{ background:var(--painel); border:1px solid color-mix(in srgb, var(--lg) 55%, transparent); border-radius:var(--raio); padding:12px 14px; display:flex; flex-direction:column; gap:6px; }
 .rankfim.subiu{ box-shadow:0 0 22px color-mix(in srgb, var(--lg) 35%, transparent); } .rankfim.caiu b{ color:#ff8a78; }
 .ranking-tela .lista .selo-liga{ margin-right:6px; }
+
+/* ---------- lobby no estilo do Backpack Battles ---------- */
+.lobby2{ position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:18px 16px 24px; display:flex; flex-direction:column; gap:16px; min-height:100%; box-sizing:border-box; }
+.lb-topo{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+.lb-logo small{ font-family:var(--fonte-titulo); letter-spacing:.3em; text-transform:uppercase; color:var(--ambar); font-size:12px; font-weight:700; }
+.lb-logo h1{ font-size:clamp(34px, 5vw, 52px); line-height:.9; text-shadow:0 4px 20px rgba(0,0,0,.6); }
+.lb-conta{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.lb-conta .nome{ display:flex; align-items:center; gap:8px; } .lb-conta .nome input{ width:190px; }
+.lb-meio{ display:grid; grid-template-columns:260px 1fr; gap:18px; align-items:stretch; flex:1; }
+.lb-menu{ display:flex; flex-direction:column; gap:10px; }
+.lb-menu .btn.grande{ text-align:left; padding:14px 18px; display:flex; flex-direction:column; align-items:flex-start; }
+.lb-menu .jogar{ font-size:28px; }
+.lb-sec{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; } .lb-sec .btn{ padding:10px 6px; font-size:13px; }
+.lb-menu .nota{ margin:4px 0 0; color:var(--suave); font-size:12.5px; }
+.lb-heroi{ position:relative; display:grid; grid-template-columns:auto minmax(180px, 300px) auto minmax(240px, 1fr); align-items:center; gap:14px; padding:18px; border-radius:22px;
+  background:radial-gradient(ellipse at 30% 40%, color-mix(in srgb, var(--cc) 35%, transparent), transparent 70%), rgba(18,17,23,.72); border:1px solid color-mix(in srgb, var(--cc) 40%, transparent); }
+.lb-retrato{ position:relative; aspect-ratio:1; border-radius:20px; overflow:hidden; border:3px solid var(--cc); box-shadow:0 18px 50px rgba(0,0,0,.55), 0 0 40px color-mix(in srgb, var(--cc) 35%, transparent); }
+.lb-retrato img{ width:100%; height:100%; object-fit:cover; object-position:50% 20%; display:block; }
+.lb-retrato .sem-retrato{ width:100%; height:100%; font-size:120px; }
+.lb-retrato .selo-nivel{ position:absolute; left:10px; top:10px; font-size:16px; }
+.lb-seta{ font:inherit; font-size:40px; line-height:1; width:46px; height:64px; border-radius:14px; cursor:pointer; color:var(--texto); background:rgba(0,0,0,.35); border:1px solid var(--borda2); }
+.lb-seta:hover{ border-color:var(--cc); color:var(--cc); }
+.lb-info{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+.lb-info h2{ font-size:clamp(30px, 3.4vw, 46px); overflow-wrap:anywhere; line-height:.9; color:var(--cc); text-shadow:0 2px 14px rgba(0,0,0,.6); }
+.lb-desc{ margin:0; font-size:15px; } .lb-ini{ margin:0; color:var(--suave); font-size:13.5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.lb-ini img.ic, .lb-ini .ic{ width:24px; height:24px; } .lb-xp small{ color:var(--suave); font-size:12px; }
+.lb-info #btTrilha{ align-self:flex-start; }
+.lb-carrossel{ display:flex; gap:10px; overflow-x:auto; padding:4px 2px 8px; scroll-snap-type:x mandatory; scrollbar-width:none; } .lb-carrossel::-webkit-scrollbar{ display:none; }
+.lb-mini{ position:relative; flex:none; width:96px; font:inherit; color:var(--texto); cursor:pointer; border-radius:14px; overflow:hidden; padding:0; scroll-snap-align:center;
+  background:var(--painel); border:2px solid transparent; display:flex; flex-direction:column; opacity:.72; transition:opacity .15s, transform .15s; }
+.lb-mini img, .lb-mini .sem-retrato{ width:100%; aspect-ratio:1; object-fit:cover; object-position:50% 20%; display:block; font-size:40px; }
+.lb-mini b{ font-family:var(--fonte-titulo); font-size:14px; text-transform:uppercase; padding:4px 6px 0; text-align:left; }
+.lb-mini i{ font-style:normal; font-size:11px; color:var(--ambar); padding:0 6px 6px; text-align:left; }
+.lb-mini.on{ border-color:var(--cc); opacity:1; transform:translateY(-3px); box-shadow:0 0 18px color-mix(in srgb, var(--cc) 45%, transparent); }
+.lb-mini:hover{ opacity:1; }
+@media (max-width:900px){
+  .lb-meio{ grid-template-columns:1fr; } .lb-menu{ order:2; } .lb-heroi{ order:1; }
+  .lb-heroi{ grid-template-columns:auto 1fr auto; } .lb-info{ grid-column:1 / -1; }
+  .lb-conta{ width:100%; } .lb-conta .nome{ flex:1; } .lb-conta .nome input{ width:100%; }
+}
+@media (max-width:420px){ .lb-seta{ width:36px; height:52px; font-size:32px; } .lb-mini{ width:78px; } .lb-sec .btn{ font-size:12px; } }
+@media (max-width:900px){
+  .lb-meio{ display:contents; } .lobby2{ gap:12px; }
+  .lb-topo{ order:0; } .lb-heroi{ order:1; padding:12px; gap:10px; } .lb-carrossel{ order:2; } .lb-menu{ order:3; }
+  .lb-heroi{ grid-template-columns:auto minmax(0, 210px) auto; justify-content:center; }
+  .lb-info{ gap:5px; } .lb-desc{ font-size:13.5px; } .lb-logo h1{ font-size:32px; }
+  .lb-conta .painel-rank{ flex:1; padding:6px 10px; } .lb-conta .painel-rank .selo-liga.grande{ font-size:14px; }
+}
+@media (max-width:900px){
+  .lb-heroi{ grid-template-columns:auto min(220px, 54vw) auto; }
+  .lb-conta{ flex-direction:column; align-items:stretch; } .lb-conta .nome{ width:100%; } .lb-conta .nome input{ flex:1; }
+}
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -1321,27 +1373,51 @@ function linhaNumeros(id, s){
 }
 
 // ---- tela: lobby ----
+// lobby no estilo do Backpack Battles: o personagem escolhido grande no centro, o carrossel para trocar,
+// os botões de jogar em destaque (Ranqueada e Normal) e o menu (coleção, cartas, ranking, trilha)
 function telaLobby(){
-  const s = ler('tdg-corrida', null);
-  return `<section class="lobby">
-    <header class="logo"><div class="etiqueta"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1></div></header>
-    ${PERFIL.rank ? `<button class="painel-rank" id="btRank" style="--lg:${ligaDe(PERFIL.rank.pontos).cor}">${seloLiga(PERFIL.rank.pontos, 'grande')}<span><b>${PERFIL.rank.pontos} pontos</b><small>${ligaDe(PERFIL.rank.pontos).falta != null ? `faltam ${ligaDe(PERFIL.rank.pontos).falta} para subir` : 'topo da temporada'}${PERFIL.rank.posicao ? ` · ${PERFIL.rank.posicao}º lugar` : ''}</small></span></button>` : ''}
-    <div class="nome"><label for="campoNome">Seu nome no ranking</label><div><input id="campoNome" maxlength="20" placeholder="Aventureiro" value="${(PERFIL.nome || '').replace(/"/g, '')}"><span class="status ${conexao.ok === false ? 'off' : conexao.ok ? 'on' : ''}">${conexao.ok === false ? 'Offline' : conexao.ok ? 'Online' : 'Conectando'}</span></div></div>
-    <div class="classes">${Object.keys(CLASSES).map(k => { const c = CLASSES[k], ini = ITEM[c.inicial], nv = nivelClasse(k);
-      return `<button class="classe${k === classeEscolhida ? ' on' : ''}" data-classe="${k}" style="--cc:${c.cor}">${retrato(k) ? `<img class="rosto" src="${retrato(k)}" alt="" draggable="false">` : `<span class="sem-retrato">${c.nome[0]}</span>`}${selo(nv)}
-        <span class="txt"><b>${c.nome}</b>${barraXp(nv)}<small>${c.desc}</small><span class="ini">${iconeItem(ini.id)} ${ini.nome}</span></span></button>`; }).join('')}</div>
-    ${painelPersonagem(classeEscolhida)}
-    <div class="acoes">
-      <div class="modos">${['ranqueada', 'normal'].map(k => `<button class="chip${PERFIL.modo === k ? ' on' : ''}" data-modo="${k}"><b>${k === 'ranqueada' ? 'Ranqueada' : 'Normal'}</b><span>${k === 'ranqueada' ? 'Todos os itens no nível 0. Vitórias valem pontos no ranking.' : 'Seus itens lutam no nível das cartas. Não vale ranking.'}</span></button>`).join('')}</div>
-      ${s && s.mochila && !s.fim ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias</small></button>` : ''}
-      <button class="btn grande${s && !s.fim ? '' : ' primario'}" id="btJogar">Nova corrida<small>${CLASSES[classeEscolhida].nome} · nível ${nivelClasse(classeEscolhida).nivel} · 7 vitórias para vencer, 3 derrotas e acaba</small></button>
-      <div class="linha-btns"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
+  const s = ler('tdg-corrida', null), ks = Object.keys(CLASSES), c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c), ini = ITEM[C0.inicial];
+  const prox = nv.nivel < 10 ? liberadosNo(c, nv.nivel + 1) : [], rk = PERFIL.rank;
+  const continuar = s && s.mochila && !s.fim && CLASSES[s.classe];
+  return `<section class="lobby2" style="--cc:${C0.cor}">
+    <header class="lb-topo">
+      <div class="lb-logo"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1></div>
+      <div class="lb-conta">
+        ${rk ? `<button class="painel-rank" id="btRank" style="--lg:${ligaDe(rk.pontos).cor}">${seloLiga(rk.pontos, 'grande')}<span><b>${rk.pontos} pontos</b><small>${ligaDe(rk.pontos).falta != null ? `faltam ${ligaDe(rk.pontos).falta} para subir` : 'topo da temporada'}${rk.posicao ? ` · ${rk.posicao}º` : ''}</small></span></button>` : ''}
+        <div class="nome"><input id="campoNome" maxlength="20" placeholder="Seu nome no ranking" aria-label="Seu nome no ranking" value="${(PERFIL.nome || '').replace(/"/g, '')}"><span class="status ${conexao.ok === false ? 'off' : conexao.ok ? 'on' : ''}">${conexao.ok === false ? 'Offline' : conexao.ok ? 'Online' : 'Conectando'}</span></div>
+      </div>
+    </header>
+    <div class="lb-meio">
+      <nav class="lb-menu">
+        ${continuar ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias${s.modo === 'normal' ? ' · Normal' : ' · Ranqueada'}</small></button>` : ''}
+        <button class="btn grande jogar${continuar ? '' : ' primario'}" data-jogar="ranqueada">Ranqueada<small>vale pontos de liga · itens no nível 0</small></button>
+        <button class="btn grande jogar" data-jogar="normal">Normal<small>sem liga · itens no nível das cartas</small></button>
+        <div class="lb-sec"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
+        <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'}` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha. 7 vitórias vencem a corrida; 3 derrotas e acaba.'}</p>
+      </nav>
+      <div class="lb-heroi">
+        <button class="lb-seta" data-passo="-1" aria-label="Personagem anterior">‹</button>
+        <div class="lb-retrato">${retrato(c) ? `<img src="${retrato(c)}" alt="${C0.nome}" draggable="false">` : `<span class="sem-retrato">${C0.nome[0]}</span>`}${selo(nv)}</div>
+        <button class="lb-seta" data-passo="1" aria-label="Próximo personagem">›</button>
+        <div class="lb-info">
+          <h2>${C0.nome}</h2>
+          <p class="lb-desc">${C0.desc}</p>
+          <p class="lb-ini">Começa com ${iconeItem(ini.id)} <b>${ini.nome}</b> · ${C0.vida} de vida</p>
+          <div class="lb-xp">${barraXp(nv, 'grossa')}<small>${nv.nivel < 10 ? `${nv.xp - nv.de} / ${nv.ate - nv.de} para o nível ${nv.nivel + 1}` : `${nv.xp - nv.de} / ${XP_ESTRELA} para a próxima estrela`}</small></div>
+          ${prox.length ? `<p class="pl-prox">Próximo nível libera: ${prox.map(x => `<span class="mini-item">${iconeItem(x.id)}${ITEM[x.id].nome}</span>`).join('')}</p>` : ''}
+          <button class="btn sm" id="btTrilha">Ver a trilha do ${C0.nome}</button>
+        </div>
+      </div>
     </div>
-    <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'} · ${PERFIL.pontos} pontos no ranking` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha.'}</p>
+    <div class="lb-carrossel">${ks.map(k => { const K = CLASSES[k], n = nivelClasse(k);
+      return `<button class="lb-mini${k === c ? ' on' : ''}" data-classe="${k}" style="--cc:${K.cor}" title="${K.nome}">${retrato(k) ? `<img src="${retrato(k)}" alt="" draggable="false">` : `<span class="sem-retrato">${K.nome[0]}</span>`}<b>${K.nome}</b><i>Nv ${n.nivel}</i></button>`; }).join('')}</div>
   </section>`;
 }
 function ligarLobby(){
+  const ks = Object.keys(CLASSES);
   raiz().querySelectorAll('[data-classe]').forEach(b => b.onclick = () => { classeEscolhida = b.dataset.classe; desenhar(); });
+  raiz().querySelectorAll('[data-passo]').forEach(b => b.onclick = () => { classeEscolhida = ks[(ks.indexOf(classeEscolhida) + +b.dataset.passo + ks.length) % ks.length]; desenhar(); });
+  const mini = raiz().querySelector('.lb-mini.on'); if(mini && mini.scrollIntoView) mini.scrollIntoView({block:'nearest', inline:'center'});
   const n = $('campoNome'); n.onchange = () => { const v = n.value.trim().slice(0, 20);
     // tolerância zero: nome com conteúdo sexual, +18 ou ofensivo não é aceito nem guardado
     if(v && !nomePermitido(v)){ n.value = PERFIL.nome || ''; avisar('Esse nome não é permitido. Escolha outro.', 3000); return; }
@@ -1349,13 +1425,16 @@ function ligarLobby(){
     if(v.length >= 2) onlineNome(v).then(r => { if(r === true) avisar('Nome salvo no ranking');
       else if(r === 'proibido'){ PERFIL.nome = ''; gravarPerfil(); avisar('Esse nome não é permitido. Escolha outro.', 3000); }
       desenhar(); }); };
-  $('btJogar').onclick = ev => { const b = ev.currentTarget; if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
-    comecarCorrida(classeEscolhida); };
+  raiz().querySelectorAll('[data-jogar]').forEach(b => b.onclick = () => {
+    if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
+    PERFIL.modo = b.dataset.jogar; gravarPerfil(); comecarCorrida(classeEscolhida); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
-  raiz().querySelectorAll('[data-modo]').forEach(b => b.onclick = () => { PERFIL.modo = b.dataset.modo; gravarPerfil(); desenhar(); });
-  $('btColecao').onclick = abrirColecao; const br = $('btRank'); if(br) br.onclick = abrirRanking; $('btLojaCartas').onclick = () => abrirLojaCartas('dia');
+  $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia'); $('btRanking').onclick = abrirRanking;
+  const br = $('btRank'); if(br) br.onclick = abrirRanking;
   const c = $('btContinuar'); if(c) c.onclick = () => { if(continuarCorrida()){ tela = 'loja'; desenhar(); } };
-  $('btRanking').onclick = abrirRanking;
+  // setas do teclado trocam o personagem
+  window.onkeydown = ev => { if(tela !== 'lobby' || document.activeElement === n) return;
+    if(ev.key === 'ArrowLeft' || ev.key === 'ArrowRight'){ classeEscolhida = ks[(ks.indexOf(classeEscolhida) + (ev.key === 'ArrowRight' ? 1 : -1) + ks.length) % ks.length]; desenhar(); } };
 }
 
 function comecarCorrida(classe){

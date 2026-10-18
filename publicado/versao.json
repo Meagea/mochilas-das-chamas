@@ -1,6 +1,6 @@
 {
- "versao": 15,
- "tamanho": 10265743,
- "sha256": "f2378b1ef1cbfc8c181801d6607328c30011c6777e6e5cd80233564e02a6f3ac",
- "resumo": "Ranked com ligas: Bronze a Grao-Mestre, pontos por corrida, sorteio por liga"
+ "versao": 16,
+ "tamanho": 10273451,
+ "sha256": "bd8480b122d429880faf0ed6e03f25d6b3bf8ec7d0e044a5d7398be65cb0f9c8",
+ "resumo": "Lobby novo no estilo Backpack Battles: personagem em destaque, carrossel e botoes de jogar"
 }
