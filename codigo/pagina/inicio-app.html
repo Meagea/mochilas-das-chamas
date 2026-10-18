@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Tralha de Guerra</title>
+<style>
+/* Abertura dos aplicativos (APK e PC): procura uma versão nova do jogo e, se houver, baixa com a barra de progresso.
+   O jogo que veio no aplicativo fica em jogo.html; a versão baixada fica guardada no aparelho (IndexedDB). */
+html, body{ margin:0; height:100%; background:#121117; color:#f3eee6; font-family:"Segoe UI", system-ui, sans-serif; overflow:hidden; }
+.tela{ position:fixed; inset:0; display:flex; align-items:flex-end; justify-content:center; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); }
+.caixa{ width:min(92vw, 460px); margin-bottom:12vh; text-align:center; display:flex; flex-direction:column; gap:10px; }
+small{ letter-spacing:.3em; text-transform:uppercase; color:#f2b350; font-size:12px; font-weight:700; }
+h1{ margin:0; font-size:clamp(38px, 10vw, 60px); line-height:.95; text-transform:uppercase; font-weight:800; letter-spacing:.02em; }
+.barra{ height:12px; border-radius:7px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); overflow:hidden; margin-top:8px; }
+.barra i{ display:block; height:100%; width:3%; border-radius:7px; background:linear-gradient(90deg, #d98f2a, #f2b350, #ffd27a); transition:width .2s; }
+p{ margin:0; font-weight:700; font-size:14px; } .sub{ color:#a7a1b3; font-weight:500; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="caixa"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1><div class="barra"><i id="barra"></i></div><p id="txt">Procurando atualização…</p><p class="sub" id="sub"></p></div></div>
+<script>
+(async () => {
+  const NA_CAIXA = __VERSAO__;   // versão do jogo que veio dentro do aplicativo (jogo.html)
+  const BASE = 'https://raw.githubusercontent.com/Meagea/mochilas-das-chamas/main/publicado/';
+  const $ = id => document.getElementById(id), barra = f => { $('barra').style.width = Math.round(Math.max(.03, f) * 100) + '%'; };
+  // guarda do aparelho: a última versão baixada (o HTML inteiro do jogo)
+  const banco = () => new Promise((ok, erro) => { const r = indexedDB.open('tralha-atualizacao', 1); r.onupgradeneeded = () => r.result.createObjectStore('jogo'); r.onsuccess = () => ok(r.result); r.onerror = () => erro(r.error); });
+  const ler = async () => { try{ const db = await banco(); return await new Promise(ok => { const q = db.transaction('jogo').objectStore('jogo').get('atual'); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); }catch(e){ return null; } };
+  const gravar = async v => { const db = await banco(); await new Promise((ok, erro) => { const t = db.transaction('jogo', 'readwrite'); t.objectStore('jogo').put(v, 'atual'); t.oncomplete = ok; t.onerror = () => erro(t.error); }); };
+  const abrir = html => { document.open(); document.write(html); document.close(); };
+  const abrirDaCaixa = () => location.replace('jogo.html');
+  const sha256 = async txt => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)))).map(b => b.toString(16).padStart(2, '0')).join('');
+
+  const guardada = await ler(), local = Math.max(NA_CAIXA, guardada ? guardada.versao : 0);
+  const usarLocal = () => { if(guardada && guardada.versao > NA_CAIXA) abrir(guardada.html); else abrirDaCaixa(); };
+  // 1. a versão publicada (sem internet ou sem resposta em 5 s: segue com a que tem)
+  let remota = null;
+  try{
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
+    const r = await fetch(BASE + 'versao.json?t=' + Date.now(), {signal:ctl.signal, cache:'no-store'}); clearTimeout(t);
+    if(r.ok) remota = await r.json();
+  }catch(e){ /* offline */ }
+  if(!remota || !(remota.versao > local)){ $('txt').textContent = 'Abrindo o jogo…'; barra(1); usarLocal(); return; }
+  // 2. tem versão nova: baixa o jogo, mostrando quanto já veio
+  try{
+    $('txt').textContent = `Baixando a versão ${remota.versao}…`;
+    const r = await fetch(BASE + 'tralha.html?v=' + remota.versao, {cache:'no-store'});
+    if(!r.ok || !r.body) throw new Error('download');
+    const leitor = r.body.getReader(), partes = []; let veio = 0;
+    for(;;){ const {done, value} = await leitor.read(); if(done) break; partes.push(value); veio += value.length;
+      barra(veio / remota.tamanho); $('sub').textContent = `${(veio / 1048576).toFixed(1)} MB de ${(remota.tamanho / 1048576).toFixed(1)} MB`; }
+    const bytes = new Uint8Array(veio); let p = 0; for(const c of partes){ bytes.set(c, p); p += c.length; }
+    const html = new TextDecoder().decode(bytes);
+    if(remota.sha256 && await sha256(html) !== remota.sha256) throw new Error('arquivo incompleto');
+    $('txt').textContent = 'Atualização pronta!'; barra(1);
+    await gravar({versao:remota.versao, html});
+    abrir(html);
+  }catch(e){
+    // falhou no meio: joga com a versão que já tem e tenta de novo na próxima abertura
+    $('txt').textContent = 'Não deu para baixar agora. Abrindo a versão que você já tem…';
+    setTimeout(usarLocal, 1200);
+  }
+})();
+</script>
+</body>
+</html>

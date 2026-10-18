@@ -33,8 +33,11 @@ gravar(path.join(DIR, 'dist/tralha.html'), fragmento);
 const cut = fragmento.indexOf('</style>') + '</style>'.length;
 gravar(path.join(ROOT, 'teste/tralha.html'),
   `<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n${fragmento.slice(0, cut)}\n</head>\n<body>\n${fragmento.slice(cut)}</body>\n</html>\n`);
-// 4. aplicativos (3-app: APK, 4-pc: Windows): se os projetos existirem, recebem o jogo novo
-{ const teste = path.join(ROOT, 'teste/tralha.html');
-  for(const destino of ['3-app/www/index.html', '3-app/android/app/src/main/assets/public/index.html', '4-pc/index.html'])
-    if(fs.existsSync(path.dirname(path.join(ROOT, destino)))) fs.copyFileSync(teste, path.join(ROOT, destino)); }
+// 4. aplicativos (3-app: APK, 4-pc: Windows): o jogo vai como jogo.html, e o index.html é a abertura que procura
+//    versão nova no GitHub (pagina/inicio-app.html). O número da versão vem de codigo/versao.json (a esteira atualiza).
+{ const teste = path.join(ROOT, 'teste/tralha.html'), arqV = path.join(DIR, 'versao.json');
+  const versao = fs.existsSync(arqV) ? JSON.parse(fs.readFileSync(arqV, 'utf8')).versao | 0 : 0;
+  const abertura = ler('pagina/inicio-app.html').replace('__VERSAO__', String(versao));
+  for(const pasta of ['3-app/www', '3-app/android/app/src/main/assets/public', '4-pc'])
+    if(fs.existsSync(path.join(ROOT, pasta))){ fs.copyFileSync(teste, path.join(ROOT, pasta, 'jogo.html')); fs.writeFileSync(path.join(ROOT, pasta, 'index.html'), abertura); } }
 console.log(`ok · ${lista('estilos').length} estilos, ${lista('scripts').length} scripts, ${Object.keys(arte).length} imagens · ${(fragmento.length / 1024) | 0} KB`);

@@ -18,7 +18,8 @@ const passo = (nome, cmd, args, opts = {}) => {
 };
 const editar = (arq, re, novo) => { const p = path.join(RAIZ, arq); if(!fs.existsSync(p)) return; fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace(re, novo)); };
 
-// 1. montagem (também copia o jogo para os aplicativos) e testes
+// 1. montagem (também copia o jogo para os aplicativos) e testes; a versão vai junto, para a atualização automática dos apps
+fs.writeFileSync(path.join(__dirname, 'versao.json'), JSON.stringify({versao:+versao}) + '\n');
 passo('montagem do jogo', process.execPath, [path.join(__dirname, 'build.js')]);
 if(!flag('--sem-validar')) passo('testes (simulação e balanceamento)', process.execPath, [path.join(__dirname, 'testes', 'simulacao.js')]);
 
@@ -43,6 +44,10 @@ if(fs.existsSync(path.join(RAIZ, '4-pc', 'node_modules'))){
   passo('instalador de Windows', 'npm run dist', [], { cwd: path.join(RAIZ, '4-pc'), shell: true });
   exe = path.join(RAIZ, '4-pc', 'dist', fs.readdirSync(path.join(RAIZ, '4-pc', 'dist')).find(f => f.endsWith(`1.${versao}.0.exe`)) || '');
 }
+// 4b. versão publicada para a atualização automática dos apps (pagina/inicio-app.html baixa de publicado/ no GitHub)
+{ const html = fs.readFileSync(path.join(RAIZ, 'teste', 'tralha.html')), pub = path.join(RAIZ, 'publicado');
+  fs.mkdirSync(pub, {recursive:true}); fs.writeFileSync(path.join(pub, 'tralha.html'), html);
+  fs.writeFileSync(path.join(pub, 'versao.json'), JSON.stringify({versao:+versao, tamanho:html.length, sha256:require('crypto').createHash('sha256').update(html).digest('hex'), resumo}, null, 1) + '\n'); }
 // 5. commit e push
 const msg = `V${versao}: ${resumo}\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`;
 passo('commit', 'git', ['add', '-A']);
