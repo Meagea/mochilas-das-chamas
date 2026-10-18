@@ -139,9 +139,11 @@ function escalarPor(s, f){
   s.ao = esc(s.ao); s.semMana = esc(s.semMana); s.acerto = esc(s.acerto);
 }
 
-// ---- fusões: duas peças da receita encostadas viram uma só (as receitas com nível só a partir dele) ----
-function fundir(m, nivel){
-  const pode = RECEITAS.filter(r => !r[3] || (nivel == null ? 99 : nivel) >= r[3]);
+// ---- fusões: duas peças da receita encostadas viram uma só (as de classe só na própria classe, a partir do nível) ----
+// receita que vale para este personagem: as comuns sempre; as de classe (com nível) só na própria classe e a partir do nível
+const receitaVale = (r, nivel, classe) => !r[3] || ((nivel == null ? 99 : nivel) >= r[3] && (!classe || ITEM[r[2]].classe === classe));
+function fundir(m, nivel, classe){
+  const pode = RECEITAS.filter(r => receitaVale(r, nivel, classe));
   const feitas = [];
   for(let guarda = 0; guarda < 10; guarda++){
     let achou = null;
@@ -155,6 +157,14 @@ function fundir(m, nivel){
     feitas.push(r[2]);
   }
   return feitas;
+}
+
+// pares de receita encostados que ainda não fundem porque o personagem não chegou ao nível
+function receitasTravadas(m, nivel, classe){
+  const L = [];
+  for(const r of RECEITAS) if(r[3] && ITEM[r[2]].classe === classe && !receitaVale(r, nivel, classe))
+    for(const p of m.pecas.filter(q => q.id === r[0])) if(vizinhos(m, p).some(q => q.id === r[1] && q !== p)){ L.push(r); break; }
+  return L;
 }
 
 // ---- foto da mochila (o que vai para o servidor e volta como adversário) ----

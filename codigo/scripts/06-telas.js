@@ -168,7 +168,10 @@ function infoHtml(N){
   const id = sel.onde === 'loja' ? C.loja[sel.i] : sel.p.id, d = ITEM[id], s = sel.onde === 'mochila' ? N[sel.p.uid] : null;
   const base = s || {dano:d.dano, cd:d.cd, crit:d.crit || 0};
   const rec = s && s.recebeu.length ? `<p class="bonus">Turbinado por: ${[...new Set(s.recebeu)].map(k => ITEM[k].nome).join(', ')}</p>` : '';
-  const receita = RECEITAS.filter(r => r[0] === id || r[1] === id).map(r => `<p class="receita">Encoste em <b>${ITEM[r[0] === id ? r[1] : r[0]].nome}</b> para virar <b>${ITEM[r[2]].nome}</b>.</p>`).join('');
+  // receitas deste item que valem para o personagem da corrida; as travadas dizem em que nível liberam
+  const receita = RECEITAS.filter(r => (r[0] === id || r[1] === id) && (!r[3] || ITEM[r[2]].classe === C.classe)).map(r => { const outro = ITEM[r[0] === id ? r[1] : r[0]].nome, vira = ITEM[r[2]].nome;
+    return receitaVale(r, C.nivel || 1, C.classe) ? `<p class="receita">Encoste em <b>${outro}</b> para virar <b>${vira}</b> no começo da luta.</p>`
+      : `<p class="receita travada">Receita: com <b>${outro}</b> vira <b>${vira}</b>, a partir do nível ${r[3]} do ${CLASSES[C.classe].nome} (você está no ${C.nivel || 1}).</p>`; }).join('');
   const botoes = sel.onde === 'loja' ? `<button class="btn primario" id="btComprar"${d.preco > C.ouro ? ' disabled' : ''}>Comprar<small>${ic('moeda')} ${d.preco}</small></button>`
     : `<button class="btn" id="btGirar">Girar</button>${sel.onde === 'mochila' && d.id !== 'mochila' ? '<button class="btn" id="btGuardar">Para a bancada</button>' : ''}${d.inicial ? '' : `<button class="btn" id="btVender">Vender<small>${ic('moeda')} ${precoVenda(id)}</small></button>`}`;
   return `<div class="cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}${d.classe ? ' · ' + CLASSES[d.classe].nome : ''}</small></div></div>
@@ -262,10 +265,11 @@ if(temDOM && typeof window !== 'undefined') window.addEventListener('contextmenu
 // ---- a luta ----
 async function comecarLuta(){
   const bt = $('btLutar'); if(bt){ bt.disabled = true; bt.innerHTML = 'Procurando adversário…'; }
-  const feitas = fundir(C.mochila, C.nivel || 1);
+  const feitas = fundir(C.mochila, C.nivel || 1, C.classe);
+  const travadas = receitasTravadas(C.mochila, C.nivel || 1, C.classe).map(r => `${ITEM[r[0]].nome} + ${ITEM[r[1]].nome} só viram ${ITEM[r[2]].nome} no nível ${r[3]}`);
   // a ferramenta do ofício trabalha uma vez por rodada
   const ofi = C.oficioRodada === C.rodada ? [] : oficio(C.mochila, C.rodada); C.oficioRodada = C.rodada;
-  const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
+  const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(travadas, ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
   if(C.corrida == null && corridaPendente) await Promise.race([corridaPendente, new Promise(r => setTimeout(r, 3000))]);

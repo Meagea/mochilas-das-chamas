@@ -174,7 +174,7 @@ function montarRobo(classe, rodada, sem, nivel){
       if(ouro < 4) break;
       ouro -= 1;
     }
-    fundir(m, nivel); oficio(m, rd);
+    fundir(m, nivel, classe); oficio(m, rd);
   }
   return m;
 }

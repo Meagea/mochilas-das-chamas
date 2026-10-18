@@ -282,6 +282,7 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .item-loja[data-rar="lendaria"]{ box-shadow:0 0 18px color-mix(in srgb, var(--rar) 70%, transparent); animation:lendaLoja 2.4s ease-in-out infinite; }
 @keyframes lendaLoja{ 50%{ box-shadow:0 0 28px color-mix(in srgb, var(--rar) 90%, transparent); } }
 .ofp.ap{ background:#22303a; color:#b8d0e0; border:1px solid #8aa0b0; } .ofp.fm{ background:#3a2c10; color:#f0c870; border:1px solid #c89a3a; }
+.receita.travada{ opacity:.75; border-left:3px solid var(--apagado); padding-left:8px; }
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -820,9 +821,11 @@ function escalarPor(s, f){
   s.ao = esc(s.ao); s.semMana = esc(s.semMana); s.acerto = esc(s.acerto);
 }
 
-// ---- fusões: duas peças da receita encostadas viram uma só (as receitas com nível só a partir dele) ----
-function fundir(m, nivel){
-  const pode = RECEITAS.filter(r => !r[3] || (nivel == null ? 99 : nivel) >= r[3]);
+// ---- fusões: duas peças da receita encostadas viram uma só (as de classe só na própria classe, a partir do nível) ----
+// receita que vale para este personagem: as comuns sempre; as de classe (com nível) só na própria classe e a partir do nível
+const receitaVale = (r, nivel, classe) => !r[3] || ((nivel == null ? 99 : nivel) >= r[3] && (!classe || ITEM[r[2]].classe === classe));
+function fundir(m, nivel, classe){
+  const pode = RECEITAS.filter(r => receitaVale(r, nivel, classe));
   const feitas = [];
   for(let guarda = 0; guarda < 10; guarda++){
     let achou = null;
@@ -836,6 +839,14 @@ function fundir(m, nivel){
     feitas.push(r[2]);
   }
   return feitas;
+}
+
+// pares de receita encostados que ainda não fundem porque o personagem não chegou ao nível
+function receitasTravadas(m, nivel, classe){
+  const L = [];
+  for(const r of RECEITAS) if(r[3] && ITEM[r[2]].classe === classe && !receitaVale(r, nivel, classe))
+    for(const p of m.pecas.filter(q => q.id === r[0])) if(vizinhos(m, p).some(q => q.id === r[1] && q !== p)){ L.push(r); break; }
+  return L;
 }
 
 // ---- foto da mochila (o que vai para o servidor e volta como adversário) ----
@@ -1148,7 +1159,7 @@ function montarRobo(classe, rodada, sem, nivel){
       if(ouro < 4) break;
       ouro -= 1;
     }
-    fundir(m, nivel); oficio(m, rd);
+    fundir(m, nivel, classe); oficio(m, rd);
   }
   return m;
 }
@@ -1393,7 +1404,10 @@ function infoHtml(N){
   const id = sel.onde === 'loja' ? C.loja[sel.i] : sel.p.id, d = ITEM[id], s = sel.onde === 'mochila' ? N[sel.p.uid] : null;
   const base = s || {dano:d.dano, cd:d.cd, crit:d.crit || 0};
   const rec = s && s.recebeu.length ? `<p class="bonus">Turbinado por: ${[...new Set(s.recebeu)].map(k => ITEM[k].nome).join(', ')}</p>` : '';
-  const receita = RECEITAS.filter(r => r[0] === id || r[1] === id).map(r => `<p class="receita">Encoste em <b>${ITEM[r[0] === id ? r[1] : r[0]].nome}</b> para virar <b>${ITEM[r[2]].nome}</b>.</p>`).join('');
+  // receitas deste item que valem para o personagem da corrida; as travadas dizem em que nível liberam
+  const receita = RECEITAS.filter(r => (r[0] === id || r[1] === id) && (!r[3] || ITEM[r[2]].classe === C.classe)).map(r => { const outro = ITEM[r[0] === id ? r[1] : r[0]].nome, vira = ITEM[r[2]].nome;
+    return receitaVale(r, C.nivel || 1, C.classe) ? `<p class="receita">Encoste em <b>${outro}</b> para virar <b>${vira}</b> no começo da luta.</p>`
+      : `<p class="receita travada">Receita: com <b>${outro}</b> vira <b>${vira}</b>, a partir do nível ${r[3]} do ${CLASSES[C.classe].nome} (você está no ${C.nivel || 1}).</p>`; }).join('');
   const botoes = sel.onde === 'loja' ? `<button class="btn primario" id="btComprar"${d.preco > C.ouro ? ' disabled' : ''}>Comprar<small>${ic('moeda')} ${d.preco}</small></button>`
     : `<button class="btn" id="btGirar">Girar</button>${sel.onde === 'mochila' && d.id !== 'mochila' ? '<button class="btn" id="btGuardar">Para a bancada</button>' : ''}${d.inicial ? '' : `<button class="btn" id="btVender">Vender<small>${ic('moeda')} ${precoVenda(id)}</small></button>`}`;
   return `<div class="cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}${d.classe ? ' · ' + CLASSES[d.classe].nome : ''}</small></div></div>
@@ -1487,10 +1501,11 @@ if(temDOM && typeof window !== 'undefined') window.addEventListener('contextmenu
 // ---- a luta ----
 async function comecarLuta(){
   const bt = $('btLutar'); if(bt){ bt.disabled = true; bt.innerHTML = 'Procurando adversário…'; }
-  const feitas = fundir(C.mochila, C.nivel || 1);
+  const feitas = fundir(C.mochila, C.nivel || 1, C.classe);
+  const travadas = receitasTravadas(C.mochila, C.nivel || 1, C.classe).map(r => `${ITEM[r[0]].nome} + ${ITEM[r[1]].nome} só viram ${ITEM[r[2]].nome} no nível ${r[3]}`);
   // a ferramenta do ofício trabalha uma vez por rodada
   const ofi = C.oficioRodada === C.rodada ? [] : oficio(C.mochila, C.rodada); C.oficioRodada = C.rodada;
-  const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
+  const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(travadas, ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
   if(C.corrida == null && corridaPendente) await Promise.race([corridaPendente, new Promise(r => setTimeout(r, 3000))]);
