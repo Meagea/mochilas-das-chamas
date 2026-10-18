@@ -13,10 +13,19 @@ codigo/arte/geradas/
 3-app/android/local.properties
 3-app/android/app/src/main/assets/public/
 3-app/www/index.html
+3-app/www/jogo.html
+4-pc/jogo.html
 3-app/jdk/
 4-pc/dist/
 4-pc/index.html
 *.apk
+*.aab
+
+# chave da Google Play (nunca vai para o git: guarde com cópia de segurança)
+3-app/chave/
+3-app/android/chave-loja.properties
+*.jks
+*.keystore
 
 # testes do banco: dependências baixadas pelo npm
 supabase/node_modules/

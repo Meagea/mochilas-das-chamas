@@ -16,8 +16,24 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // assinatura para a Google Play: a chave e a senha ficam fora do git, em android/chave-loja.properties
+    // (criadas pelo próprio dono com 3-app/criar-chave-loja.bat). Sem esse arquivo, só sai o APK de teste.
+    def chaveArq = rootProject.file('chave-loja.properties')
+    def chave = new Properties()
+    if (chaveArq.exists()) chave.load(new FileInputStream(chaveArq))
+    signingConfigs {
+        loja {
+            if (chaveArq.exists()) {
+                storeFile file(chave['arquivo'])
+                storePassword chave['senha']
+                keyAlias chave['apelido']
+                keyPassword chave['senha']
+            }
+        }
+    }
     buildTypes {
         release {
+            if (chaveArq.exists()) signingConfig signingConfigs.loja
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

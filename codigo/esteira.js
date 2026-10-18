@@ -37,6 +37,12 @@ if(fs.existsSync(path.join(RAIZ, '3-app', 'android'))){
   const andr = path.join(RAIZ, '3-app', 'android'), gw = path.join(andr, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew');
   passo('APK Android', `"${gw}" assembleDebug --no-daemon -q`, [], { cwd: andr, shell: true, env: { ...process.env, JAVA_HOME: jdk } });
   fs.copyFileSync(path.join(RAIZ, '3-app/android/app/build/outputs/apk/debug/app-debug.apk'), apk);
+  // pacote da Google Play (.aab assinado): só quando a chave existe (3-app/criar-chave-loja.bat)
+  if(fs.existsSync(path.join(andr, 'chave-loja.properties'))){
+    passo('pacote da Google Play (AAB)', `"${gw}" bundleRelease --no-daemon -q`, [], { cwd: andr, shell: true, env: { ...process.env, JAVA_HOME: jdk } });
+    fs.copyFileSync(path.join(andr, 'app/build/outputs/bundle/release/app-release.aab'), path.join(RAIZ, '3-app', 'Tralha-de-Guerra.aab'));
+    console.log('  AAB para a loja em 3-app/Tralha-de-Guerra.aab (envie no Play Console; não vai para a Release)');
+  } else console.log('  (sem chave da loja: só o APK de teste; para a Google Play rode 3-app/criar-chave-loja.bat)');
 }
 // 4. instalador de Windows
 let exe = null;
