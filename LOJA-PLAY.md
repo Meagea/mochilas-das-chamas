@@ -7,7 +7,7 @@ Textos e respostas para copiar no Play Console. As imagens ficam em `loja/`.
 - **Categoria:** Jogos › Estratégia
 - **Tags:** Estratégia, Fantasia, Casual, Off-line, Competitivo
 - **E-mail de contato:** schmidt.flp19@gmail.com
-- **Política de privacidade:** a URL da página `docs/privacidade.html`, publicada no GitHub Pages
+- **Política de privacidade:** https://meagea.github.io/mochilas-das-chamas/privacidade.html
 
 ## Descrição curta (até 80 caracteres)
 ```
