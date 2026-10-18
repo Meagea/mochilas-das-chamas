@@ -9,7 +9,7 @@ const PASSO_LUTA = .1, CANSACO = 30, LIMITE_LUTA = 90, VIGOR_MAX = 5;
 function lutador(m, classe, nome){
   const N = numeros(m), C = CLASSES[classe];
   const L = {nome, classe, vida:C.vida, max:C.vida, vigor:3, bloq:0, forca:0, queima:0, veneno:0, regen:0, esquiva:0, gelo:0, espinhos:0, mana:0,
-    atord:0, raiva:0, perdeu:0, aoCrit:[], itens:[]};
+    atord:0, raiva:0, perdeu:0, aoCrit:[], semRessaca:m.pecas.some(p => ITEM[p.id].semRessaca), itens:[]};
   for(const p of m.pecas){ const s = N[p.uid]; if(!s) continue;
     L.itens.push(Object.assign(s, {x:p.x, y:p.y, g:p.g, t:0, usado:false, golpes:0, usou:0, espera:0}));
     if(s.inicio) aplicarInicio(L, s.inicio);   // passivos, e também têmpera ou prato em itens que agem
@@ -52,6 +52,7 @@ function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
     if(ao.queimar){ ini.queima += ao.queimar; marca(ladoIni, 'queima', {valor:ao.queimar, item}); }
     if(ao.envenenar){ ini.veneno += ao.envenenar; marca(ladoIni, 'veneno', {valor:ao.envenenar, item}); }
     if(ao.gelo){ ini.gelo += ao.gelo; marca(ladoIni, 'gelo', {valor:ao.gelo, item}); }
+    if(ao.ressaca && !eu.semRessaca) ferir(eu, ladoEu, ao.ressaca, {tipo:'ressaca', direto:true});
     if(ao.corroer && ini.bloq > 0){ const v = Math.min(ini.bloq, ao.corroer); ini.bloq -= v; marca(ladoIni, 'corroeu', {valor:v, item}); }
     if(ao.atordoar){ ini.atord = Math.max(ini.atord, ao.atordoar); marca(ladoIni, 'atordoado', {valor:ao.atordoar, item}); }
     if(ao.multVeneno && ini.veneno > 0){ const mais = Math.floor(ini.veneno * ao.multVeneno); if(mais){ ini.veneno += mais; marca(ladoIni, 'veneno', {valor:mais, item}); } }

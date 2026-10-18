@@ -115,6 +115,16 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   { const m = base('joalheiro'), q = t.peca('quartzo'), e = t.peca('espadaCurta'); t.por(m, q, 4, 2, 0); t.por(m, e, 5, 2, 0);
     const antes = t.numeros(m)[e.uid].dano[0]; t.oficio(m, 1); t.oficio(m, 1); confere(q.lapida === 2, 'quartzo lapidado 2 vezes');
     confere(t.numeros(m)[e.uid].dano[0] === antes + 4, 'lapidação aumenta o bônus da gema (' + antes + ' → ' + t.numeros(m)[e.uid].dano[0] + ')'); }
+  // Bancada (3,2 e 4,2): aprimora a engenhoca encostada; ela fica mais rápida e ataca sem vigor
+  { const m = base('inventor'), e = t.peca('catapultinha'); t.por(m, e, 5, 2, 0); const cd0 = t.numeros(m)[e.uid].cd;
+    for(let i = 0; i < 5; i++) t.oficio(m, 1); confere(e.engrenagem === 3, 'engenhoca aprimorada até 3 (' + e.engrenagem + ')');
+    confere(t.numeros(m)[e.uid].cd < cd0, 'aprimorada fica mais rápida');
+    const r = t.lutar(m, 'inventor', 'A', base('guerreiro'), 'guerreiro', 'B', 4); confere(r.eventos.some(x => x.tipo === 'magia' && x.lado === 1 && x.valor > 0), 'engenhoca causa dano sozinha'); }
+  // Barril (3,2 a 4,3): fermenta a bebida encostada; o gole dá ressaca, menos com a Cervejaria do Mestre
+  { const m = base('cervejeiro'), c = t.peca('caneca'); t.por(m, c, 5, 2, 0); t.oficio(m, 1); t.oficio(m, 2); confere(c.fermento === 2, 'caneca com 2 fermentações');
+    confere(t.numeros(m)[c.uid].ao.cura === 3, 'fermentação aumenta o efeito (' + t.numeros(m)[c.uid].ao.cura + ')');
+    const r = t.lutar(m, 'cervejeiro', 'A', base('guerreiro'), 'guerreiro', 'B', 4); confere(r.eventos.some(x => x.tipo === 'ressaca' && x.lado === 0), 'a caneca dá ressaca');
+    t.por(m, t.peca('cervejariaMestre'), 3, 4, 0); const r2 = t.lutar(m, 'cervejeiro', 'A', base('guerreiro'), 'guerreiro', 'B', 4); confere(!r2.eventos.some(x => x.tipo === 'ressaca'), 'Cervejaria do Mestre tira a ressaca'); }
   // Ácido corrói bloqueio
   { const a = base('alquimista'); t.por(a, t.peca('acido'), 5, 2, 0); const d = base('guerreiro'); t.por(d, t.peca('escudoFerro'), 6, 2, 0);
     const r = t.lutar(a, 'alquimista', 'A', d, 'guerreiro', 'B', 9); confere(r.eventos.some(e => e.tipo === 'corroeu' && e.lado === 1), 'Ácido corrói o bloqueio'); }

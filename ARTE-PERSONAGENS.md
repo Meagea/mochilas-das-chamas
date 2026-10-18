@@ -42,6 +42,14 @@ Mesmo processo (estilo base v2, `retrato-mago.png` como referência de estilo, 1
 | `retrato-coureiro.png` | Bust portrait of a hardworking cheerful beaver leatherworker with big front teeth in a friendly grin and warm brown eyes, a well-crafted leather vest with fine stitching, a measuring tape around the neck, holding a leatherworking awl and a strip of leather, soft blurred background of a cozy workshop in honey and chestnut tones with hanging leather goods. |
 | `retrato-joalheiro.png` | Bust portrait of an elegant magpie jeweler with glossy black and white feathers with iridescent blue-green sheen and sharp clever eyes, a monocle jeweler loupe over one eye, a fine vest with a golden chain, holding a sparkling cut gem up to the light, soft blurred background of a jewelry workshop in deep blue and gold with glittering light reflections. |
 
+## Rodada 5 (2026-10-17): classes de ofício, Onda 3
+Mesmo processo (estilo base v2, `retrato-mago.png` como referência de estilo, 1:1, salvar em `codigo/arte/originais/`).
+
+| Arquivo | Prompt (depois do estilo base v2) |
+|---|---|
+| `retrato-inventor.png` | Bust portrait of an excited clever raccoon inventor with a mischievous grin and bright curious eyes behind big brass goggles with many lenses, a leather vest with pockets full of screwdrivers and gears, holding a small whirring clockwork gadget, soft blurred background of a messy workshop in steel blue and copper tones with floating sparks and tiny gears. |
+| `retrato-cervejeiro.png` | Bust portrait of a jovial burly wild boar brewer with small tusks, a big hearty laugh and twinkling eyes, a leather apron over a rolled-up linen shirt, a hop wreath on the head, raising a foaming wooden beer mug, soft blurred background of a warm tavern brewery in amber and honey gold with barrels and floating foam bubbles. |
+
 ## Elenco proposto
 | Classe | Animal | Ideia |
 |---|---|---|

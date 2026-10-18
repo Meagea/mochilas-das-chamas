@@ -24,14 +24,16 @@ const NOME_TIPO = {arma:'Arma', escudo:'Defesa', comida:'Comida', pocao:'Poção
 
 const CLASSES = {
   guerreiro:{nome:'Guerreiro', vida:59, cor:'#d9483b', inicial:'insignia', desc:'Força e bloqueio. Aguenta a pancada e devolve mais forte.'},
-  mago:     {nome:'Mago', vida:58, cor:'#3d8fb5', inicial:'grimorio', desc:'Junta mana e solta magias fortes de fogo e gelo.'},
+  mago:     {nome:'Mago', vida:56, cor:'#3d8fb5', inicial:'grimorio', desc:'Junta mana e solta magias fortes de fogo e gelo.'},
   ladino:   {nome:'Ladino', vida:48, cor:'#5aa84a', inicial:'kitVeneno', desc:'Golpes rápidos, veneno e esquiva. Vence pelo cansaço.'},
   // classes de ofício (ferramentas de artesão): a ferramenta inicial trabalha os itens encostados nela a cada rodada (oficio em 04-corrida.js)
   ferreiro:  {nome:'Ferreiro', vida:55, cor:'#c8783a', inicial:'bigorna', oficio:true, desc:'A Bigorna tempera as armas e armaduras de metal encostadas, rodada após rodada.'},
   herbalista:{nome:'Herbalista', vida:57, cor:'#4fae6a', inicial:'kitHerbal', oficio:true, desc:'As ervas encostadas no Kit criam brotos e ficam mais fortes a cada rodada.'},
   alquimista:{nome:'Alquimista', vida:57, cor:'#d8603a', inicial:'kitAlquimia', oficio:true, desc:'O Kit de Alquimia fabrica um frasco instável a cada rodada: fogo, gelo ou ácido.'},
   coureiro:  {nome:'Coureiro', vida:60, cor:'#a0703a', inicial:'ferramentasCouro', oficio:true, desc:'As Ferramentas de Couro costuram as bolsas: itens dentro de bolsa costurada ficam mais fortes.'},
-  joalheiro: {nome:'Joalheiro', vida:61, cor:'#7a9ad8', inicial:'lupa', oficio:true, desc:'A Lupa lapida as gemas encostadas; gemas dão bônus às armas vizinhas, mais a cada lapidação.'},
+  joalheiro: {nome:'Joalheiro', vida:63, cor:'#7a9ad8', inicial:'lupa', oficio:true, desc:'A Lupa lapida as gemas encostadas; gemas dão bônus às armas vizinhas, mais a cada lapidação.'},
+  inventor:  {nome:'Inventor', vida:54, cor:'#8aa0b0', inicial:'bancadaInventor', oficio:true, desc:'A Bancada aprimora as engenhocas encostadas: elas atacam sozinhas, sem gastar vigor, e ficam mais rápidas.'},
+  cervejeiro:{nome:'Cervejeiro', vida:62, cor:'#c89a3a', inicial:'barril', oficio:true, desc:'O Barril fermenta as bebidas encostadas: mais fortes a cada rodada, mas cada gole dá ressaca.'},
   cozinheiro:{nome:'Cozinheiro', vida:64, cor:'#e0a040', inicial:'panela', oficio:true, desc:'A comida encostada na Panela vira um prato melhor depois de 2 rodadas.'},
 };
 // experiência total para chegar a cada nível (o índice 0 é o nível 1); depois do 10, cada estrela de prestígio custa mais XP_ESTRELA
@@ -252,6 +254,38 @@ const ITENS = [
   I('cetro', 'Cetro de Joias', {classe:'joalheiro', nivel:7, rar:'epica', tipo:'arma', forma:['#', '#', '#'], arte:'raio', cd:2.2, custo:2, dano:[7, 11], viz:{modo:'recebe', alvo:{tag:'gema'}, bonus:{dano:1}}, texto:'+1 de dano para cada gema vizinha.'}),
   I('coroaJoias', 'Coroa de Joias', {classe:'joalheiro', nivel:9, rar:'lendaria', forma:['##'], arte:'coroa', uso:'passivo', oficio:'lapida', inicio:{vida:8}, viz:{modo:'da', alvo:{tag:'gema'}, bonus:{}}, texto:'Lapida como a Lupa, e a lapidação de toda a mochila vai até 5. +8 de vida.'}),
 
+  // ---- Inventor: aprimoramento (cada nível: a engenhoca age 15% mais rápido, até 3) ----
+  I('bancadaInventor', 'Bancada de Funileiro', {classe:'inventor', forma:['##'], arte:'ferramenta', tags:['metal'], inicial:true, preco:0, uso:'passivo', oficio:'aprimora', viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{}}, texto:'A cada rodada, aprimora a engenhoca encostada menos aprimorada (até 3 vezes cada): ela age 15% mais rápido.'}),
+  I('catapultinha', 'Catapultinha', {classe:'inventor', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['engenhoca'], uso:'ativo', cd:2.5, ao:{dano:3}, texto:'Engenhoca: dispara sozinha, 3 de dano a cada 2,5 s.'}),
+  I('torreta', 'Torreta de Molas', {classe:'inventor', rar:'incomum', tipo:'arma', forma:['#'], arte:'alvo', tags:['engenhoca', 'metal'], uso:'ativo', cd:2, ao:{dano:3}, viz:{modo:'recebe', alvo:{tag:'metal'}, bonus:{aoMais:{dano:1}}}, texto:'Engenhoca: 3 de dano a cada 2 s, +1 para cada item de metal vizinho.'}),
+  I('automato', 'Autômato', {classe:'inventor', rar:'rara', tipo:'arma', forma:['##', '##'], arte:'escudo', tags:['engenhoca', 'metal'], uso:'ativo', cd:3, ao:{dano:5, bloqueio:3}, texto:'Engenhoca: a cada 3 s, 5 de dano e 3 de bloqueio.'}),
+  I('canhaoVapor', 'Canhão a Vapor', {classe:'inventor', rar:'epica', tipo:'arma', forma:['##', '#.'], arte:'bomba', tags:['engenhoca', 'metal', 'fogo'], uso:'ativo', cd:3.5, ao:{dano:10, queimar:1}, texto:'Engenhoca: a cada 3,5 s, 10 de dano e queima 1.'}),
+  I('golem', 'Golem de Engrenagens', {classe:'inventor', rar:'lendaria', tipo:'arma', forma:['##', '##', '##'], arte:'escudo', tags:['engenhoca', 'metal'], uso:'ativo', cd:3, ao:{dano:8, bloqueio:6}, inicio:{vida:10}, texto:'Engenhoca: a cada 3 s, 8 de dano e 6 de bloqueio. +10 de vida.'}),
+  I('chaveInglesa', 'Chave Inglesa', {classe:'inventor', nivel:2, forma:['#', '#'], arte:'ferramenta', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{cd:.05}}, texto:'Encostada na Bancada, aprimora mais uma vez nas rodadas pares. Engenhocas vizinhas 5% mais rápidas.'}),
+  I('mola', 'Mola Reforçada', {classe:'inventor', nivel:3, rar:'incomum', forma:['#'], arte:'vento', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{cd:.15}}, texto:'Engenhocas vizinhas agem 15% mais rápido.'}),
+  I('bateria', 'Bateria de Raios', {classe:'inventor', nivel:4, rar:'rara', forma:['#'], arte:'raio', tags:['metal'], uso:'passivo', viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{aoMais:{dano:2}}}, texto:'Engenhocas vizinhas causam +2 de dano.'}),
+  I('armadilha', 'Armadilha de Molas', {classe:'inventor', nivel:5, rar:'incomum', tipo:'arma', forma:['#'], arte:'alvo', tags:['engenhoca', 'metal'], uso:'gatilho', quando:'tempo', t:1, ao:{dano:5, atordoar:.8}, texto:'Uma vez: depois de 1 s, 5 de dano e atordoa o inimigo por 0,8 s.'}),
+  I('escudoMecanico', 'Escudo Mecânico', {classe:'inventor', nivel:5, rar:'incomum', tipo:'escudo', forma:['##'], arte:'escudo', tags:['engenhoca', 'metal'], cd:4, ao:{bloqueio:6}, texto:'Engenhoca: ganha 6 de bloqueio a cada 4 s.'}),
+  I('lancaChamas', 'Lança-Chamas', {classe:'inventor', nivel:6, rar:'epica', tipo:'arma', forma:['#', '#'], arte:'chama', tags:['engenhoca', 'metal', 'fogo'], uso:'ativo', cd:2, ao:{dano:2, queimar:3}, texto:'Engenhoca: a cada 2 s, 2 de dano e queima 3.'}),
+  I('drone', 'Drone Batedor', {classe:'inventor', nivel:7, rar:'epica', tipo:'arma', forma:['#'], arte:'olho', tags:['engenhoca', 'metal'], uso:'ativo', cd:1.5, ao:{dano:3}, texto:'Engenhoca: 3 de dano a cada 1,5 s.'}),
+  I('oficinaMestre', 'Oficina do Mestre', {classe:'inventor', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'ferramenta', tags:['metal'], uso:'passivo', oficio:'aprimora', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'engenhoca'}, bonus:{}}, texto:'Aprimora como a Bancada, e o aprimoramento de toda a mochila vai até 5. Começa com 6 de bloqueio.'}),
+
+  // ---- Cervejeiro: fermentação (cada nível: +20% no efeito da bebida, até 5; cada gole dá ressaca) ----
+  I('barril', 'Barril', {classe:'cervejeiro', forma:['##', '##'], arte:'xicara', inicial:true, preco:0, uso:'passivo', oficio:'fermenta', viz:{modo:'da', alvo:{tag:'bebida'}, bonus:{}}, texto:'A cada rodada, as bebidas encostadas fermentam (até 5 vezes): +20% no efeito por fermentação.'}),
+  I('caneca', 'Caneca de Cerveja', {classe:'cervejeiro', tipo:'pocao', forma:['#'], arte:'xicara', tags:['bebida'], cd:4, ao:{forca:1, cura:2, ressaca:1}, texto:'A cada 4 s: 1 de força e cura 2. Ressaca: 1 de dano em você.'}),
+  I('hidromel', 'Hidromel', {classe:'cervejeiro', rar:'incomum', tipo:'pocao', forma:['#'], arte:'frasco', tags:['bebida'], cd:4, ao:{cura:3, regen:1}, texto:'A cada 4 s: cura 3 e soma 1 de regeneração.'}),
+  I('aguardente', 'Aguardente', {classe:'cervejeiro', rar:'rara', tipo:'pocao', forma:['#'], arte:'frasco', tags:['bebida', 'fogo'], cd:5, ao:{forca:2, ressaca:2}, texto:'A cada 5 s: 2 de força. Ressaca: 2 de dano em você.'}),
+  I('cervejaDragao', 'Cerveja de Dragão', {classe:'cervejeiro', rar:'epica', tipo:'pocao', forma:['#', '#'], arte:'chama', tags:['bebida', 'fogo'], cd:4, ao:{queimar:3, forca:1, ressaca:1}, texto:'A cada 4 s: queima o inimigo em 3 e 1 de força. Ressaca: 1.'}),
+  I('elixirFuria', 'Elixir da Fúria', {classe:'cervejeiro', rar:'lendaria', tipo:'pocao', forma:['#'], arte:'frasco', tags:['bebida'], uso:'gatilho', quando:'vidaBaixa', ao:{forca:4, cura:12}, texto:'Uma vez: com a vida abaixo da metade, 4 de força e cura 12.'}),
+  I('canecao', 'Canecão de Ferro', {classe:'cervejeiro', nivel:2, tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], cd:2, custo:2, dano:[5, 7], acerto:{cura:1}, texto:'Pesado. Cada acerto cura 1.'}),
+  I('lupulo', 'Lúpulo', {classe:'cervejeiro', nivel:3, rar:'incomum', forma:['#'], arte:'folha', uso:'passivo', viz:{modo:'da', alvo:{tag:'bebida'}, bonus:{cd:.2}}, texto:'Bebidas vizinhas agem 20% mais rápido.'}),
+  I('tonel', 'Tonel de Carvalho', {classe:'cervejeiro', nivel:4, rar:'rara', tipo:'bolsa', forma:['##', '##'], arte:'xicara', preco:7, dentro:{alvo:{tag:'bebida'}, bonus:{cd:.2}}, texto:'Abre 4 casas. Bebidas dentro dele agem 20% mais rápido.'}),
+  I('garrafada', 'Garrafada', {classe:'cervejeiro', nivel:5, rar:'incomum', tipo:'pocao', forma:['#'], arte:'bomba', tags:['bebida'], uso:'gatilho', quando:'tempo', t:3, ao:{dano:12}, texto:'Uma vez: depois de 3 s, arremessa a garrafa: 12 de dano.'}),
+  I('barrigaDura', 'Barriga Dura', {classe:'cervejeiro', nivel:5, rar:'incomum', tipo:'escudo', forma:['##'], arte:'escudo', uso:'passivo', inicio:{vida:16, bloqueio:3}, texto:'+16 de vida e começa com 3 de bloqueio.'}),
+  I('barrilRolante', 'Barril Rolante', {classe:'cervejeiro', nivel:6, rar:'epica', tipo:'arma', forma:['##', '##'], arte:'xicara', cd:3, custo:2, dano:[10, 14], acerto:{atordoar:.4}, texto:'Cada acerto atordoa o inimigo por 0,4 s.'}),
+  I('brindeGuerra', 'Brinde de Guerra', {classe:'cervejeiro', nivel:7, rar:'epica', tipo:'pocao', forma:['##'], arte:'xicara', tags:['bebida'], cd:5, ao:{forca:2, bloqueio:7}, texto:'A cada 5 s: 2 de força e 7 de bloqueio.'}),
+  I('cervejariaMestre', 'Cervejaria do Mestre', {classe:'cervejeiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'xicara', uso:'passivo', oficio:'fermenta', semRessaca:true, inicio:{vida:10}, viz:{modo:'da', alvo:{tag:'bebida'}, bonus:{}}, texto:'Fermenta como o Barril, e nenhuma bebida dá ressaca. +10 de vida.'}),
+
   // ---- fusões (não aparecem na loja: nascem de duas peças encostadas) ----
   I('laminaFogo', 'Lâmina Flamejante', {rar:'epica', tipo:'arma', forma:['#', '#'], arte:'chama', tags:['metal', 'fogo'], fusao:true, cd:1.6, custo:1, dano:[4, 6], acerto:{queimar:1}, texto:'Cada acerto queima 1.'}),
   I('escudoReforcado', 'Escudo Reforçado', {rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', tags:['metal'], fusao:true, cd:3, ao:{bloqueio:9}, texto:'Ganha 9 de bloqueio a cada 3 s.'}),
@@ -276,6 +310,10 @@ const ITENS = [
   I('couracaReforcada', 'Couraça Reforçada', {classe:'coureiro', rar:'lendaria', tipo:'escudo', forma:['##', '##'], arte:'escudo', fusao:true, uso:'passivo', inicio:{bloqueio:16, vida:10, espinhos:1}, texto:'Começa com 16 de bloqueio, +10 de vida e 1 de espinhos.'}),
   I('espadaJoias', 'Espada de Joias', {classe:'joalheiro', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], fusao:true, cd:1.6, custo:1, dano:[4, 7], crit:.15, acerto:{queimar:1}, texto:'15% de crítico. Cada acerto queima 1.'}),
   I('pedraPrisma', 'Pedra Prisma', {classe:'joalheiro', rar:'lendaria', forma:['#'], arte:'brilho', tags:['gema', 'fogo', 'gelo'], fusao:true, uso:'passivo', viz:{modo:'da', alvo:{tipo:'arma'}, bonus:{dano:1, acerto:{queimar:1, gelo:1}}}, texto:'Armas vizinhas: +1 de dano, queimam 1 e dão 1 de gelo ao acertar.'}),
+  I('morteiro', 'Morteiro', {classe:'inventor', rar:'epica', tipo:'arma', forma:['#', '#'], arte:'bomba', tags:['engenhoca', 'metal', 'fogo'], fusao:true, uso:'ativo', cd:3.5, ao:{dano:12}, texto:'Engenhoca: 12 de dano a cada 3,5 s.'}),
+  I('bastiao', 'Bastião Mecânico', {classe:'inventor', rar:'lendaria', tipo:'arma', forma:['##', '##'], arte:'escudo', tags:['engenhoca', 'metal'], fusao:true, uso:'ativo', cd:3, ao:{dano:5, bloqueio:6}, texto:'Engenhoca: a cada 3 s, 5 de dano e 6 de bloqueio.'}),
+  I('rodada', 'Rodada para Todos', {classe:'cervejeiro', rar:'epica', tipo:'pocao', forma:['#'], arte:'xicara', tags:['bebida'], fusao:true, cd:3, ao:{forca:1, cura:3, ressaca:1}, texto:'A cada 3 s: 1 de força e cura 3. Ressaca: 1.'}),
+  I('bafoDragao', 'Bafo de Dragão', {classe:'cervejeiro', rar:'lendaria', tipo:'pocao', forma:['#'], arte:'chama', tags:['bebida', 'fogo'], fusao:true, cd:4, ao:{dano:6, queimar:4, ressaca:1}, texto:'A cada 4 s: 6 de dano e queima 4. Ressaca: 1.'}),
   I('macaCravejada', 'Maça Cravejada', {rar:'rara', tipo:'arma', forma:['#', '#'], arte:'martelo', tags:['metal'], fusao:true, cd:2, custo:2, dano:[5, 8], acerto:{perfura:2}, texto:'Atravessa 2 de bloqueio.'}),
 ];
 const ITEM = {}; for(const it of ITENS){ if(it.classe && !it.nivel) it.nivel = 1; it.preco = it.preco != null ? it.preco : RARIDADES[it.rar].preco; it.uso = it.uso || (it.tipo === 'bolsa' ? 'bolsa' : it.tipo === 'arma' ? 'arma' : 'ativo'); ITEM[it.id] = it; }
@@ -293,5 +331,7 @@ const RECEITAS = [
   ['polvora', 'bomba', 'barrilPolvora', 6], ['acido', 'frascoVeneno', 'acidoReal', 8],
   ['agulhao', 'amolar', 'sovela', 6], ['gibao', 'escudoMadeira', 'couracaReforcada', 8],
   ['quartzo', 'espadaCurta', 'espadaJoias', 6], ['rubi', 'safira', 'pedraPrisma', 8],
+  ['catapultinha', 'bomba', 'morteiro', 6], ['torreta', 'escudoFerro', 'bastiao', 8],
+  ['caneca', 'hidromel', 'rodada', 6], ['aguardente', 'pedraFogo', 'bafoDragao', 8],
 ];
-const VERSAO_REGRAS = 6;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
+const VERSAO_REGRAS = 7;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas

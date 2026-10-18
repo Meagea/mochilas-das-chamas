@@ -242,3 +242,4 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
 .item-loja[data-rar="epica"]{ box-shadow:0 0 14px color-mix(in srgb, var(--rar) 55%, transparent); }
 .item-loja[data-rar="lendaria"]{ box-shadow:0 0 18px color-mix(in srgb, var(--rar) 70%, transparent); animation:lendaLoja 2.4s ease-in-out infinite; }
 @keyframes lendaLoja{ 50%{ box-shadow:0 0 28px color-mix(in srgb, var(--rar) 90%, transparent); } }
+.ofp.ap{ background:#22303a; color:#b8d0e0; border:1px solid #8aa0b0; } .ofp.fm{ background:#3a2c10; color:#f0c870; border:1px solid #c89a3a; }

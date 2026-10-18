@@ -49,7 +49,7 @@ function pecaHtml(p, tam, extra){
   const casas = f.casas.map(([x, y]) => `<i style="left:${x * tam}px;top:${y * tam}px;width:${tam}px;height:${tam}px"></i>`).join('');
   const lado = Math.min(f.w, f.h) * tam * (bolsa ? .5 : .82);
   return `<div class="peca${bolsa ? ' bolsa' : ''}${extra || ''}" data-uid="${p.uid}" data-rar="${d.rar}" style="--rar:${raridade(p.id).cor};width:${f.w * tam}px;height:${f.h * tam}px">${casas}
-    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.lapida > 0 ? `<b class="ofp lp">L${p.lapida}</b>` : p.costura > 0 ? `<b class="ofp cs">C${p.costura}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
+    <span class="pic" style="width:${lado}px;height:${lado}px">${iconeItem(p.id)}</span>${p.n > 0 ? `<b class="nvp">${p.n}</b>` : ''}${p.tempera > 0 ? `<b class="ofp tp">T${p.tempera}</b>` : p.lapida > 0 ? `<b class="ofp lp">L${p.lapida}</b>` : p.engrenagem > 0 ? `<b class="ofp ap">A${p.engrenagem}</b>` : p.fermento > 0 ? `<b class="ofp fm">F${p.fermento}</b>` : p.costura > 0 ? `<b class="ofp cs">C${p.costura}</b>` : p.brotos > 0 ? `<b class="ofp br">${p.brotos}</b>` : p.prato ? '<b class="ofp pr">Prato</b>' : p.cozido ? '<b class="ofp cz">…</b>' : ''}</div>`;
 }
 const pips = (n, total, classe) => Array.from({length:total}, (_, i) => `<i class="${classe}${i < n ? ' on' : ''}"></i>`).join('');
 function linhaNumeros(id, s){

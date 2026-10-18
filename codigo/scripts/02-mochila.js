@@ -122,6 +122,8 @@ function oficioNumeros(m, p, s){
     else if(s.ao && s.ao.bloqueio) s.ao = Object.assign({}, s.ao, {bloqueio:s.ao.bloqueio + BLOQ_TEMPERA * p.tempera});
     else s.inicio = Object.assign({}, s.inicio, {bloqueio:((s.inicio && s.inicio.bloqueio) || 0) + BLOQ_TEMPERA * p.tempera}); }
   if(p.brotos > 0) escalarPor(s, 1 + .25 * p.brotos);
+  if(p.engrenagem > 0) s.rapidez += .15 * p.engrenagem;   // aprimoramento (Inventor)
+  if(p.fermento > 0) escalarPor(s, 1 + .2 * p.fermento);  // fermentação (Cervejeiro)
   // costura (Coureiro): o item dentro de uma bolsa costurada fica 20% mais forte por costura
   const costura = Math.max(0, ...m.pecas.filter(b => ehBolsa(b) && b.costura > 0 && carregadas(m, b).includes(p)).map(b => b.costura));
   if(costura > 0) escalarPor(s, 1 + .2 * costura);
@@ -158,12 +160,12 @@ function fundir(m, nivel){
 // ---- foto da mochila (o que vai para o servidor e volta como adversário) ----
 // a foto leva também o que o ofício fez na peça (têmpera, brotos, cozimento)
 const fotoMochila = m => m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => { const f = {id:p.id, x:p.x, y:p.y, g:p.g};
-  for(const k of ['n', 'tempera', 'brotos', 'cozido', 'costura', 'lapida']) if(p[k] > 0) f[k] = p[k]; if(p.prato) f.prato = 1; return f; });
+  for(const k of ['n', 'tempera', 'brotos', 'cozido', 'costura', 'lapida', 'engrenagem', 'fermento']) if(p[k] > 0) f[k] = p[k]; if(p.prato) f.prato = 1; return f; });
 function deFoto(L){
   const m = {pecas:[], bancada:[]};
   for(const f of L || []) if(ITEM[f.id] && Number.isInteger(f.x) && Number.isInteger(f.y)){ const p = peca(f.id, 0, 0, 0, Number(f.n) || 0);
     const lim = (v, mx) => Math.max(0, Math.min(mx, Number(v) || 0) | 0);
-    if(f.tempera) p.tempera = lim(f.tempera, 5); if(f.brotos) p.brotos = lim(f.brotos, 5); if(f.cozido) p.cozido = lim(f.cozido, 3); if(f.costura && ITEM[f.id].tipo === 'bolsa') p.costura = lim(f.costura, 5); if(f.lapida) p.lapida = lim(f.lapida, 5); if(f.prato && ITEM[f.id].tipo === 'comida') p.prato = true;
+    if(f.tempera) p.tempera = lim(f.tempera, 5); if(f.brotos) p.brotos = lim(f.brotos, 5); if(f.cozido) p.cozido = lim(f.cozido, 3); if(f.costura && ITEM[f.id].tipo === 'bolsa') p.costura = lim(f.costura, 5); if(f.lapida) p.lapida = lim(f.lapida, 5); if(f.engrenagem) p.engrenagem = lim(f.engrenagem, 5); if(f.fermento) p.fermento = lim(f.fermento, 5); if(f.prato && ITEM[f.id].tipo === 'comida') p.prato = true;
     por(m, p, f.x, f.y, (f.g || 0) & 3); }
   return m;
 }

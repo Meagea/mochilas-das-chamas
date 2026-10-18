@@ -81,6 +81,16 @@ function oficio(m, rodada){
     const panelas = vizinhos(m, p).filter(q => ITEM[q.id].oficio === 'cozinha'); if(!panelas.length) continue;
     p.cozido = (p.cozido || 0) + 1;
     if(p.cozido >= (livro || panelas.some(q => ITEM[q.id].rapido) ? 1 : 2)){ p.prato = true; msgs.push(`${ITEM[p.id].nome} virou prato`); } }
+  // aprimoramento (Bancada, Oficina): a engenhoca encostada menos aprimorada, até 3 (5 com a Oficina); a Chave Inglesa aprimora mais uma nas pares
+  const maxE = tem('oficinaMestre') ? 5 : 3;
+  for(const b of naoBolsa.filter(p => ITEM[p.id].oficio === 'aprimora')){
+    const vezes = 1 + (vizinhos(m, b).some(q => q.id === 'chaveInglesa') && !((rodada || 0) % 2) ? 1 : 0);
+    for(let i = 0; i < vezes; i++){
+      const e = vizinhos(m, b).filter(q => ITEM[q.id].tags.includes('engenhoca') && (q.engrenagem || 0) < maxE).sort((x, y) => (x.engrenagem || 0) - (y.engrenagem || 0))[0];
+      if(e){ e.engrenagem = (e.engrenagem || 0) + 1; msgs.push(`${ITEM[e.id].nome}: aprimorado ${e.engrenagem}`); } } }
+  // fermentação (Barril, Cervejaria): cada bebida encostada, até 5
+  for(const p of naoBolsa.filter(q => ITEM[q.id].tags.includes('bebida') && (q.fermento || 0) < 5)){
+    if(vizinhos(m, p).some(q => ITEM[q.id].oficio === 'fermenta')){ p.fermento = (p.fermento || 0) + 1; msgs.push(`${ITEM[p.id].nome}: fermentação ${p.fermento}`); } }
   // transmutação (Kit de Alquimia, Atanor): um frasco instável por ofício, numa casa livre (sem casa: na bancada); o Funil dá mais um nas pares
   const frascos = () => m.pecas.concat(m.bancada || []).filter(q => ITEM[q.id].gerado).length, maxF = tem('atanor') ? 5 : 3;
   for(const k of naoBolsa.filter(p => ITEM[p.id].oficio === 'alquimia')){
@@ -118,7 +128,7 @@ function valorItem(id, m, classe){
   if(it.tipo === 'bolsa') v -= 1;
   // cada ofício valoriza o que a sua ferramenta trabalha
   const of = CLASSES[classe] && CLASSES[classe].oficio;
-  if(of && ((classe === 'ferreiro' && it.tags.includes('metal') && ['arma', 'escudo'].includes(it.tipo)) || (classe === 'herbalista' && ERVA(it)) || (classe === 'cozinheiro' && it.tipo === 'comida') || (classe === 'alquimista' && it.tags.includes('frasco')) || (classe === 'coureiro' && it.tipo === 'bolsa') || (classe === 'joalheiro' && (it.tags.includes('gema') || it.tipo === 'arma')))) v += 2;
+  if(of && ((classe === 'ferreiro' && it.tags.includes('metal') && ['arma', 'escudo'].includes(it.tipo)) || (classe === 'herbalista' && ERVA(it)) || (classe === 'cozinheiro' && it.tipo === 'comida') || (classe === 'alquimista' && it.tags.includes('frasco')) || (classe === 'coureiro' && it.tipo === 'bolsa') || (classe === 'joalheiro' && (it.tags.includes('gema') || it.tipo === 'arma')) || (classe === 'inventor' && it.tags.includes('engenhoca')) || (classe === 'cervejeiro' && it.tags.includes('bebida')))) v += 2;
   // item que só ajuda os vizinhos vale pouco sem ninguém para ajudar
   if(it.viz && it.viz.modo === 'da' && !fere(it) && !m.pecas.some(p => combina(ITEM[p.id], it.viz.alvo))) v -= 3;
   return v;

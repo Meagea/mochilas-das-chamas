@@ -73,6 +73,19 @@ const DESC = {
   adagaCravejada:'a dagger with a hilt encrusted with colorful gems', cetro:'a royal scepter topped with a large jewel', coroaJoias:'a jeweled crown encrusted with many colorful gems',
   espadaJoias:'a short sword with a jeweled hilt and a glowing ruby', pedraPrisma:'a glowing rainbow prism gemstone splitting light into colors',
   barrilPolvora:'a small wooden powder keg with a lit fuse', acidoReal:'a royal flask of glowing aqua regia acid with a golden crown stopper',
+  // classes de ofício, Onda 3
+  bancadaInventor:'a tinker workbench with gears, springs, screwdrivers and a small vise', catapultinha:'a tiny wooden clockwork catapult with brass gears', torreta:'a small brass spring-loaded turret with a crank',
+  automato:'a cute small brass clockwork automaton robot with glowing eyes', canhaoVapor:'a brass steam cannon with pipes and a puff of steam', golem:'a large clockwork golem made of brass gears and iron plates with glowing core',
+  chaveInglesa:'a big steel adjustable wrench', mola:'a heavy reinforced steel coil spring', bateria:'a brass lightning battery jar with blue electric sparks',
+  armadilha:'a steel bear-trap style spring trap with gears', escudoMecanico:'a mechanical shield with rotating brass gears', lancaChamas:'a brass flamethrower nozzle with a fuel tank and fire',
+  drone:'a small flying brass clockwork drone with propellers and a lens eye', oficinaMestre:'a master inventor workshop desk with blueprints, gears and tools', morteiro:'a small brass mortar cannon with a smoking shell',
+  bastiao:'a fortified mechanical turret tower with brass armor plates',
+  barril:'a big oak beer barrel with a brass tap', caneca:'a wooden beer mug overflowing with foam', hidromel:'a bottle of golden honey mead',
+  aguardente:'a small bottle of strong clear spirit with a cork', cervejaDragao:'a mug of fiery red dragon beer with flames and foam', elixirFuria:'a fierce red elixir bottle with a boar skull stopper',
+  canecao:'a heavy iron tankard mug used as a club', lupulo:'a bunch of fresh green hop cones', tonel:'a wooden oak cask with iron hoops',
+  garrafada:'a thrown glass bottle flying with liquid splashing', barrigaDura:'a sturdy leather belly armor plate', barrilRolante:'a wooden barrel rolling with iron bands',
+  brindeGuerra:'two clinking beer mugs in a war toast with foam splashing', cervejariaMestre:'a master brewery with copper kettles, barrels and pipes', rodada:'a wooden tray with several foamy beer mugs',
+  bafoDragao:'a bottle of dragon breath liquor with fire bursting from the neck',
 };
 const temPintura = it => fs.existsSync(path.join(__dirname, '..', 'imagens', 'item-' + it.id + '.webp'));
 const BASE = 'Single fantasy game item painted in the same style as the reference image: stylized painterly rendering with realistic textures (wood grain, leather, polished metal, glass), warm cinematic lighting with a soft colored rim light, a few small magical glints, vibrant but harmonious colors, clean readable silhouette, the object centered and filling most of the frame, isolated on a flat pure magenta (#FF00FF) background, no shadow on the background, no text, no letters, no logo, no watermark.';
