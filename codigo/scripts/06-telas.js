@@ -167,7 +167,7 @@ function ligarTrilha(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar
 
 // ---- tela: loja com a mochila ----
 let TAM = 44;
-function medirCasa(){ const w = Math.min(window.innerWidth, 1100), larg = w > 900 ? Math.min(560, w - 420) : w - 24; TAM = Math.max(30, Math.min(58, Math.floor(larg / LARG))); }
+function medirCasa(){ const w = Math.min(window.innerWidth, 1280), larg = w > 900 ? Math.min(600, w - 560) : w - 44; TAM = Math.max(30, Math.min(58, Math.floor(larg / LARG))); }
 function hud(){
   const c = CLASSES[C.classe];
   return `<header class="hud">${retrato(C.classe) ? `<img class="rosto" src="${retrato(C.classe)}" alt="">` : ''}
@@ -176,27 +176,50 @@ function hud(){
     <span class="ouro">${ic('moeda')} <b>${C.ouro}</b></span>
     <button class="btn sm" id="btSair" title="Voltar ao lobby (a corrida fica guardada)">Sair</button></header>`;
 }
+// a loja entre as lutas: à esquerda a mochila dentro da moldura (toda a área até onde ela pode crescer),
+// à direita a vitrine em prateleiras e, embaixo, o personagem com vida, vitórias, ouro e o botão de lutar
 function telaLoja(){
   medirCasa();
-  const m = C.mochila, N = numeros(m), abertas = casasAbertas(m);
+  const m = C.mochila, N = numeros(m), abertas = casasAbertas(m), K = CLASSES[C.classe];
+  const ab = (x, y) => abertas.has(chave(x, y)), viz4 = [[0, -1, 'bt'], [1, 0, 'bd'], [0, 1, 'bb'], [-1, 0, 'be']];
   let grade = '';
-  for(let y = 0; y < ALT; y++) for(let x = 0; x < LARG; x++) grade += `<i class="casa${abertas.has(chave(x, y)) ? ' aberta' : ''}" style="left:${x * TAM}px;top:${y * TAM}px;width:${TAM}px;height:${TAM}px"></i>`;
+  for(let y = 0; y < ALT; y++) for(let x = 0; x < LARG; x++){
+    // casa aberta: contorno dourado nas bordas da área aberta; fechada encostada nela: dá para crescer até ali
+    const cls = ab(x, y) ? ' aberta' + viz4.filter(([dx, dy]) => !ab(x + dx, y + dy)).map(v => ' ' + v[2]).join('') : viz4.some(([dx, dy]) => ab(x + dx, y + dy)) ? ' pode' : '';
+    grade += `<i class="casa${cls}" style="left:${x * TAM}px;top:${y * TAM}px;width:${TAM}px;height:${TAM}px"></i>`; }
   const ligadas = sel && sel.onde === 'mochila' ? new Set(vizinhos(m, sel.p).map(q => q.uid)) : new Set();
   const pecas = m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => `<div class="posto" style="left:${p.x * TAM}px;top:${p.y * TAM}px">${pecaHtml(p, TAM, (sel && sel.p === p ? ' sel' : '') + (ligadas.has(p.uid) ? ' viz' : '') + (N[p.uid] && N[p.uid].recebeu.length ? ' turbinada' : ''))}</div>`).join('');
   const banc = m.bancada.map(p => `<div class="nabanc">${pecaHtml(p, Math.round(TAM * .62), sel && sel.p === p ? ' sel' : '')}</div>`).join('');
-  const loja = C.loja.map((id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
-      <span class="rar-tag">${raridade(id).nome}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><span class="preco">${ic('moeda')} ${ITEM[id].preco}</span></button>` : `<div class="item-loja vazio">vendido</div>`).join('');
-  return `<section class="loja-tela">${hud()}
-    <div class="area">
-      <div class="lado-mochila">
-        <div class="mochila" id="mochila" style="width:${LARG * TAM}px;height:${ALT * TAM}px">${grade}${pecas}<div class="previa" id="previa"></div></div>
+  const item = (id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
+      <span class="preco">${ITEM[id].preco}${ic('moeda')}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><small class="rar-nome">${raridade(id).nome}</small></button>` : `<div class="item-loja vazio">vendido</div>`;
+  const metade = Math.floor(C.loja.length / 2), L = lutador(m, C.classe, '');
+  return `<section class="loja-tela loja2" style="--cc:${K.cor}">
+    <div class="area2">
+      <div class="painel-mochila">
+        <div class="pm-cab"><b>Mochila</b><span>${abertas.size} de ${LARG * ALT} casas abertas</span></div>
+        <div class="moldura"><div class="mochila" id="mochila" style="width:${LARG * TAM}px;height:${ALT * TAM}px">${grade}${pecas}<div class="previa" id="previa"></div></div></div>
+        <p class="pm-dica">A moldura é até onde a mochila pode crescer. As marcas verdes mostram onde cabe uma bolsa nova.</p>
         <div class="bancada" id="bancada"><small>Bancada · não luta</small>${banc || '<span class="vaziob">Arraste para cá o que não couber</span>'}</div>
       </div>
-      <div class="lado-loja">
-        <div class="loja" id="loja"><div class="tit"><b>Loja</b><span>${C.loja.filter(Boolean).length} itens</span></div><div class="itens">${loja}</div>
-          <div class="venda" id="venda">Solte aqui para vender</div></div>
-        <div class="botoes"><button class="btn" id="btTrocar"${C.ouro < custoTroca(C.trocas) ? ' disabled' : ''}>Trocar vitrine<small>${ic('moeda')} ${custoTroca(C.trocas)}</small></button>
-          <button class="btn primario grande" id="btLutar">Lutar<small>rodada ${C.rodada}</small></button></div>
+      <div class="painel-direita">
+        <div class="vitrine loja" id="loja">
+          <div class="vt-topo"><button class="btn sm" id="btTrocar"${C.ouro < custoTroca(C.trocas) ? ' disabled' : ''}>Trocar vitrine · ${ic('moeda')} ${custoTroca(C.trocas)}</button><span class="vt-rodada">Rodada ${C.rodada}</span></div>
+          <div class="prateleira">${C.loja.slice(0, metade).map((id, k) => item(id, k)).join('')}</div>
+          <div class="prateleira">${C.loja.slice(metade).map((id, k) => item(id, k + metade)).join('')}</div>
+          <div class="venda" id="venda">Solte aqui para vender</div>
+        </div>
+        <div class="painel-heroi">
+          ${retrato(C.classe) ? `<img class="ph-rosto" src="${retrato(C.classe)}" alt="${K.nome}">` : ''}
+          <div class="ph-meio">
+            <div class="ph-nome"><b>${K.nome}</b><span class="vidas" title="Derrotas que ainda aguenta">${pips(VIDAS - C.derrotas, VIDAS, 'vida')}</span></div>
+            <div class="ph-barra vida-b"><i style="width:100%"></i><span>Vida ${L.max}</span></div>
+            <div class="ph-barra bloq-b"><i style="width:${Math.min(100, Math.round(L.bloq / Math.max(1, L.max) * 100))}%"></i><span>Bloqueio inicial ${L.bloq}</span></div>
+            <div class="ph-vit"><span class="pips">${pips(C.vitorias, VITORIAS_META, 'vit')}</span><small>${C.vitorias} de ${VITORIAS_META} vitórias</small></div>
+          </div>
+          <div class="ph-acoes"><span class="ouro">${ic('moeda')} <b>${C.ouro}</b></span>
+            <button class="btn primario grande" id="btLutar">Lutar<small>rodada ${C.rodada}</small></button>
+            <button class="btn sm" id="btSair" title="Voltar ao lobby (a corrida fica guardada)">Sair</button></div>
+        </div>
         <div class="info" id="info">${infoHtml(N)}</div>
       </div>
     </div></section>`;

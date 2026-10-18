@@ -307,3 +307,60 @@ body.arrastando.da-mochila .venda{ display:flex; opacity:.5; } body.arrastando.d
   .lb-heroi{ grid-template-columns:auto min(220px, 54vw) auto; }
   .lb-conta{ flex-direction:column; align-items:stretch; } .lb-conta .nome{ width:100%; } .lb-conta .nome input{ flex:1; }
 }
+
+/* ---------- Loja entre as lutas (v2): mochila na moldura à esquerda, vitrine em prateleiras e personagem à direita ---------- */
+.loja2 .area2{ display:grid; grid-template-columns:auto minmax(0, 520px); gap:16px; padding:14px; justify-content:center; align-items:start; }
+.painel-mochila, .painel-direita{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+.painel-mochila{ padding:12px; border-radius:18px; border:1px solid var(--borda2); background:linear-gradient(rgba(255,255,255,.03), rgba(255,255,255,0)), var(--painel); box-shadow:0 12px 32px rgba(0,0,0,.35); }
+.pm-cab{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+.pm-cab b{ font-family:var(--fonte-titulo); font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.06em; } .pm-cab span{ font-size:12px; font-weight:600; color:var(--suave); }
+.pm-dica{ margin:0; font-size:12px; color:var(--suave); }
+/* a moldura: toda a área até onde a mochila pode crescer */
+.moldura{ align-self:center; padding:7px; border-radius:14px; border:2px solid rgba(242,179,80,.35); background:repeating-linear-gradient(45deg, rgba(255,255,255,.015) 0 6px, transparent 6px 12px), #15131b;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.6), inset 0 6px 18px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04); }
+.loja2 .casa{ box-sizing:border-box; background:none; border:1px dashed rgba(255,255,255,.07); border-radius:5px; margin:0; }
+.loja2 .casa.pode{ border:1px dashed rgba(108,195,90,.45); background:radial-gradient(circle, rgba(108,195,90,.55) 0 2px, transparent 3px); }
+.loja2 .casa.aberta{ border:1px solid rgba(255,255,255,.05); border-radius:3px; background:linear-gradient(#2c2836, #221f2a); box-shadow:inset 0 2px 6px rgba(0,0,0,.45); }
+.loja2 .casa.aberta.bt{ border-top:2px solid var(--ambar); } .loja2 .casa.aberta.bd{ border-right:2px solid var(--ambar); }
+.loja2 .casa.aberta.bb{ border-bottom:2px solid var(--ambar); } .loja2 .casa.aberta.be{ border-left:2px solid var(--ambar); }
+body.arrastando .loja2 .casa.pode{ background:radial-gradient(circle, rgba(108,195,90,.9) 0 3px, transparent 4px); }
+/* vitrine: parede escura com um foco de luz e duas prateleiras de madeira */
+.vitrine{ position:relative; padding:12px 12px 16px; border-radius:18px; border:1px solid var(--borda2); overflow:hidden;
+  background:radial-gradient(ellipse 60% 55% at 50% 0%, rgba(255,214,150,.20), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 25px, rgba(0,0,0,.35) 25px 27px),
+    repeating-linear-gradient(90deg, transparent 0 52px, rgba(0,0,0,.25) 52px 54px), #221c1c; box-shadow:0 12px 32px rgba(0,0,0,.4); }
+.vt-topo{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px; }
+.vt-rodada{ font-family:var(--fonte-titulo); font-weight:800; font-size:16px; text-transform:uppercase; letter-spacing:.06em; color:var(--suave); }
+.prateleira{ position:relative; display:flex; justify-content:center; align-items:flex-end; gap:10px; padding:14px 6px 16px; }
+.prateleira::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:14px; border-radius:3px;
+  background:linear-gradient(#8a5a32, #5a371c 60%, #3a2211); box-shadow:0 8px 14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,220,170,.35); }
+.loja2 .item-loja{ position:relative; z-index:1; width:96px; min-height:0; padding:4px 2px 6px; gap:2px; border:none; border-radius:10px; background:none; box-shadow:none; }
+.loja2 .item-loja::after{ display:none; }
+.loja2 .item-loja .preco{ order:-1; font-size:17px; } .loja2 .item-loja .preco img.ic{ width:15px; height:15px; }
+.loja2 .item-loja .pic{ width:58px; height:58px; filter:drop-shadow(0 6px 5px rgba(0,0,0,.7)) drop-shadow(0 0 10px color-mix(in srgb, var(--rar) 55%, transparent)); transition:transform .15s; }
+.loja2 .item-loja:hover .pic{ transform:translateY(-3px) scale(1.06); }
+.loja2 .item-loja b{ font-size:11.5px; color:color-mix(in srgb, var(--rar) 45%, #fff); min-height:2.3em; }
+.loja2 .item-loja .rar-nome{ font-size:10px; font-weight:600; color:var(--suave); text-transform:uppercase; letter-spacing:.06em; }
+.loja2 .item-loja.sel{ background:rgba(242,179,80,.12); box-shadow:0 0 0 2px var(--ambar); }
+.loja2 .item-loja.vazio{ width:96px; height:110px; border:1px dashed rgba(255,255,255,.12); }
+.loja2 .item-loja .rar-tag{ display:none; }
+/* personagem: retrato, vida, bloqueio, vitórias, ouro e o botão de lutar */
+.painel-heroi{ display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:12px; border-radius:18px; border:1px solid var(--borda2);
+  background:linear-gradient(90deg, color-mix(in srgb, var(--cc) 14%, transparent), transparent 60%), var(--painel); }
+.ph-rosto{ width:78px; height:78px; border-radius:14px; object-fit:cover; object-position:50% 20%; border:2px solid color-mix(in srgb, var(--cc) 60%, transparent); }
+.ph-meio{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.ph-nome{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.ph-nome b{ font-family:var(--fonte-titulo); font-weight:800; font-size:19px; text-transform:uppercase; letter-spacing:.03em; }
+.ph-barra{ position:relative; height:18px; border-radius:6px; background:#1a1619; border:1px solid rgba(0,0,0,.6); overflow:hidden; }
+.ph-barra i{ position:absolute; left:0; top:0; bottom:0; } .vida-b i{ background:linear-gradient(#e5533f, #a32a1e); } .bloq-b i{ background:linear-gradient(#e8c25a, #a8801f); }
+.ph-barra span{ position:relative; display:block; text-align:center; font-size:11.5px; font-weight:700; line-height:16px; text-shadow:0 1px 2px #000; }
+.ph-vit{ display:flex; align-items:center; gap:8px; } .ph-vit small{ font-size:11.5px; font-weight:600; color:var(--suave); }
+.ph-acoes{ display:flex; flex-direction:column; align-items:stretch; gap:6px; } .ph-acoes .ouro{ justify-content:center; }
+@media (max-width:900px){
+  .loja2 .area2{ grid-template-columns:minmax(0, 1fr); padding:10px; }
+  .loja2 .item-loja{ width:30%; } .prateleira{ gap:4px; }
+  .painel-heroi{ grid-template-columns:auto 1fr; } .ph-acoes{ grid-column:1 / -1; flex-direction:row; align-items:center; } .ph-acoes .btn.grande{ flex:1; }
+  .ph-rosto{ width:62px; height:62px; }
+}
+.vt-topo .btn{ white-space:nowrap; display:inline-flex; align-items:center; gap:4px; } .vt-topo .btn img.ic{ width:15px; height:15px; }
+.vt-topo .btn{ flex-direction:row !important; }
