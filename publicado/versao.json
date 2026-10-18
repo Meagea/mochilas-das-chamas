@@ -1,6 +1,6 @@
 {
- "versao": 19,
- "tamanho": 12864660,
- "sha256": "6b58cda4b8d8eb8fa387bed3b6a7f2fbdd5a05f2018293767c9a9f27890a03b7",
- "resumo": "Equilibrio do nivel 1 (Alquimista e Coureiro) e capturas novas da loja"
+ "versao": 20,
+ "tamanho": 12865158,
+ "sha256": "f25f5cf70a27f8438c2089dae28313adc5e306829ec781765f8c4f92796171db",
+ "resumo": "Equilibrio geral: todas as classes perto de 50% nos niveis 1, 5 e 10"
 }

@@ -64,7 +64,7 @@ function fecharRodada(venceu, adversario){
 function oficio(m, rodada){
   const msgs = [], tem = id => m.pecas.some(p => p.id === id), naoBolsa = m.pecas.filter(p => !ehBolsa(p));
   // têmpera (Bigorna): a peça de metal mais fraca encostada; a Tenaz encostada tempera mais uma nas rodadas pares
-  const maxT = tem('bigornaAncestral') ? 4 : 3;
+  const maxT = 3;
   for(const b of naoBolsa.filter(p => ITEM[p.id].oficio === 'tempera')){
     const vezes = 1 + ((ITEM[b.id].mestre || vizinhos(m, b).some(q => q.id === 'tenaz')) && !((rodada || 0) % 2) ? 1 : 0);   // Tenaz: mais um nas rodadas pares
     for(let i = 0; i < vezes; i++){

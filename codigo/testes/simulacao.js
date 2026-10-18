@@ -120,7 +120,7 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
     confere(d.length >= 2 && d[0].crit && d[1].crit, 'Arco do Caçador: 2 primeiros golpes críticos'); }
   { const r = t.lutar(so(['ferrao'], 'ladino'), 'ladino', 'A', alvo, 'mago', 'B', 9); const crit = r.eventos.findIndex(e => e.tipo === 'dano' && e.lado === 1 && e.crit);
     confere(crit >= 0 && r.eventos.slice(crit, crit + 4).filter(e => e.tipo === 'veneno' && e.lado === 1).length >= 2, 'Ferrão: crítico envenena a mais'); }
-  { const r = t.lutar(so(['coroaInverno'], 'mago'), 'mago', 'A', alvo, 'mago', 'B', 5); confere(r.eventos[0].foto[1].gelo === 5, 'Coroa do Inverno começa com 5 de gelo no inimigo'); }
+  { const r = t.lutar(so(['coroaInverno'], 'mago'), 'mago', 'A', alvo, 'mago', 'B', 5); confere(r.eventos[0].foto[1].gelo === 7, 'Coroa do Inverno começa com 7 de gelo no inimigo'); }
   { const L = t.lutar(so(['pancaBlindada'], 'cervejeiro'), 'cervejeiro', 'A', alvo, 'mago', 'B', 5); confere(L.eventos[0].foto[0].regen === 1 && L.lados[0].max === t.CLASSES.cervejeiro.vida + 22, 'Pança Blindada: vida e regeneração no começo'); }
   { const m = so(['colarReal'], 'joalheiro'), c = m.pecas.find(p => p.id === 'colarReal'), g = t.peca('quartzo');
     for(let y = 0; y < 7; y++) for(let x = 0; x < 9; x++) if(!m.pecas.includes(g) && t.podePor(m, 'quartzo', 0, x, y)){ t.por(m, g, x, y, 0); if(!t.vizinhos(m, g).includes(c)) m.pecas = m.pecas.filter(p => p !== g); }
@@ -136,7 +136,7 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
   // Kit (3,2 e 3,3): sálvia encostada ganha brotos; poção encostada funciona duas vezes
   { const m = base('herbalista'), s = t.peca('salvia'), p = t.peca('pocaoCura'); t.por(m, s, 4, 2, 0); t.por(m, p, 4, 3, 0);
     t.oficio(m); t.oficio(m); confere(s.brotos === 2, 'sálvia com 2 brotos (' + s.brotos + ')');
-    const n = t.numeros(m); confere(n[s.uid].ao.cura === 3 && n[p.uid].usos === 2, 'brotos aumentam a cura e a poção no kit tem 2 usos'); }
+    const n = t.numeros(m); confere(n[s.uid].ao.cura === 5 && n[p.uid].usos === 2, 'brotos aumentam a cura e a poção no kit tem 2 usos'); }
   // Panela (3,2 até 4,3): maçã vira prato em 2 rodadas
   { const m = base('cozinheiro'), a = t.peca('maca'); t.por(m, a, 5, 2, 0); t.oficio(m); confere(!a.prato && a.cozido === 1, 'maçã cozinhando');
     t.oficio(m); confere(a.prato, 'maçã virou prato'); const n = t.numeros(m); confere(n[a.uid].ao.cura >= 3 && n[a.uid].inicio.vida === 4, 'prato cura mais e dá vida'); }

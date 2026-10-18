@@ -22,11 +22,12 @@ function aplicarInicio(L, ini){
   if(ini.raiva) L.raiva = L.raiva ? Math.min(L.raiva, ini.raiva) : ini.raiva;
   for(const k of ['bloq', 'forca', 'esquiva', 'mana', 'espinhos', 'vigor', 'regen']) { const de = k === 'bloq' ? 'bloqueio' : k; if(ini[de]) L[k] += ini[de]; }
 }
-function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem){
+// rapido: não guarda o passo a passo (para o simulador de equilíbrio); o resultado é o mesmo
+function lutar(mA, classeA, nomeA, mB, classeB, nomeB, sem, rapido){
   const r = semente(sem), A = lutador(mA, classeA, nomeA), B = lutador(mB, classeB, nomeB), ev = [];
   let t = 0, fim = null, cansaco = 0;
   const foto = () => [A, B].map(L => ({vida:Math.max(0, Math.round(L.vida)), max:L.max, bloq:L.bloq, vigor:Math.floor(L.vigor), forca:L.forca, queima:L.queima, veneno:L.veneno, regen:L.regen, esquiva:L.esquiva, gelo:L.gelo, espinhos:L.espinhos, mana:L.mana}));
-  const marca = (lado, tipo, o) => ev.push(Object.assign({t:Math.round(t * 100) / 100, lado, tipo}, o, {foto:foto()}));
+  const marca = (lado, tipo, o) => rapido ? 0 : ev.push(Object.assign({t:Math.round(t * 100) / 100, lado, tipo}, o, {foto:foto()}));
   // fere um lado: o bloqueio absorve antes (menos o que a arma atravessa); veneno e cansaço passam por cima
   function ferir(alvo, lado, v, o){
     o = o || {}; v = Math.max(0, Math.round(v)); if(!v) return 0;

@@ -154,6 +154,9 @@ function fundir(m, nivel, classe){
     if(!achou) break;
     const {p, q, r} = achou, gastas = [p, q].filter(x => !CATALISADORES.has(x.id)); m.pecas = m.pecas.filter(x => !gastas.includes(x));
     const nova = peca(r[2], 0, 0, 0, Math.round(((p.n || 0) + (q.n || 0)) / 2)), pr = gastas.map(x => ({x:x.x, y:x.y, g:x.g})).concat([lugarLivre(m, r[2])].filter(Boolean)).find(l => podePor(m, r[2], l.g, l.x, l.y));
+    // a peça nova herda o melhor trabalho de ofício das duas (brotos, têmpera, lapidação...), quando ela é do tipo que o ofício trabalha
+    const R2 = ITEM[r[2]], herda = {brotos:ERVA(R2), tempera:R2.tags.includes('metal') && ['arma', 'escudo'].includes(R2.tipo), lapida:R2.tags.includes('gema'), engrenagem:R2.tags.includes('engenhoca'), fermento:R2.tags.includes('bebida')};
+    for(const k in herda) if(herda[k]){ const v = Math.max(p[k] || 0, q[k] || 0); if(v > 0) nova[k] = v; }
     if(pr) por(m, nova, pr.x, pr.y, pr.g); else m.bancada.push(nova);
     feitas.push(r[2]);
   }
