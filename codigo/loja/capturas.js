@@ -14,7 +14,7 @@ const CENAS = {
   'tela-3.png': `${PERFIL} novaCorrida('ferreiro', 91, 10); C.mochila = montarRobo('ferreiro', 7, 51, 10); for(let i = 0; i < 4; i++) oficio(C.mochila, i); C.rodada = 7; C.vitorias = 5; tela = 'loja'; desenhar(); setTimeout(() => $('btLutar').click(), 300);`,
   'tela-4.png': `${PERFIL} novaCorrida('alquimista', 33, 10); C.mochila = montarRobo('alquimista', 8, 72, 10); for(let i = 0; i < 4; i++) oficio(C.mochila, i); C.rodada = 8; C.vitorias = 6; tela = 'loja'; desenhar(); setTimeout(() => $('btLutar').click(), 300); setTimeout(() => { lutaAtual.tempo = 1e9; }, 2500); setTimeout(() => { const b = $('btStats'); if(b) b.click(); }, 4000);`,
   'tela-5.png': `${PERFIL} classeEscolhida = 'joalheiro'; tela = 'trilha'; desenhar(); setTimeout(() => document.querySelectorAll('.trilha li')[4].scrollIntoView(), 200);`,
-  'tela-6.png': `${PERFIL} novaCorrida('cozinheiro', 12, 10); C.mochila = montarRobo('cozinheiro', 8, 63, 10); for(let i = 0; i < 4; i++) oficio(C.mochila, i); C.rodada = 8; C.vitorias = 5; C.ouro = 14; C.loja = ['bolo', 'pao', 'espeto', 'temperos', 'queijo']; tela = 'loja'; desenhar();`,
+  'tela-6.png': `${PERFIL} novaCorrida('cozinheiro', 12, 10); C.mochila = montarRobo('cozinheiro', 8, 63, 10); for(let i = 0; i < 4; i++) oficio(C.mochila, i); C.rodada = 8; C.vitorias = 5; C.ouro = 14; C.loja = ['bolo', 'pao', 'espeto', 'temperos', 'queijo']; tela = 'loja'; desenhar(); setTimeout(() => document.querySelector('.vitrine').scrollIntoView(), 200);`,
 };
 function tirar(arqHtml, saida, w, h, escala, tempo){
   const r = spawnSync(NAVEGADOR, ['--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run', `--user-data-dir=${path.join(TMP, 'perfil')}`,

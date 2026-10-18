@@ -201,7 +201,7 @@ const ITENS = [
   I('fogao', 'Fogão de Ferro', {classe:'cozinheiro', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['metal', 'fogo'], uso:'passivo', oficio:'cozinha', rapido:true, viz:{modo:'da', alvo:{tipo:'comida'}, bonus:{cura:2}}, inicio:{bloqueio:6}, texto:'Cozinha a comida encostada em 1 rodada. Comida vizinha cura +2. Começa com 6 de bloqueio.'}),
 
   // ---- Alquimista: transmutação (o Kit fabrica frascos instáveis; até 3 na mochila) ----
-  I('kitAlquimia', 'Kit de Alquimia', {classe:'alquimista', forma:['#', '#'], arte:'frasco', inicial:true, preco:0, uso:'passivo', oficio:'alquimia', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{}}, texto:'A cada rodada, fabrica um frasco instável (fogo, gelo ou ácido) numa casa livre. Até 3 frascos na mochila.'}),
+  I('kitAlquimia', 'Kit de Alquimia', {classe:'alquimista', forma:['#', '#'], arte:'frasco', inicial:true, preco:0, uso:'passivo', oficio:'alquimia', viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{}}, texto:'A cada rodada, fabrica um frasco instável (fogo, gelo ou ácido) numa casa livre. Até 2 frascos na mochila.'}),
   I('polvora', 'Pólvora Negra', {classe:'alquimista', tipo:'pocao', forma:['#'], arte:'bomba', tags:['frasco', 'fogo'], cd:4, ao:{dano:3, queimar:1}, texto:'A cada 4 s: 3 de dano e queima 1.'}),
   I('acido', 'Ácido Corrosivo', {classe:'alquimista', rar:'incomum', tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], cd:4, ao:{envenenar:1, corroer:4}, texto:'A cada 4 s: envenena 1 e corrói 4 de bloqueio do inimigo.'}),
   I('caldeira', 'Caldeira Borbulhante', {classe:'alquimista', rar:'rara', tipo:'magia', forma:['##', '##'], arte:'xicara', tags:['frasco'], cd:5, ao:{dano:4, queimar:2, gelo:1}, texto:'A cada 5 s: 4 de dano, queima 2 e 1 de gelo.'}),
@@ -217,12 +217,12 @@ const ITENS = [
   I('mascaraGas', 'Máscara de Gás', {classe:'alquimista', nivel:7, rar:'rara', tipo:'escudo', forma:['##'], arte:'nevoa', uso:'passivo', inicio:{bloqueio:9, regen:1}, texto:'Começa com 9 de bloqueio e 1 de regeneração.'}),
   I('atanor', 'Atanor', {classe:'alquimista', nivel:9, rar:'lendaria', forma:['##', '##'], arte:'chama', tags:['fogo'], uso:'passivo', oficio:'alquimia', inicio:{bloqueio:6}, viz:{modo:'da', alvo:{tag:'frasco'}, bonus:{}}, texto:'Fabrica frascos como o Kit, e a mochila comporta até 4. Começa com 6 de bloqueio.'}),
   // os frascos instáveis só nascem do Kit (não aparecem na loja e não valem ouro)
-  I('frascoFogo', 'Frasco Instável de Fogo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'chama', tags:['frasco', 'fogo'], uso:'gatilho', quando:'tempo', t:2.5, ao:{dano:6, queimar:2}, texto:'Explode depois de 2,5 s: 6 de dano e queima 2.'}),
+  I('frascoFogo', 'Frasco Instável de Fogo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'chama', tags:['frasco', 'fogo'], uso:'gatilho', quando:'tempo', t:2.5, ao:{dano:5, queimar:2}, texto:'Explode depois de 2,5 s: 5 de dano e queima 2.'}),
   I('frascoGelo', 'Frasco Instável de Gelo', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gelo', tags:['frasco', 'gelo'], uso:'gatilho', quando:'tempo', t:2, ao:{gelo:4, dano:3}, texto:'Explode depois de 2 s: 3 de dano e 4 de gelo.'}),
-  I('frascoAcido', 'Frasco Instável de Ácido', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], uso:'gatilho', quando:'tempo', t:3, ao:{corroer:8, envenenar:2}, texto:'Explode depois de 3 s: corrói 8 de bloqueio e envenena 2.'}),
+  I('frascoAcido', 'Frasco Instável de Ácido', {classe:'alquimista', gerado:true, tipo:'pocao', forma:['#'], arte:'gota', tags:['frasco', 'veneno'], uso:'gatilho', quando:'tempo', t:3, ao:{corroer:6, envenenar:2}, texto:'Explode depois de 3 s: corrói 6 de bloqueio e envenena 2.'}),
 
   // ---- Coureiro: costura (bolsa costurada: +20% nos itens dentro dela por nível, até 3) ----
-  I('ferramentasCouro', 'Ferramentas de Couro', {classe:'coureiro', forma:['##'], arte:'ferramenta', inicial:true, preco:0, uso:'passivo', oficio:'costura', texto:'A cada rodada, costura as bolsas em que encosta (até 3 vezes cada): os itens dentro delas ficam 20% mais fortes por costura.'}),
+  I('ferramentasCouro', 'Ferramentas de Couro', {classe:'coureiro', forma:['##'], arte:'ferramenta', inicial:true, preco:0, uso:'passivo', oficio:'costura', texto:'A cada rodada, costura as bolsas em que encosta (até 2 vezes cada): os itens dentro delas ficam 20% mais fortes por costura.'}),
   I('agulhao', 'Agulhão', {classe:'coureiro', tipo:'arma', forma:['#', '#'], arte:'espada', tags:['metal'], cd:1.4, custo:1, dano:[2, 4], acerto:{perfura:1}, texto:'Rápido. Atravessa 1 de bloqueio.'}),
   I('bolsaCintura', 'Bolsa de Cintura', {classe:'coureiro', rar:'incomum', tipo:'bolsa', forma:['##'], arte:'etiqueta', preco:2, dentro:{alvo:{}, bonus:{cd:.1}}, texto:'Abre 2 casas. O que estiver dentro age 10% mais rápido.'}),
   I('gibao', 'Gibão de Couro', {classe:'coureiro', rar:'rara', tipo:'escudo', forma:['##', '##'], arte:'escudo', uso:'passivo', inicio:{bloqueio:8, vida:8}, texto:'Começa com 8 de bloqueio e +8 de vida.'}),
@@ -459,4 +459,4 @@ const RECEITAS = [
   ['caneca', 'hidromel', 'rodada', 6], ['aguardente', 'pedraFogo', 'bafoDragao', 8],
   ['barril', 'lupulo', 'cervejariaMestre', 9], ['canecao', 'caneca', 'canecoGuerra', 2], ['garrafada', 'pedraFogo', 'coquetel', 5], ['barrigaDura', 'hidromel', 'pancaBlindada', 5],
 ];
-const VERSAO_REGRAS = 8;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas
+const VERSAO_REGRAS = 9;   // sobe quando itens ou regras mudam: mochilas de versões antigas não são sorteadas

@@ -93,7 +93,7 @@ function oficio(m, rodada){
   for(const p of naoBolsa.filter(q => ITEM[q.id].tags.includes('bebida') && (q.fermento || 0) < 5)){
     if(vizinhos(m, p).some(q => ITEM[q.id].oficio === 'fermenta')){ p.fermento = (p.fermento || 0) + 1; msgs.push(`${ITEM[p.id].nome}: fermentação ${p.fermento}`); } }
   // transmutação (Kit de Alquimia, Atanor): um frasco instável por ofício, numa casa livre (sem casa: na bancada); o Funil dá mais um nas pares
-  const frascos = () => m.pecas.concat(m.bancada || []).filter(q => ITEM[q.id].gerado).length, maxF = tem('atanor') ? 4 : 3;
+  const frascos = () => m.pecas.concat(m.bancada || []).filter(q => ITEM[q.id].gerado).length, maxF = tem('atanor') ? 4 : 2;
   for(const k of naoBolsa.filter(p => ITEM[p.id].oficio === 'alquimia')){
     const vezes = 1 + ((ITEM[k.id].mestre || vizinhos(m, k).some(q => q.id === 'funil')) && !((rodada || 0) % 2) ? 1 : 0);
     for(let i = 0; i < vezes && frascos() < maxF; i++){
@@ -101,7 +101,7 @@ function oficio(m, rodada){
       if(l) por(m, p, l.x, l.y, l.g); else if(m.bancada) m.bancada.push(p); else continue;
       msgs.push(`${ITEM[id].nome} fabricado`); } }
   // costura (Ferramentas de Couro, Mesa): as bolsas em que a ferramenta encosta, até 3 (5 com a Mesa); o Dedal costura mais uma vez nas pares
-  const maxC = tem('mesaCoureiro') ? 5 : 3;
+  const maxC = tem('mesaCoureiro') ? 5 : 2;
   for(const f of naoBolsa.filter(p => ITEM[p.id].oficio === 'costura')){
     const perto = new Set(); for(const [x, y] of casasDe(f)) for(const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) perto.add(chave(x + dx, y + dy));
     const vezes = 1 + ((ITEM[f.id].mestre || vizinhos(m, f).some(q => q.id === 'dedal')) && !((rodada || 0) % 2) ? 1 : 0);

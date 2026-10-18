@@ -142,11 +142,11 @@ console.log(`Duração das lutas: mediana ${dur[dur.length >> 1].toFixed(1)} s, 
     t.oficio(m); confere(a.prato, 'maçã virou prato'); const n = t.numeros(m); confere(n[a.uid].ao.cura >= 3 && n[a.uid].inicio.vida === 4, 'prato cura mais e dá vida'); }
   // Kit de Alquimia: fabrica frascos instáveis, até 3; eles não valem ouro e explodem na luta
   { const m = base('alquimista'); for(let i = 0; i < 6; i++) t.oficio(m, i + 1);
-    const fr = m.pecas.concat(m.bancada).filter(p => t.ITEM[p.id].gerado); confere(fr.length === 3, 'Kit de Alquimia: 3 frascos no máximo (' + fr.length + ')');
+    const fr = m.pecas.concat(m.bancada).filter(p => t.ITEM[p.id].gerado); confere(fr.length === 2, 'Kit de Alquimia: 2 frascos no máximo (' + fr.length + ')');
     const r = t.lutar(m, 'alquimista', 'A', base('guerreiro'), 'guerreiro', 'B', 4); confere(r.eventos.some(e => e.tipo === 'ativa' && e.lado === 0), 'frascos explodem na luta'); }
   // Ferramentas de Couro (3,2 e 4,2): costuram a mochila embaixo e a bolsa ao lado; o item dentro fica mais forte
   { const m = base('coureiro'), e = t.peca('espadaCurta'); t.por(m, e, 5, 2, 0); for(let i = 0; i < 8; i++) t.oficio(m, 1);
-    const mo = m.pecas.find(p => p.id === 'mochila'); confere(mo.costura === 3, 'mochila costurada 3 vezes (' + mo.costura + ')');
+    const mo = m.pecas.find(p => p.id === 'mochila'); confere(mo.costura === 2, 'mochila costurada 2 vezes (' + mo.costura + ')');
     const n = t.numeros(m); confere(n[e.uid].dano[1] > 4, 'item em bolsa costurada fica mais forte (' + n[e.uid].dano + ')'); }
   // Lupa (3,2): lapida o quartzo encostado; o bônus dele na espada cresce
   { const m = base('joalheiro'), q = t.peca('quartzo'), e = t.peca('espadaCurta'); t.por(m, q, 4, 2, 0); t.por(m, e, 5, 2, 0);
