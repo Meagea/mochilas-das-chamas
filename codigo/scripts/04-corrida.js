@@ -34,7 +34,7 @@ function novaCorrida(classe, sem, nivel, modo, niveis){
 function comprar(i){
   const id = C.loja[i]; if(!id) return null;
   if(C.ouro < ITEM[id].preco) return null;
-  C.ouro -= ITEM[id].preco; C.loja[i] = null;
+  C.ouro -= ITEM[id].preco; C.loja[i] = null; if(C.travas) C.travas[i] = false;
   const p = peca(id, 0, 0, 0, C.niveis && C.niveis[id] || 0); C.mochila.bancada.push(p); return p;
 }
 function vender(p){
@@ -44,9 +44,11 @@ function vender(p){
   else m.bancada = m.bancada.filter(q => q !== p);
   C.ouro += precoVenda(p.id); return true;
 }
+// a vitrine nova mantém o que o jogador travou (vaga vendida destrava)
+function manterTravadas(nova){ if(!C.travas) return nova; return nova.map((id, i) => C.travas[i] && C.loja[i] ? C.loja[i] : (C.travas[i] = false, id)); }
 function trocarLoja(){
   const c = custoTroca(C.trocas); if(C.ouro < c) return false;
-  C.ouro -= c; C.trocas++; C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel); return true;
+  C.ouro -= c; C.trocas++; C.loja = manterTravadas(sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel)); return true;
 }
 // depois da luta: soma a vitória ou a derrota, paga a renda e abre a loja da rodada seguinte
 function fecharRodada(venceu, adversario){
@@ -55,7 +57,7 @@ function fecharRodada(venceu, adversario){
   C.perdeuAntes = !venceu;
   if(C.vitorias >= VITORIAS_META || C.derrotas >= VIDAS){ C.fim = true; return; }
   C.rodada++; C.trocas = 0; C.ouro += renda(C.rodada, C.perdeuAntes);
-  C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel);
+  C.loja = manterTravadas(sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel));
 }
 
 // ---- classes de ofício: a cada rodada (antes da luta), a ferramenta trabalha os itens encostados nela ----

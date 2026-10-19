@@ -93,7 +93,7 @@ function telaLobby(){
         ${continuar ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias${s.modo === 'normal' ? ' · Normal' : ' · Ranqueada'}</small></button>` : ''}
         <button class="btn grande jogar${continuar ? '' : ' primario'}" data-jogar="ranqueada">Ranqueada<small>vale pontos de liga · itens no nível 0</small></button>
         <button class="btn grande jogar" data-jogar="normal">Normal<small>sem liga · itens no nível das cartas</small></button>
-        <div class="lb-sec"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
+        <div class="lb-sec"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btOpcoes">Opções</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
         <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'}` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha. 7 vitórias vencem a corrida; 3 derrotas e acaba.'}</p>
       </nav>
       <div class="lb-heroi">
@@ -130,6 +130,7 @@ function ligarLobby(){
     if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     PERFIL.modo = b.dataset.jogar; gravarPerfil(); comecarCorrida(classeEscolhida); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
+  $('btOpcoes').onclick = () => { tela = 'opcoes'; desenhar(); };
   $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia'); $('btRanking').onclick = abrirRanking;
   const br = $('btRank'); if(br) br.onclick = abrirRanking;
   const c = $('btContinuar'); if(c) c.onclick = () => { if(continuarCorrida()){ tela = 'loja'; desenhar(); } };
@@ -190,13 +191,15 @@ function telaLoja(){
     const cls = ab(x, y) ? ' aberta' + viz4.filter(([dx, dy]) => !ab(x + dx, y + dy)).map(v => ' ' + v[2]).join('') : viz4.some(([dx, dy]) => ab(x + dx, y + dy)) ? ' pode' : '';
     grade += `<i class="casa${cls}" style="left:${x * TAM}px;top:${y * TAM}px;width:${TAM}px;height:${TAM}px"></i>`; }
   const ligadas = sel && sel.onde === 'mochila' ? new Set(vizinhos(m, sel.p).map(q => q.uid)) : new Set();
-  const pecas = m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => `<div class="posto" style="left:${p.x * TAM}px;top:${p.y * TAM}px">${pecaHtml(p, TAM, (sel && sel.p === p ? ' sel' : '') + (ligadas.has(p.uid) ? ' viz' : '') + (N[p.uid] && N[p.uid].recebeu.length ? ' turbinada' : ''))}</div>`).join('');
+  const funde = paresFusao(m), daLoja = sel && sel.onde === 'loja' ? C.loja[sel.i] : null;
+  const pecas = m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => { const f = funde.get(p.uid), rel = daLoja && !ehBolsa(p) ? relacaoCom(daLoja, p) : null;
+    return `<div class="posto" style="left:${p.x * TAM}px;top:${p.y * TAM}px">${pecaHtml(p, TAM, (sel && sel.p === p ? ' sel' : '') + (ligadas.has(p.uid) ? ' viz' : '') + (N[p.uid] && N[p.uid].recebeu.length ? ' turbinada' : '') + (f ? ' funde' : '') + (rel ? ' rel-' + rel : ''))}${f && f.mostra ? `<span class="vira" title="Vira ${ITEM[f.vira].nome} no começo da luta">${iconeItem(f.vira)}</span>` : ''}</div>`; }).join('');
   const banc = m.bancada.map(p => `<div class="nabanc">${pecaHtml(p, Math.round(TAM * .62), sel && sel.p === p ? ' sel' : '')}</div>`).join('');
-  const item = (id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
-      <span class="preco">${ITEM[id].preco}${ic('moeda')}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><small class="rar-nome">${raridade(id).nome}</small></button>` : `<div class="item-loja vazio">vendido</div>`;
+  const item = (id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${C.travas && C.travas[i] ? ' travada' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
+      <span class="preco">${ITEM[id].preco}${ic('moeda')}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><small class="rar-nome">${raridade(id).nome}</small><span class="trava${C.travas && C.travas[i] ? ' on' : ''}" data-trava="${i}" title="O item travado continua na vitrine na próxima rodada">${C.travas && C.travas[i] ? 'Travado' : 'Travar'}</span></button>` : `<div class="item-loja vazio">vendido</div>`;
   const metade = Math.floor(C.loja.length / 2), L = lutador(m, C.classe, '');
   return `<section class="loja-tela loja2" style="--cc:${K.cor}">
-    <div class="area2">
+    ${dicaTutorial()}<div class="area2">
       <div class="painel-mochila">
         <div class="pm-cab"><b>Mochila</b><span>${abertas.size} de ${LARG * ALT} casas abertas</span></div>
         <div class="moldura"><div class="mochila" id="mochila" style="width:${LARG * TAM}px;height:${ALT * TAM}px">${grade}${pecas}<div class="previa" id="previa"></div></div></div>
@@ -239,17 +242,20 @@ function infoHtml(N){
   const botoes = sel.onde === 'loja' ? `<button class="btn primario" id="btComprar"${d.preco > C.ouro ? ' disabled' : ''}>Comprar<small>${ic('moeda')} ${d.preco}</small></button>`
     : `<button class="btn" id="btGirar">Girar</button>${sel.onde === 'mochila' && d.id !== 'mochila' ? '<button class="btn" id="btGuardar">Para a bancada</button>' : ''}${d.inicial ? '' : `<button class="btn" id="btVender">Vender<small>${ic('moeda')} ${precoVenda(id)}</small></button>`}`;
   return `<div class="cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}${d.classe ? ' · ' + CLASSES[d.classe].nome : ''}</small></div></div>
-    ${linhaNumeros(id, base) ? `<p class="nums">${linhaNumeros(id, base)}</p>` : ''}<p>${d.texto}</p>${rec}${receita}
+    ${linhaNumeros(id, base) ? `<p class="nums">${linhaNumeros(id, base)}</p>` : ''}<p>${textoIcones(d.texto)}</p>${rec}${receita}
     ${sel.onde === 'bancada' ? '<p class="aviso-b">Na bancada o item não luta: arraste para dentro de uma bolsa.</p>' : ''}<div class="bts">${botoes}</div>`;
 }
 function ligarLoja(){
   $('btSair').onclick = () => { salvarCorrida(); tela = 'lobby'; sel = null; desenhar(); };
   $('btTrocar').onclick = () => { if(trocarLoja()){ sel = null; salvarCorrida(); desenhar(); } };
   $('btLutar').onclick = comecarLuta;
-  const b = $('btComprar'); if(b) b.onclick = () => { const p = comprar(sel.i); if(p){ colocarNaMochila(p); sel = {onde:C.mochila.pecas.includes(p) ? 'mochila' : 'bancada', p}; salvarCorrida(); desenhar(); } };
+  const b = $('btComprar'); if(b) b.onclick = () => { const p = comprar(sel.i); if(p){ colocarNaMochila(p); sel = {onde:C.mochila.pecas.includes(p) ? 'mochila' : 'bancada', p}; som('comprar'); avancarTutorial(0); salvarCorrida(); desenhar(); } };
+  raiz().querySelectorAll('[data-trava]').forEach(t => { t.onpointerdown = ev => ev.stopPropagation();
+    t.onclick = ev => { ev.stopPropagation(); const i = +t.dataset.trava; if(!C.travas) C.travas = C.loja.map(() => false); C.travas[i] = !C.travas[i]; salvarCorrida(); desenhar(); }; });
+  ligarTutorial(); ligarCartoes(); animarOuro();
   const g = $('btGirar'); if(g) g.onclick = () => { girar(sel.p); desenhar(); };
   const gu = $('btGuardar'); if(gu) gu.onclick = () => { const fora = tirar(C.mochila, sel.p); C.mochila.bancada.push(...fora); sel = {onde:'bancada', p:sel.p}; salvarCorrida(); desenhar(); };
-  const v = $('btVender'); if(v) v.onclick = () => { vender(sel.p); sel = null; salvarCorrida(); desenhar(); };
+  const v = $('btVender'); if(v) v.onclick = () => { vender(sel.p); sel = null; som('vender'); salvarCorrida(); desenhar(); };
   ligarArrasto();
 }
 // comprado pelo botão: tenta o melhor lugar na mochila; se não couber, fica na bancada
@@ -281,7 +287,7 @@ function iniciarArrasto(ev, el, onde){
 }
 function moverArrasto(ev){
   if(!arr) return;
-  if(!arr.ativo){ if(Math.hypot(ev.clientX - arr.x0, ev.clientY - arr.y0) < 7) return; arr.ativo = true; arr.el.classList.add('levantada'); document.body.classList.add('arrastando', arr.onde === 'loja' ? 'da-loja' : 'da-mochila'); desenharFantasma(); }
+  if(!arr.ativo){ if(Math.hypot(ev.clientX - arr.x0, ev.clientY - arr.y0) < 7) return; arr.ativo = true; arr.el.classList.add('levantada'); document.body.classList.add('arrastando', arr.onde === 'loja' ? 'da-loja' : 'da-mochila'); desenharFantasma(); marcarRelacoes(arr.id, arr.p && arr.p.uid); }
   arr.mx = ev.clientX; arr.my = ev.clientY;
   const fa = $('arrasto'); fa.style.transform = `translate(${ev.clientX - (arr.cx + .5) * TAM}px, ${ev.clientY - (arr.cy + .5) * TAM}px)`;
   // prévia na mochila: verde se cabe, vermelho se não
@@ -315,11 +321,11 @@ function soltarArrasto(ev){
     else { vender(a.p); sel = null; mudou = true; }
   }
   cancelarArrasto();
-  if(mudou){ salvarCorrida(); }
+  if(mudou){ const vendeu = !alvo && !sobreEl(ev, 'bancada'); som(a.onde === 'loja' ? 'comprar' : vendeu ? 'vender' : 'encaixar'); if(a.onde === 'loja') avancarTutorial(0); salvarCorrida(); }
   desenhar();
 }
 function cancelarArrasto(){ arr = null; document.body.classList.remove('arrastando', 'da-loja', 'da-mochila'); const fa = $('arrasto'); if(fa){ fa.hidden = true; fa.innerHTML = ''; } window.onpointermove = window.onpointerup = window.onpointercancel = null; }
-function tocar(a){ sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; desenhar(); }
+function tocar(a){ sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; avancarTutorial(1); desenhar(); }
 if(temDOM && typeof window !== 'undefined') window.addEventListener('keydown', ev => {
   if((ev.key === 'r' || ev.key === 'R') && arr && arr.ativo){ arr.g = (arr.g + 1) & 3; const f = forma(arr.id, arr.g); arr.cx = Math.min(arr.cx, f.w - 1); arr.cy = Math.min(arr.cy, f.h - 1); desenharFantasma(); }
   else if((ev.key === 'r' || ev.key === 'R') && tela === 'loja' && sel && sel.p){ girar(sel.p); desenhar(); }
@@ -333,6 +339,8 @@ async function comecarLuta(){
   const travadas = receitasTravadas(C.mochila, C.nivel || 1, C.classe).map(r => `${ITEM[r[0]].nome} + ${ITEM[r[1]].nome} só viram ${ITEM[r[2]].nome} no nível ${r[3]}`);
   // a ferramenta do ofício trabalha uma vez por rodada
   const ofi = C.oficioRodada === C.rodada ? [] : oficio(C.mochila, C.rodada); C.oficioRodada = C.rodada;
+  if(feitas.length){ som('fundir'); vibrar([40, 60, 40]); }
+  avancarTutorial(3);
   const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(travadas, ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
@@ -344,7 +352,7 @@ async function comecarLuta(){
   if(o && CLASSES[o.classe]) adv = {nome:o.nome, classe:o.classe, mochila:deFoto(o.itens), online:true};
   if(!adv) adv = adversarioRobo(C.rodada, misturar(C.sem, C.rodada * 31 + C.trocas), modo === 'normal' ? media : 0);
   const sem = misturar(C.sem, C.rodada * 7 + 3), r = lutar(C.mochila, C.classe, PERFIL.nome || 'Você', adv.mochila, adv.classe, adv.nome, sem);
-  lutaAtual = {r, adv, venceu:r.vencedor === 0, tempo:0, vel:1, i:0, ultimo:null, pontos:null, fechada:false};
+  lutaAtual = {r, adv, venceu:r.vencedor === 0, tempo:0, vel:opcoes().vel || 1, i:0, ultimo:null, pontos:null, fechada:false};
   if(adv.online && modo === 'ranqueada') onlineLuta(lutaAtual.venceu, C.vitorias + (lutaAtual.venceu ? 1 : 0)).then(p => { if(lutaAtual && p != null){ lutaAtual.pontos = p; PERFIL.pontos = p; gravarPerfil(); } });
   for(const pc of C.mochila.pecas) PERFIL.colecao[pc.id] = 1; gravarPerfil();
   sel = null; tela = 'luta'; desenhar(); tocarLuta();
@@ -365,11 +373,11 @@ function ladoHtml(k){
 function telaLuta(){
   return `<section class="luta-tela"><header class="lcab"><b>Rodada ${C.rodada}</b><span>${pips(C.vitorias, VITORIAS_META, 'vit')}</span><span class="vidas">${pips(VIDAS - C.derrotas, VIDAS, 'vida')}</span></header>
     <div class="ringue">${ladoHtml(1)}<div class="versus">contra</div>${ladoHtml(0)}</div>
-    <div class="controles"><button class="btn sm${lutaAtual.vel === 1 ? ' on' : ''}" data-vel="1">1×</button><button class="btn sm${lutaAtual.vel === 2 ? ' on' : ''}" data-vel="2">2×</button><button class="btn sm${lutaAtual.vel === 4 ? ' on' : ''}" data-vel="4">4×</button><button class="btn sm" id="btPular">Pular</button></div>
+    <div class="controles"><button class="btn sm${lutaAtual.vel === 1 ? ' on' : ''}" data-vel="1">1×</button><button class="btn sm${lutaAtual.vel === 2 ? ' on' : ''}" data-vel="2">2×</button><button class="btn sm${lutaAtual.vel === 4 ? ' on' : ''}" data-vel="4">4×</button><button class="btn sm" id="btPular">Pular</button></div>${PERFIL.dicaLuta ? '' : '<p class="dica-luta">A luta é automática. Use 2× ou 4× para acelerar, ou Pular para ver o resultado.</p>'}
     <div class="resultado" id="resultado" hidden></div></section>`;
 }
 function ligarLuta(){
-  raiz().querySelectorAll('[data-vel]').forEach(b => b.onclick = () => { lutaAtual.vel = +b.dataset.vel; raiz().querySelectorAll('[data-vel]').forEach(x => x.classList.toggle('on', x === b)); });
+  raiz().querySelectorAll('[data-vel]').forEach(b => b.onclick = () => { lutaAtual.vel = +b.dataset.vel; opcoes().vel = lutaAtual.vel; gravarPerfil(); raiz().querySelectorAll('[data-vel]').forEach(x => x.classList.toggle('on', x === b)); });
   $('btPular').onclick = () => { lutaAtual.tempo = 1e9; };
   aplicarFoto(lutaAtual.r.eventos[0].foto);
 }
@@ -381,7 +389,12 @@ function aplicarFoto(f){
     el.querySelector('.ests').innerHTML = Object.keys(NOME_EST).filter(e => L[e] > 0).map(e => `<span style="--c:${COR_EST[e]}">${NOME_EST[e]} ${L[e]}</span>`).join('');
     el.querySelector('.vigor').innerHTML = `<small>Vigor</small>${pips(L.vigor, VIGOR_MAX, 'vg')}`; });
 }
-function numeroFlutuante(k, txt, cls){ const el = $('lado' + k); if(!el) return; const n = document.createElement('span'); n.className = 'flut ' + cls; n.textContent = txt; n.style.left = (30 + Math.random() * 40) + '%'; el.querySelector('.flutuantes').appendChild(n); setTimeout(() => n.remove(), 1000); }
+// item: o número sai de cima da peça que agiu (cura e bloqueio); sem ele, sai do alto do painel
+function numeroFlutuante(k, txt, cls, item){ const el = $('lado' + k); if(!el) return; const n = document.createElement('span'); n.className = 'flut ' + cls; n.textContent = txt;
+  const p = item != null ? el.querySelectorAll('.mini .peca:not(.bolsa)')[item] : null;
+  if(p){ const a = el.getBoundingClientRect(), b = p.getBoundingClientRect(); n.classList.add('da-peca'); n.style.left = (b.left - a.left + b.width / 2) + 'px'; n.style.top = (b.top - a.top) + 'px'; el.appendChild(n); }
+  else { n.style.left = (30 + Math.random() * 40) + '%'; el.querySelector('.flutuantes').appendChild(n); }
+  setTimeout(() => n.remove(), 1000); }
 function piscar(k, item){ const el = $('lado' + k); if(!el) return; const p = el.querySelectorAll('.mini .peca:not(.bolsa)')[item]; if(p){ p.classList.remove('age'); void p.offsetWidth; p.classList.add('age'); } }
 function tocarLuta(){
   let ant = performance.now();
@@ -391,10 +404,10 @@ function tocarLuta(){
     const ev = L.r.eventos; let ultimaFoto = null;
     while(L.i < ev.length && ev[L.i].t <= L.tempo){ const e = ev[L.i++]; ultimaFoto = e.foto;
       if(L.tempo < 1e8){
-        if(e.tipo === 'ataque' || e.tipo === 'magia' || e.tipo === 'ativa') piscar(e.lado, e.item);
+        if(e.tipo === 'ataque' || e.tipo === 'magia' || e.tipo === 'ativa'){ piscar(e.lado, e.item); if(e.tipo === 'ataque' && L.vel <= 2) som('golpe'); }
         else if(['dano', 'magia', 'queimadura', 'venenoDano', 'cansaco', 'espinhos'].includes(e.tipo) && e.valor) numeroFlutuante(e.lado, '-' + e.valor, e.crit ? 'crit' : e.tipo);
-        else if(e.tipo === 'cura') numeroFlutuante(e.lado, '+' + e.valor, 'cura');
-        else if(e.tipo === 'bloqueio') numeroFlutuante(e.lado, '+' + e.valor, 'bloq');
+        else if(e.tipo === 'cura') numeroFlutuante(e.lado, '+' + e.valor, 'cura', e.item);
+        else if(e.tipo === 'bloqueio') numeroFlutuante(e.lado, '+' + e.valor, 'bloq', e.item);
         else if(e.tipo === 'esquivou') numeroFlutuante(e.lado, 'Esquivou', 'esq'); } }
     if(ultimaFoto) aplicarFoto(ultimaFoto);
     if(L.i >= ev.length){ mostrarResultado(); return; }
@@ -427,8 +440,9 @@ function statsHtml(r){
 function mostrarResultado(){
   const L = lutaAtual; if(L.fechada) return; L.fechada = true;
   const el = $('resultado'); el.hidden = false;
-  el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu');
-  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (C.modo === 'ranqueada' ? ': os pontos de liga vêm no fim da corrida.' : '.') : ''}</p><div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
+  el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu'); som(L.venceu ? 'vitoria' : 'derrota'); if(L.venceu) vibrar(80); PERFIL.dicaLuta = 1; gravarPerfil();
+  const pior = L.venceu ? null : estatisticas(L.r)[1].itens.slice().sort((a, b) => b.dano - a.dano)[0];
+  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (C.modo === 'ranqueada' ? ': os pontos de liga vêm no fim da corrida.' : '.') : ''}</p>${pior && pior.dano ? `<p class="pior">O que mais te machucou: <span class="mini-item">${iconeItem(pior.id)}${ITEM[pior.id].nome}</span> · ${pior.dano} de dano</p>` : ''}<div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
   $('btStats').onclick = () => { const st = $('stats'); st.hidden = !st.hidden; el.classList.toggle('largo', !st.hidden); };
   $('btSeguir').onclick = () => {
     fecharRodada(L.venceu, L.adv.nome); lutaAtual = null;
@@ -482,6 +496,7 @@ function telaFim(){
     <div class="acoes"><button class="btn primario grande" id="btDeNovo">Nova corrida</button><button class="btn" id="btRanking">Ranking</button><button class="btn" id="btLobby">Lobby</button></div></section>`;
 }
 function ligarFim(){
+  if(C.vitorias >= VITORIAS_META && !C.festejou){ C.festejou = true; confete(); som('festa'); vibrar([60, 40, 60, 40, 120]); }
   $('btDeNovo').onclick = () => comecarCorrida(C.classe);
   $('btRanking').onclick = abrirRanking; $('btLobby').onclick = () => { tela = 'lobby'; desenhar(); };
 }
@@ -590,7 +605,7 @@ const TELAS = {colecao:[telaColecao, ligarColecao], cartas:[telaCartas, ligarCar
 function desenhar(){
   if(!uiAtiva) return;
   const [h, l] = TELAS[tela] || TELAS.lobby;
-  document.body.dataset.tela = tela;
+  document.body.dataset.tela = tela; aplicarOpcoes(); esconderCartao();
   // o fundo pintado de cada tela, bem apagado atrás dos painéis
   const fundo = urlArte(tela === 'luta' ? 'fundo-luta' : 'fundo-lobby'); document.body.classList.toggle('com-fundo', !!fundo); if(fundo) document.body.style.setProperty('--fundo-img', `url("${fundo}")`);
   raiz().innerHTML = h(); l();

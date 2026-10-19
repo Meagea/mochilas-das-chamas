@@ -415,6 +415,62 @@ body.arrastando .loja2 .casa.pode{ background:radial-gradient(circle, rgba(108,1
 .barra-50{ grid-area:b; position:relative; height:10px; border-radius:5px; background:rgba(255,255,255,.08); overflow:hidden; }
 .barra-50 i{ position:absolute; left:0; top:0; bottom:0; border-radius:5px; background:var(--cc); }
 .barra-50::after{ content:''; position:absolute; left:50%; top:-2px; bottom:-2px; width:2px; background:rgba(255,255,255,.55); }
+
+/* ---------- Experiência de jogo (06c-ux.js) ---------- */
+/* prévia de fusão: as duas peças pulsam em dourado e o resultado aparece num selo */
+.peca.funde > i{ animation:funde 1.4s ease-in-out infinite; }
+@keyframes funde{ 50%{ box-shadow:0 0 0 2px var(--ambar), 0 0 18px rgba(242,179,80,.75); } }
+.posto .vira{ position:absolute; right:-8px; top:-10px; z-index:3; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; pointer-events:none;
+  background:radial-gradient(#3a2c14, #1b140a); border:2px solid var(--ambar); box-shadow:0 0 12px rgba(242,179,80,.8); }
+.posto .vira img.ic{ width:22px; height:22px; }
+/* ao segurar ou escolher um item: dourado = fundem, verde = um ajuda o outro */
+.peca.rel-par > i{ box-shadow:0 0 0 2px var(--ambar), 0 0 16px rgba(242,179,80,.6); }
+.peca.rel-ajuda > i{ box-shadow:0 0 0 2px rgba(108,195,90,.9), 0 0 14px rgba(108,195,90,.45); }
+/* travar vitrine */
+.loja2 .item-loja .trava{ margin-top:2px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 8px; border-radius:999px; color:var(--suave); border:1px solid var(--borda2); background:rgba(0,0,0,.35); cursor:pointer; }
+.loja2 .item-loja .trava.on{ color:#1a1206; background:#7ab8ff; border-color:#7ab8ff; }
+.loja2 .item-loja.travada{ background:rgba(122,184,255,.1); box-shadow:inset 0 0 0 2px rgba(122,184,255,.7); }
+/* tutorial */
+.dica-tut{ max-width:1100px; margin:12px auto 0; padding:12px 16px; border-radius:16px; border:1px solid rgba(242,179,80,.6); background:linear-gradient(90deg, rgba(242,179,80,.16), rgba(242,179,80,.05)), var(--painel);
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap; box-shadow:0 8px 24px rgba(0,0,0,.35); }
+.dica-tut .dt-passo{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--ambar); }
+.dica-tut p{ flex:1; min-width:220px; margin:0; font-size:14px; } .dica-tut .dt-bts{ display:flex; gap:6px; }
+.dica-luta{ margin:0; font-size:13px; color:var(--suave); text-align:center; }
+@media (max-width:900px){ .dica-tut{ margin:10px 10px 0; } }
+/* ouro subindo ou descendo */
+.ph-acoes .ouro{ position:relative; }
+.ouro-flut{ position:absolute; left:50%; top:-6px; transform:translateX(-50%); font-family:var(--fonte-titulo); font-weight:800; font-size:20px; pointer-events:none; animation:sobe .9s ease-out forwards; text-shadow:0 2px 4px #000; }
+.ouro-flut.mais{ color:#8be07a; } .ouro-flut.menos{ color:#ff8a78; }
+/* número da luta saindo da peça */
+.flut.da-peca{ transform:translateX(-50%); font-size:18px; z-index:4; }
+.resultado .pior{ font-size:14px; color:var(--suave); }
+/* cartão flutuante do item */
+#cartao-item{ position:fixed; z-index:60; width:260px; padding:10px 12px; border-radius:14px; border:1px solid var(--borda2); background:rgba(24,22,30,.97); box-shadow:0 14px 34px rgba(0,0,0,.6); pointer-events:none; font-size:13px; line-height:1.4; }
+#cartao-item .ct-cab{ display:flex; gap:10px; align-items:center; } #cartao-item .ct-cab .pic{ width:40px; height:40px; flex:none; border-radius:10px; border:1px solid var(--rar); display:flex; padding:3px; }
+#cartao-item .ct-cab .pic img{ width:100%; height:100%; } #cartao-item b{ display:block; } #cartao-item small{ color:var(--suave); font-weight:600; }
+#cartao-item p{ margin:8px 0 0; } #cartao-item .ct-rec{ margin:6px 0 0; padding-left:16px; color:var(--ambar); font-size:12px; }
+/* ícones de efeito no texto */
+img.ic.efx, i.ic.efx{ width:1.05em; height:1.05em; vertical-align:-.18em; margin-right:2px; }
+/* confete da corrida vencida */
+.confete{ position:fixed; inset:0; pointer-events:none; z-index:70; overflow:hidden; }
+.confete i{ position:absolute; top:-20px; width:9px; height:14px; border-radius:2px; animation:cai linear forwards; }
+@keyframes cai{ to{ transform:translateY(110vh) rotate(720deg); } }
+/* opções */
+.opcoes-tela .opc{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; border:1px solid var(--borda2); background:var(--painel); text-align:left; cursor:pointer; }
+.opcoes-tela .opc small{ display:block; color:var(--suave); font-size:12px; } .opcoes-tela .opc input{ width:22px; height:22px; accent-color:var(--ambar); }
+/* texto maior */
+body.texto-grande .info, body.texto-grande #cartao-item, body.texto-grande .dica-tut p, body.texto-grande .pm-dica, body.texto-grande .sub, body.texto-grande .nota{ font-size:16.5px; }
+body.texto-grande .loja2 .item-loja b{ font-size:13.5px; } body.texto-grande .lista small{ font-size:13.5px; }
+/* raridade com letra (daltonismo) */
+body.daltonico .peca:not(.bolsa)::before{ position:absolute; left:3px; top:2px; z-index:2; font-size:10px; font-weight:800; line-height:1; padding:2px 3px; border-radius:4px; background:rgba(0,0,0,.7); color:#fff; pointer-events:none; }
+body.daltonico .peca[data-rar="comum"]::before{ content:'C'; } body.daltonico .peca[data-rar="incomum"]::before{ content:'I'; }
+body.daltonico .peca[data-rar="rara"]::before{ content:'R'; } body.daltonico .peca[data-rar="epica"]::before{ content:'É'; } body.daltonico .peca[data-rar="lendaria"]::before{ content:'L'; }
+/* celular: ouro e Lutar fixos no rodapé */
+@media (max-width:900px){
+  .loja2{ padding-bottom:84px; }
+  .loja2 .ph-acoes{ position:fixed; left:0; right:0; bottom:0; z-index:20; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); background:rgba(18,17,23,.94); border-top:1px solid var(--borda2); backdrop-filter:blur(10px); }
+  .loja2 .painel-heroi{ grid-template-columns:auto 1fr; }
+}
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -1283,7 +1339,7 @@ function novaCorrida(classe, sem, nivel, modo, niveis){
 function comprar(i){
   const id = C.loja[i]; if(!id) return null;
   if(C.ouro < ITEM[id].preco) return null;
-  C.ouro -= ITEM[id].preco; C.loja[i] = null;
+  C.ouro -= ITEM[id].preco; C.loja[i] = null; if(C.travas) C.travas[i] = false;
   const p = peca(id, 0, 0, 0, C.niveis && C.niveis[id] || 0); C.mochila.bancada.push(p); return p;
 }
 function vender(p){
@@ -1293,9 +1349,11 @@ function vender(p){
   else m.bancada = m.bancada.filter(q => q !== p);
   C.ouro += precoVenda(p.id); return true;
 }
+// a vitrine nova mantém o que o jogador travou (vaga vendida destrava)
+function manterTravadas(nova){ if(!C.travas) return nova; return nova.map((id, i) => C.travas[i] && C.loja[i] ? C.loja[i] : (C.travas[i] = false, id)); }
 function trocarLoja(){
   const c = custoTroca(C.trocas); if(C.ouro < c) return false;
-  C.ouro -= c; C.trocas++; C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel); return true;
+  C.ouro -= c; C.trocas++; C.loja = manterTravadas(sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada * 100 + C.trocas)), C.nivel)); return true;
 }
 // depois da luta: soma a vitória ou a derrota, paga a renda e abre a loja da rodada seguinte
 function fecharRodada(venceu, adversario){
@@ -1304,7 +1362,7 @@ function fecharRodada(venceu, adversario){
   C.perdeuAntes = !venceu;
   if(C.vitorias >= VITORIAS_META || C.derrotas >= VIDAS){ C.fim = true; return; }
   C.rodada++; C.trocas = 0; C.ouro += renda(C.rodada, C.perdeuAntes);
-  C.loja = sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel);
+  C.loja = manterTravadas(sortearLoja(C.classe, C.rodada, semente(misturar(C.sem, C.rodada)), C.nivel));
 }
 
 // ---- classes de ofício: a cada rodada (antes da luta), a ferramenta trabalha os itens encostados nela ----
@@ -1608,7 +1666,7 @@ function telaLobby(){
         ${continuar ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias${s.modo === 'normal' ? ' · Normal' : ' · Ranqueada'}</small></button>` : ''}
         <button class="btn grande jogar${continuar ? '' : ' primario'}" data-jogar="ranqueada">Ranqueada<small>vale pontos de liga · itens no nível 0</small></button>
         <button class="btn grande jogar" data-jogar="normal">Normal<small>sem liga · itens no nível das cartas</small></button>
-        <div class="lb-sec"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
+        <div class="lb-sec"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btOpcoes">Opções</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
         <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'}` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha. 7 vitórias vencem a corrida; 3 derrotas e acaba.'}</p>
       </nav>
       <div class="lb-heroi">
@@ -1645,6 +1703,7 @@ function ligarLobby(){
     if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     PERFIL.modo = b.dataset.jogar; gravarPerfil(); comecarCorrida(classeEscolhida); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
+  $('btOpcoes').onclick = () => { tela = 'opcoes'; desenhar(); };
   $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia'); $('btRanking').onclick = abrirRanking;
   const br = $('btRank'); if(br) br.onclick = abrirRanking;
   const c = $('btContinuar'); if(c) c.onclick = () => { if(continuarCorrida()){ tela = 'loja'; desenhar(); } };
@@ -1705,13 +1764,15 @@ function telaLoja(){
     const cls = ab(x, y) ? ' aberta' + viz4.filter(([dx, dy]) => !ab(x + dx, y + dy)).map(v => ' ' + v[2]).join('') : viz4.some(([dx, dy]) => ab(x + dx, y + dy)) ? ' pode' : '';
     grade += `<i class="casa${cls}" style="left:${x * TAM}px;top:${y * TAM}px;width:${TAM}px;height:${TAM}px"></i>`; }
   const ligadas = sel && sel.onde === 'mochila' ? new Set(vizinhos(m, sel.p).map(q => q.uid)) : new Set();
-  const pecas = m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => `<div class="posto" style="left:${p.x * TAM}px;top:${p.y * TAM}px">${pecaHtml(p, TAM, (sel && sel.p === p ? ' sel' : '') + (ligadas.has(p.uid) ? ' viz' : '') + (N[p.uid] && N[p.uid].recebeu.length ? ' turbinada' : ''))}</div>`).join('');
+  const funde = paresFusao(m), daLoja = sel && sel.onde === 'loja' ? C.loja[sel.i] : null;
+  const pecas = m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => { const f = funde.get(p.uid), rel = daLoja && !ehBolsa(p) ? relacaoCom(daLoja, p) : null;
+    return `<div class="posto" style="left:${p.x * TAM}px;top:${p.y * TAM}px">${pecaHtml(p, TAM, (sel && sel.p === p ? ' sel' : '') + (ligadas.has(p.uid) ? ' viz' : '') + (N[p.uid] && N[p.uid].recebeu.length ? ' turbinada' : '') + (f ? ' funde' : '') + (rel ? ' rel-' + rel : ''))}${f && f.mostra ? `<span class="vira" title="Vira ${ITEM[f.vira].nome} no começo da luta">${iconeItem(f.vira)}</span>` : ''}</div>`; }).join('');
   const banc = m.bancada.map(p => `<div class="nabanc">${pecaHtml(p, Math.round(TAM * .62), sel && sel.p === p ? ' sel' : '')}</div>`).join('');
-  const item = (id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
-      <span class="preco">${ITEM[id].preco}${ic('moeda')}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><small class="rar-nome">${raridade(id).nome}</small></button>` : `<div class="item-loja vazio">vendido</div>`;
+  const item = (id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${C.travas && C.travas[i] ? ' travada' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
+      <span class="preco">${ITEM[id].preco}${ic('moeda')}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><small class="rar-nome">${raridade(id).nome}</small><span class="trava${C.travas && C.travas[i] ? ' on' : ''}" data-trava="${i}" title="O item travado continua na vitrine na próxima rodada">${C.travas && C.travas[i] ? 'Travado' : 'Travar'}</span></button>` : `<div class="item-loja vazio">vendido</div>`;
   const metade = Math.floor(C.loja.length / 2), L = lutador(m, C.classe, '');
   return `<section class="loja-tela loja2" style="--cc:${K.cor}">
-    <div class="area2">
+    ${dicaTutorial()}<div class="area2">
       <div class="painel-mochila">
         <div class="pm-cab"><b>Mochila</b><span>${abertas.size} de ${LARG * ALT} casas abertas</span></div>
         <div class="moldura"><div class="mochila" id="mochila" style="width:${LARG * TAM}px;height:${ALT * TAM}px">${grade}${pecas}<div class="previa" id="previa"></div></div></div>
@@ -1754,17 +1815,20 @@ function infoHtml(N){
   const botoes = sel.onde === 'loja' ? `<button class="btn primario" id="btComprar"${d.preco > C.ouro ? ' disabled' : ''}>Comprar<small>${ic('moeda')} ${d.preco}</small></button>`
     : `<button class="btn" id="btGirar">Girar</button>${sel.onde === 'mochila' && d.id !== 'mochila' ? '<button class="btn" id="btGuardar">Para a bancada</button>' : ''}${d.inicial ? '' : `<button class="btn" id="btVender">Vender<small>${ic('moeda')} ${precoVenda(id)}</small></button>`}`;
   return `<div class="cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}${d.classe ? ' · ' + CLASSES[d.classe].nome : ''}</small></div></div>
-    ${linhaNumeros(id, base) ? `<p class="nums">${linhaNumeros(id, base)}</p>` : ''}<p>${d.texto}</p>${rec}${receita}
+    ${linhaNumeros(id, base) ? `<p class="nums">${linhaNumeros(id, base)}</p>` : ''}<p>${textoIcones(d.texto)}</p>${rec}${receita}
     ${sel.onde === 'bancada' ? '<p class="aviso-b">Na bancada o item não luta: arraste para dentro de uma bolsa.</p>' : ''}<div class="bts">${botoes}</div>`;
 }
 function ligarLoja(){
   $('btSair').onclick = () => { salvarCorrida(); tela = 'lobby'; sel = null; desenhar(); };
   $('btTrocar').onclick = () => { if(trocarLoja()){ sel = null; salvarCorrida(); desenhar(); } };
   $('btLutar').onclick = comecarLuta;
-  const b = $('btComprar'); if(b) b.onclick = () => { const p = comprar(sel.i); if(p){ colocarNaMochila(p); sel = {onde:C.mochila.pecas.includes(p) ? 'mochila' : 'bancada', p}; salvarCorrida(); desenhar(); } };
+  const b = $('btComprar'); if(b) b.onclick = () => { const p = comprar(sel.i); if(p){ colocarNaMochila(p); sel = {onde:C.mochila.pecas.includes(p) ? 'mochila' : 'bancada', p}; som('comprar'); avancarTutorial(0); salvarCorrida(); desenhar(); } };
+  raiz().querySelectorAll('[data-trava]').forEach(t => { t.onpointerdown = ev => ev.stopPropagation();
+    t.onclick = ev => { ev.stopPropagation(); const i = +t.dataset.trava; if(!C.travas) C.travas = C.loja.map(() => false); C.travas[i] = !C.travas[i]; salvarCorrida(); desenhar(); }; });
+  ligarTutorial(); ligarCartoes(); animarOuro();
   const g = $('btGirar'); if(g) g.onclick = () => { girar(sel.p); desenhar(); };
   const gu = $('btGuardar'); if(gu) gu.onclick = () => { const fora = tirar(C.mochila, sel.p); C.mochila.bancada.push(...fora); sel = {onde:'bancada', p:sel.p}; salvarCorrida(); desenhar(); };
-  const v = $('btVender'); if(v) v.onclick = () => { vender(sel.p); sel = null; salvarCorrida(); desenhar(); };
+  const v = $('btVender'); if(v) v.onclick = () => { vender(sel.p); sel = null; som('vender'); salvarCorrida(); desenhar(); };
   ligarArrasto();
 }
 // comprado pelo botão: tenta o melhor lugar na mochila; se não couber, fica na bancada
@@ -1796,7 +1860,7 @@ function iniciarArrasto(ev, el, onde){
 }
 function moverArrasto(ev){
   if(!arr) return;
-  if(!arr.ativo){ if(Math.hypot(ev.clientX - arr.x0, ev.clientY - arr.y0) < 7) return; arr.ativo = true; arr.el.classList.add('levantada'); document.body.classList.add('arrastando', arr.onde === 'loja' ? 'da-loja' : 'da-mochila'); desenharFantasma(); }
+  if(!arr.ativo){ if(Math.hypot(ev.clientX - arr.x0, ev.clientY - arr.y0) < 7) return; arr.ativo = true; arr.el.classList.add('levantada'); document.body.classList.add('arrastando', arr.onde === 'loja' ? 'da-loja' : 'da-mochila'); desenharFantasma(); marcarRelacoes(arr.id, arr.p && arr.p.uid); }
   arr.mx = ev.clientX; arr.my = ev.clientY;
   const fa = $('arrasto'); fa.style.transform = `translate(${ev.clientX - (arr.cx + .5) * TAM}px, ${ev.clientY - (arr.cy + .5) * TAM}px)`;
   // prévia na mochila: verde se cabe, vermelho se não
@@ -1830,11 +1894,11 @@ function soltarArrasto(ev){
     else { vender(a.p); sel = null; mudou = true; }
   }
   cancelarArrasto();
-  if(mudou){ salvarCorrida(); }
+  if(mudou){ const vendeu = !alvo && !sobreEl(ev, 'bancada'); som(a.onde === 'loja' ? 'comprar' : vendeu ? 'vender' : 'encaixar'); if(a.onde === 'loja') avancarTutorial(0); salvarCorrida(); }
   desenhar();
 }
 function cancelarArrasto(){ arr = null; document.body.classList.remove('arrastando', 'da-loja', 'da-mochila'); const fa = $('arrasto'); if(fa){ fa.hidden = true; fa.innerHTML = ''; } window.onpointermove = window.onpointerup = window.onpointercancel = null; }
-function tocar(a){ sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; desenhar(); }
+function tocar(a){ sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; avancarTutorial(1); desenhar(); }
 if(temDOM && typeof window !== 'undefined') window.addEventListener('keydown', ev => {
   if((ev.key === 'r' || ev.key === 'R') && arr && arr.ativo){ arr.g = (arr.g + 1) & 3; const f = forma(arr.id, arr.g); arr.cx = Math.min(arr.cx, f.w - 1); arr.cy = Math.min(arr.cy, f.h - 1); desenharFantasma(); }
   else if((ev.key === 'r' || ev.key === 'R') && tela === 'loja' && sel && sel.p){ girar(sel.p); desenhar(); }
@@ -1848,6 +1912,8 @@ async function comecarLuta(){
   const travadas = receitasTravadas(C.mochila, C.nivel || 1, C.classe).map(r => `${ITEM[r[0]].nome} + ${ITEM[r[1]].nome} só viram ${ITEM[r[2]].nome} no nível ${r[3]}`);
   // a ferramenta do ofício trabalha uma vez por rodada
   const ofi = C.oficioRodada === C.rodada ? [] : oficio(C.mochila, C.rodada); C.oficioRodada = C.rodada;
+  if(feitas.length){ som('fundir'); vibrar([40, 60, 40]); }
+  avancarTutorial(3);
   const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(travadas, ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
@@ -1859,7 +1925,7 @@ async function comecarLuta(){
   if(o && CLASSES[o.classe]) adv = {nome:o.nome, classe:o.classe, mochila:deFoto(o.itens), online:true};
   if(!adv) adv = adversarioRobo(C.rodada, misturar(C.sem, C.rodada * 31 + C.trocas), modo === 'normal' ? media : 0);
   const sem = misturar(C.sem, C.rodada * 7 + 3), r = lutar(C.mochila, C.classe, PERFIL.nome || 'Você', adv.mochila, adv.classe, adv.nome, sem);
-  lutaAtual = {r, adv, venceu:r.vencedor === 0, tempo:0, vel:1, i:0, ultimo:null, pontos:null, fechada:false};
+  lutaAtual = {r, adv, venceu:r.vencedor === 0, tempo:0, vel:opcoes().vel || 1, i:0, ultimo:null, pontos:null, fechada:false};
   if(adv.online && modo === 'ranqueada') onlineLuta(lutaAtual.venceu, C.vitorias + (lutaAtual.venceu ? 1 : 0)).then(p => { if(lutaAtual && p != null){ lutaAtual.pontos = p; PERFIL.pontos = p; gravarPerfil(); } });
   for(const pc of C.mochila.pecas) PERFIL.colecao[pc.id] = 1; gravarPerfil();
   sel = null; tela = 'luta'; desenhar(); tocarLuta();
@@ -1880,11 +1946,11 @@ function ladoHtml(k){
 function telaLuta(){
   return `<section class="luta-tela"><header class="lcab"><b>Rodada ${C.rodada}</b><span>${pips(C.vitorias, VITORIAS_META, 'vit')}</span><span class="vidas">${pips(VIDAS - C.derrotas, VIDAS, 'vida')}</span></header>
     <div class="ringue">${ladoHtml(1)}<div class="versus">contra</div>${ladoHtml(0)}</div>
-    <div class="controles"><button class="btn sm${lutaAtual.vel === 1 ? ' on' : ''}" data-vel="1">1×</button><button class="btn sm${lutaAtual.vel === 2 ? ' on' : ''}" data-vel="2">2×</button><button class="btn sm${lutaAtual.vel === 4 ? ' on' : ''}" data-vel="4">4×</button><button class="btn sm" id="btPular">Pular</button></div>
+    <div class="controles"><button class="btn sm${lutaAtual.vel === 1 ? ' on' : ''}" data-vel="1">1×</button><button class="btn sm${lutaAtual.vel === 2 ? ' on' : ''}" data-vel="2">2×</button><button class="btn sm${lutaAtual.vel === 4 ? ' on' : ''}" data-vel="4">4×</button><button class="btn sm" id="btPular">Pular</button></div>${PERFIL.dicaLuta ? '' : '<p class="dica-luta">A luta é automática. Use 2× ou 4× para acelerar, ou Pular para ver o resultado.</p>'}
     <div class="resultado" id="resultado" hidden></div></section>`;
 }
 function ligarLuta(){
-  raiz().querySelectorAll('[data-vel]').forEach(b => b.onclick = () => { lutaAtual.vel = +b.dataset.vel; raiz().querySelectorAll('[data-vel]').forEach(x => x.classList.toggle('on', x === b)); });
+  raiz().querySelectorAll('[data-vel]').forEach(b => b.onclick = () => { lutaAtual.vel = +b.dataset.vel; opcoes().vel = lutaAtual.vel; gravarPerfil(); raiz().querySelectorAll('[data-vel]').forEach(x => x.classList.toggle('on', x === b)); });
   $('btPular').onclick = () => { lutaAtual.tempo = 1e9; };
   aplicarFoto(lutaAtual.r.eventos[0].foto);
 }
@@ -1896,7 +1962,12 @@ function aplicarFoto(f){
     el.querySelector('.ests').innerHTML = Object.keys(NOME_EST).filter(e => L[e] > 0).map(e => `<span style="--c:${COR_EST[e]}">${NOME_EST[e]} ${L[e]}</span>`).join('');
     el.querySelector('.vigor').innerHTML = `<small>Vigor</small>${pips(L.vigor, VIGOR_MAX, 'vg')}`; });
 }
-function numeroFlutuante(k, txt, cls){ const el = $('lado' + k); if(!el) return; const n = document.createElement('span'); n.className = 'flut ' + cls; n.textContent = txt; n.style.left = (30 + Math.random() * 40) + '%'; el.querySelector('.flutuantes').appendChild(n); setTimeout(() => n.remove(), 1000); }
+// item: o número sai de cima da peça que agiu (cura e bloqueio); sem ele, sai do alto do painel
+function numeroFlutuante(k, txt, cls, item){ const el = $('lado' + k); if(!el) return; const n = document.createElement('span'); n.className = 'flut ' + cls; n.textContent = txt;
+  const p = item != null ? el.querySelectorAll('.mini .peca:not(.bolsa)')[item] : null;
+  if(p){ const a = el.getBoundingClientRect(), b = p.getBoundingClientRect(); n.classList.add('da-peca'); n.style.left = (b.left - a.left + b.width / 2) + 'px'; n.style.top = (b.top - a.top) + 'px'; el.appendChild(n); }
+  else { n.style.left = (30 + Math.random() * 40) + '%'; el.querySelector('.flutuantes').appendChild(n); }
+  setTimeout(() => n.remove(), 1000); }
 function piscar(k, item){ const el = $('lado' + k); if(!el) return; const p = el.querySelectorAll('.mini .peca:not(.bolsa)')[item]; if(p){ p.classList.remove('age'); void p.offsetWidth; p.classList.add('age'); } }
 function tocarLuta(){
   let ant = performance.now();
@@ -1906,10 +1977,10 @@ function tocarLuta(){
     const ev = L.r.eventos; let ultimaFoto = null;
     while(L.i < ev.length && ev[L.i].t <= L.tempo){ const e = ev[L.i++]; ultimaFoto = e.foto;
       if(L.tempo < 1e8){
-        if(e.tipo === 'ataque' || e.tipo === 'magia' || e.tipo === 'ativa') piscar(e.lado, e.item);
+        if(e.tipo === 'ataque' || e.tipo === 'magia' || e.tipo === 'ativa'){ piscar(e.lado, e.item); if(e.tipo === 'ataque' && L.vel <= 2) som('golpe'); }
         else if(['dano', 'magia', 'queimadura', 'venenoDano', 'cansaco', 'espinhos'].includes(e.tipo) && e.valor) numeroFlutuante(e.lado, '-' + e.valor, e.crit ? 'crit' : e.tipo);
-        else if(e.tipo === 'cura') numeroFlutuante(e.lado, '+' + e.valor, 'cura');
-        else if(e.tipo === 'bloqueio') numeroFlutuante(e.lado, '+' + e.valor, 'bloq');
+        else if(e.tipo === 'cura') numeroFlutuante(e.lado, '+' + e.valor, 'cura', e.item);
+        else if(e.tipo === 'bloqueio') numeroFlutuante(e.lado, '+' + e.valor, 'bloq', e.item);
         else if(e.tipo === 'esquivou') numeroFlutuante(e.lado, 'Esquivou', 'esq'); } }
     if(ultimaFoto) aplicarFoto(ultimaFoto);
     if(L.i >= ev.length){ mostrarResultado(); return; }
@@ -1942,8 +2013,9 @@ function statsHtml(r){
 function mostrarResultado(){
   const L = lutaAtual; if(L.fechada) return; L.fechada = true;
   const el = $('resultado'); el.hidden = false;
-  el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu');
-  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (C.modo === 'ranqueada' ? ': os pontos de liga vêm no fim da corrida.' : '.') : ''}</p><div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
+  el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu'); som(L.venceu ? 'vitoria' : 'derrota'); if(L.venceu) vibrar(80); PERFIL.dicaLuta = 1; gravarPerfil();
+  const pior = L.venceu ? null : estatisticas(L.r)[1].itens.slice().sort((a, b) => b.dano - a.dano)[0];
+  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (C.modo === 'ranqueada' ? ': os pontos de liga vêm no fim da corrida.' : '.') : ''}</p>${pior && pior.dano ? `<p class="pior">O que mais te machucou: <span class="mini-item">${iconeItem(pior.id)}${ITEM[pior.id].nome}</span> · ${pior.dano} de dano</p>` : ''}<div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
   $('btStats').onclick = () => { const st = $('stats'); st.hidden = !st.hidden; el.classList.toggle('largo', !st.hidden); };
   $('btSeguir').onclick = () => {
     fecharRodada(L.venceu, L.adv.nome); lutaAtual = null;
@@ -1997,6 +2069,7 @@ function telaFim(){
     <div class="acoes"><button class="btn primario grande" id="btDeNovo">Nova corrida</button><button class="btn" id="btRanking">Ranking</button><button class="btn" id="btLobby">Lobby</button></div></section>`;
 }
 function ligarFim(){
+  if(C.vitorias >= VITORIAS_META && !C.festejou){ C.festejou = true; confete(); som('festa'); vibrar([60, 40, 60, 40, 120]); }
   $('btDeNovo').onclick = () => comecarCorrida(C.classe);
   $('btRanking').onclick = abrirRanking; $('btLobby').onclick = () => { tela = 'lobby'; desenhar(); };
 }
@@ -2105,7 +2178,7 @@ const TELAS = {colecao:[telaColecao, ligarColecao], cartas:[telaCartas, ligarCar
 function desenhar(){
   if(!uiAtiva) return;
   const [h, l] = TELAS[tela] || TELAS.lobby;
-  document.body.dataset.tela = tela;
+  document.body.dataset.tela = tela; aplicarOpcoes(); esconderCartao();
   // o fundo pintado de cada tela, bem apagado atrás dos painéis
   const fundo = urlArte(tela === 'luta' ? 'fundo-luta' : 'fundo-lobby'); document.body.classList.toggle('com-fundo', !!fundo); if(fundo) document.body.style.setProperty('--fundo-img', `url("${fundo}")`);
   raiz().innerHTML = h(); l();
@@ -2176,6 +2249,163 @@ async function carregarJogo(){
   tela.classList.add('saindo');
   setTimeout(() => { parar(); tela.remove(); }, 600);
 }
+// ---------- Experiência de jogo: opções, sons, vibração, tutorial, prévia de fusões, destaques e cartão do item ----------
+
+// ---- opções do jogador (guardadas no perfil) ----
+const OPC_PADRAO = {som:true, vibrar:true, textoGrande:false, daltonico:false, vel:1};
+function opcoes(){ if(!PERFIL.opc) PERFIL.opc = Object.assign({}, OPC_PADRAO); return PERFIL.opc; }
+function aplicarOpcoes(){ if(!temDOM) return; const o = opcoes(); document.body.classList.toggle('texto-grande', !!o.textoGrande); document.body.classList.toggle('daltonico', !!o.daltonico); }
+// quem já jogou não vê o tutorial; quem chega agora começa da primeira dica
+if(PERFIL && PERFIL.tutorial == null) PERFIL.tutorial = PERFIL.corridas ? 99 : 0;
+
+// ---- sons feitos na hora pelo navegador (sem arquivos de áudio) ----
+let audioCtx = null;
+function ctxAudio(){
+  if(!temDOM || typeof window === 'undefined') return null;
+  const A = window.AudioContext || window.webkitAudioContext; if(!A) return null;
+  if(!audioCtx) audioCtx = new A(); if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function somTom(c, t0, freq, dur, tipo, vol, freqFim){
+  const o = c.createOscillator(), g = c.createGain(); o.type = tipo || 'sine';
+  o.frequency.setValueAtTime(freq, t0); if(freqFim) o.frequency.exponentialRampToValueAtTime(freqFim, t0 + dur);
+  g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + .008); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+  o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + dur + .02);
+}
+function somRuido(c, t0, dur, vol, filtro, freq){
+  const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+  for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  s.buffer = b; f.type = filtro || 'highpass'; f.frequency.value = freq || 2000; g.gain.value = vol;
+  s.connect(f).connect(g).connect(c.destination); s.start(t0);
+}
+// uma martelada na bigorna: parciais metálicas fora da série harmônica que somem rápido, mais o estalo do golpe
+function somMartelada(c, t0, forca){
+  for(const [m, v, d] of [[1, .22, .9], [2.76, .12, .6], [5.4, .07, .4], [8.93, .04, .25]]) somTom(c, t0, 520 * m, d, 'sine', v * forca);
+  somRuido(c, t0, .05, .25 * forca, 'highpass', 3000);
+}
+const SONS = {
+  comprar: (c, t) => { somTom(c, t, 880, .08, 'triangle', .12); somTom(c, t + .07, 1320, .12, 'triangle', .1); },
+  vender: (c, t) => { somTom(c, t, 1200, .07, 'triangle', .1); somTom(c, t + .06, 800, .12, 'triangle', .08); },
+  encaixar: (c, t) => { somTom(c, t, 220, .07, 'square', .05, 140); somRuido(c, t, .03, .08, 'lowpass', 900); },
+  golpe: (c, t) => { somRuido(c, t, .06, .12, 'bandpass', 1400); somTom(c, t, 160, .08, 'sine', .08, 90); },
+  // fusão na forja: duas marteladas na bigorna e o chiado do metal quente na água
+  fundir: (c, t) => { somMartelada(c, t, 1); somMartelada(c, t + .28, .8); somRuido(c, t + .55, .7, .08, 'highpass', 4500); },
+  vitoria: (c, t) => [523, 659, 784, 1046].forEach((f, i) => somTom(c, t + i * .1, f, .35, 'triangle', .12)),
+  derrota: (c, t) => [392, 330, 262].forEach((f, i) => somTom(c, t + i * .14, f, .4, 'triangle', .1)),
+  festa: (c, t) => [523, 659, 784, 1046, 784, 1046, 1318].forEach((f, i) => somTom(c, t + i * .09, f, .3, 'triangle', .12)),
+};
+const ultimoSom = {};
+function som(nome){
+  try{ if(!opcoes().som || !SONS[nome]) return; const c = ctxAudio(); if(!c) return;
+    const agora = performance.now(); if(ultimoSom[nome] && agora - ultimoSom[nome] < 70) return; ultimoSom[nome] = agora;
+    SONS[nome](c, c.currentTime + .01); }catch(e){}
+}
+function vibrar(ms){ try{ if(opcoes().vibrar && typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
+
+// ---- ícones de efeito no meio dos textos dos itens ----
+const EFX_RE = /\b(queim\w*|envenen\w*|veneno|gelo|bloqueio|cura|curam|vida|força|mana|esquiva|vigor)/gi;
+const EFX_IC = w => /^queim/i.test(w) ? 'chama' : /^(envenen|veneno)/i.test(w) ? 'caveira' : /^gelo/i.test(w) ? 'gelo' : /^bloqueio/i.test(w) ? 'escudo'
+  : /^(cura|vida)/i.test(w) ? 'coracao' : /^força/i.test(w) ? 'martelo' : /^mana/i.test(w) ? 'cristal' : /^esquiva/i.test(w) ? 'vento' : 'raio';
+const textoIcones = t => String(t || '').replace(EFX_RE, w => ic(EFX_IC(w), 'efx') + w);
+
+// ---- prévia das fusões: pares de receita já encostados na mochila ----
+function paresFusao(m){
+  const M = new Map(), pode = RECEITAS.filter(r => receitaVale(r, C.nivel || 1, C.classe));
+  for(const p of m.pecas){ if(ehBolsa(p) || M.has(p.uid)) continue;
+    for(const q of vizinhos(m, p)){ if(M.has(q.uid)) continue;
+      const r = pode.find(([a, b]) => (a === p.id && b === q.id) || (a === q.id && b === p.id));
+      if(r){ M.set(p.uid, {vira:r[2], mostra:true}); M.set(q.uid, {vira:r[2], mostra:false}); break; } } }
+  return M;
+}
+// o que um item (segurado ou escolhido na vitrine) tem com uma peça da mochila: 'par' (fundem) ou 'ajuda' (um melhora o outro)
+function relacaoCom(id, q){
+  if(RECEITAS.some(r => ((r[0] === id && r[1] === q.id) || (r[1] === id && r[0] === q.id)) && receitaVale(r, C.nivel || 1, C.classe))) return 'par';
+  const A = ITEM[id], B = ITEM[q.id];
+  return (A.viz && combina(B, A.viz.alvo)) || (B.viz && combina(A, B.viz.alvo)) ? 'ajuda' : null;
+}
+function marcarRelacoes(id, semUid){
+  esconderCartao();
+  raiz().querySelectorAll('.mochila .peca').forEach(el => { el.classList.remove('rel-par', 'rel-ajuda'); if(!id) return;
+    const p = C.mochila.pecas.find(q => q.uid === +el.dataset.uid); if(!p || p.uid === semUid || ehBolsa(p)) return;
+    const r = relacaoCom(id, p); if(r) el.classList.add('rel-' + r); });
+}
+
+// ---- o ouro subindo e descendo ----
+let ouroVisto = null;
+function animarOuro(){
+  const el = raiz().querySelector('.ph-acoes .ouro'); if(!el || !C) return;
+  if(ouroVisto != null && C.ouro !== ouroVisto){ const d = C.ouro - ouroVisto, n = document.createElement('span');
+    n.className = 'ouro-flut ' + (d > 0 ? 'mais' : 'menos'); n.textContent = (d > 0 ? '+' : '−') + Math.abs(d); el.appendChild(n); setTimeout(() => n.remove(), 900); }
+  ouroVisto = C.ouro;
+}
+
+// ---- tutorial da primeira corrida ----
+const PASSOS_TUT = [
+  'Arraste um item da vitrine para dentro da mochila, nas casas com borda dourada. Só o que está na mochila luta.',
+  'Toque num item para ver o que ele faz. Itens encostados se ajudam: ao segurar um item, os vizinhos que combinam acendem.',
+  'Brilho dourado entre duas peças é fusão: no começo da luta elas viram um item melhor.',
+  'Quando estiver pronto, toque em Lutar. A luta é automática: você só assiste.',
+];
+const tutorialAtivo = () => PERFIL.tutorial != null && PERFIL.tutorial < PASSOS_TUT.length;
+function dicaTutorial(){
+  if(!tutorialAtivo()) return ''; const k = PERFIL.tutorial;
+  return `<div class="dica-tut"><span class="dt-passo">Dica ${k + 1} de ${PASSOS_TUT.length}</span><p>${PASSOS_TUT[k]}</p>
+    <div class="dt-bts">${k >= 2 ? `<button class="btn sm" id="btTutOk">${k === PASSOS_TUT.length - 1 ? 'Entendi' : 'Próxima'}</button>` : ''}<button class="btn sm" id="btTutFim">Pular dicas</button></div></div>`;
+}
+function avancarTutorial(de){ if(PERFIL.tutorial === de){ PERFIL.tutorial++; gravarPerfil(); } }
+function ligarTutorial(){
+  const ok = $('btTutOk'); if(ok) ok.onclick = () => { PERFIL.tutorial++; gravarPerfil(); desenhar(); };
+  const f = $('btTutFim'); if(f) f.onclick = () => { PERFIL.tutorial = 99; gravarPerfil(); desenhar(); };
+}
+
+// ---- cartão flutuante do item: passando o mouse, ou segurando o dedo no celular ----
+function cartaoItem(id){
+  const d = ITEM[id], rec = RECEITAS.filter(r => (r[0] === id || r[1] === id) && receitaVale(r, C.nivel || 1, C.classe)).slice(0, 3)
+    .map(r => `<li>com <b>${ITEM[r[0] === id ? r[1] : r[0]].nome}</b> vira <b>${ITEM[r[2]].nome}</b></li>`).join('');
+  return `<div class="ct-cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}</small></div></div>
+    <p>${textoIcones(d.texto)}</p>${rec ? `<ul class="ct-rec">${rec}</ul>` : ''}`;
+}
+function mostrarCartao(id, x, y){
+  let c = $('cartao-item'); if(!c){ c = document.createElement('div'); c.id = 'cartao-item'; document.body.appendChild(c); }
+  c.innerHTML = cartaoItem(id); c.hidden = false;
+  const w = c.offsetWidth, h = c.offsetHeight;
+  c.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 16)) + 'px'; c.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, y + 16)) + 'px';
+}
+function esconderCartao(){ const c = typeof document !== 'undefined' && $('cartao-item'); if(c) c.hidden = true; }
+let toqueLongo = null;
+function ligarCartoes(){
+  raiz().querySelectorAll('.mochila .peca:not(.bolsa), .bancada .peca, [data-loja]').forEach(el => {
+    const id = () => el.dataset.loja != null ? C.loja[+el.dataset.loja] : (acharPeca(+el.dataset.uid) || {}).id;
+    el.addEventListener('pointermove', ev => { if(ev.pointerType === 'mouse' && !(arr && arr.ativo) && id()) mostrarCartao(id(), ev.clientX, ev.clientY); });
+    el.addEventListener('pointerleave', ev => { if(ev.pointerType === 'mouse') esconderCartao(); });
+    el.addEventListener('pointerdown', ev => { if(ev.pointerType === 'mouse') return; clearTimeout(toqueLongo);
+      toqueLongo = setTimeout(() => { if(!(arr && arr.ativo) && id()) mostrarCartao(id(), ev.clientX - 120, ev.clientY - 170); }, 450); });
+  });
+}
+if(temDOM && typeof window !== 'undefined') window.addEventListener('pointerup', ev => { clearTimeout(toqueLongo); if(ev.pointerType !== 'mouse') setTimeout(esconderCartao, 1400); });
+
+// ---- festa ao fechar 7 vitórias ----
+function confete(){
+  const c = document.createElement('div'), cores = ['#f2b350', '#e5533f', '#6cc35a', '#7ab8ff', '#c27aff']; c.className = 'confete';
+  c.innerHTML = Array.from({length:70}, (_, i) => `<i style="left:${(Math.random() * 100).toFixed(1)}%;background:${cores[i % 5]};animation-delay:${(Math.random() * .9).toFixed(2)}s;animation-duration:${(2 + Math.random() * 1.6).toFixed(2)}s"></i>`).join('');
+  document.body.appendChild(c); setTimeout(() => c.remove(), 4600);
+}
+
+// ---- tela de opções ----
+function telaOpcoes(){
+  const o = opcoes(), sw = (k, txt, sub) => `<label class="opc"><span><b>${txt}</b><small>${sub}</small></span><input type="checkbox" data-opc="${k}"${o[k] ? ' checked' : ''}></label>`;
+  return `<section class="ranking-tela opcoes-tela"><h1>Opções</h1>
+    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}
+    ${sw('textoGrande', 'Texto maior', 'Letras maiores nas descrições, na loja e nas dicas')}${sw('daltonico', 'Raridade com letra', 'Mostra C, I, R, É ou L nos itens, além da cor')}
+    <button class="btn sm" id="btTutDeNovo">Ver as dicas de novo</button><button class="btn" id="btVoltar">Voltar</button></section>`;
+}
+function ligarOpcoes(){
+  raiz().querySelectorAll('[data-opc]').forEach(i => i.onchange = () => { opcoes()[i.dataset.opc] = i.checked; gravarPerfil(); aplicarOpcoes(); if(i.dataset.opc === 'som' && i.checked) som('comprar'); if(i.dataset.opc === 'vibrar' && i.checked) vibrar(60); });
+  $('btTutDeNovo').onclick = () => { PERFIL.tutorial = 0; gravarPerfil(); avisar('As dicas aparecem na próxima loja'); };
+  $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); };
+}
+TELAS.opcoes = [telaOpcoes, ligarOpcoes];
 // ---------- Início: tela de carregamento, depois o lobby, e sincroniza com o servidor ----------
 if(uiAtiva){
   // a tela de carregamento prepara as imagens e já confirma que o servidor responde (06b-carregando.js)
