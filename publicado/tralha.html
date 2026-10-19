@@ -580,6 +580,10 @@ body.nativo #jogo{ padding-top:env(safe-area-inset-top); }
 @media (max-width:520px){ .herois-fav{ gap:6px; } .heroi-card{ padding:5px; } .heroi-card b{ font-size:13px; } }
 .perfil-tela .opc{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; border:1px solid var(--borda2); background:var(--painel); text-align:left; }
 .perfil-tela .opc small{ display:block; color:var(--suave); font-size:12px; }
+/* botões de ação das telas longas: acompanham a rolagem, sempre à vista no rodapé */
+.acoes-fim, .ranking-tela > #btVoltar, .ranking-tela > #btVoltarPerfil, section > #btVoltar{ position:sticky; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:15; }
+.acoes-fim{ padding:8px 10px; border-radius:16px; background:rgba(18,17,23,.88); border:1px solid var(--borda2); backdrop-filter:blur(8px); box-shadow:0 8px 24px rgba(0,0,0,.5); }
+.ranking-tela > #btVoltar, .ranking-tela > #btVoltarPerfil, section > #btVoltar{ box-shadow:0 8px 24px rgba(0,0,0,.6); }
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
