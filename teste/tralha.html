@@ -475,6 +475,20 @@ body.daltonico .peca[data-rar="rara"]::before{ content:'R'; } body.daltonico .pe
   .loja2 .ph-acoes{ position:fixed; left:0; right:0; bottom:0; z-index:20; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); background:rgba(18,17,23,.94); border-top:1px solid var(--borda2); backdrop-filter:blur(10px); }
   .loja2 .painel-heroi{ grid-template-columns:auto 1fr; }
 }
+
+/* ---------- Computador: telas grandes, lista de atalhos ---------- */
+@media (min-width:1400px){
+  .loja2 .area2{ grid-template-columns:auto minmax(0, 600px); gap:22px; }
+  .loja2 .item-loja{ width:110px; } .loja2 .item-loja .pic{ width:70px; height:70px; }
+  .lutador{ width:min(100%, 640px); } .ringue{ width:min(100%, 1340px); }
+}
+@media (hover:none){ .so-pc{ display:none !important; } }
+#atalhos{ position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); }
+#atalhos .at-caixa{ width:min(92vw, 460px); max-height:86vh; overflow:auto; padding:18px 20px; border-radius:18px; border:1px solid var(--borda2); background:var(--painel); box-shadow:0 20px 50px rgba(0,0,0,.6); }
+#atalhos h2{ margin:0 0 6px; font-family:var(--fonte-titulo); text-transform:uppercase; } #atalhos h3{ margin:12px 0 4px; font-size:13px; color:var(--ambar); text-transform:uppercase; letter-spacing:.06em; }
+#atalhos dl{ display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin:0; font-size:14px; } #atalhos dt{ font-weight:700; white-space:nowrap; } #atalhos dd{ margin:0; color:var(--suave); }
+#atalhos .btn{ margin-top:14px; width:100%; }
+.opcoes-tela .opc input[type=range]{ width:160px; height:auto; }
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -1750,7 +1764,7 @@ function ligarTrilha(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar
 
 // ---- tela: loja com a mochila ----
 let TAM = 44;
-function medirCasa(){ const w = Math.min(window.innerWidth, 1280), larg = w > 900 ? Math.min(600, w - 560) : w - 44; TAM = Math.max(30, Math.min(58, Math.floor(larg / LARG))); }
+function medirCasa(){ const W = window.innerWidth, w = Math.min(W, 1280), larg = W >= 1400 ? Math.min(760, W - 680) : w > 900 ? Math.min(600, w - 560) : w - 44; TAM = Math.max(30, Math.min(W >= 1400 ? 76 : 58, Math.floor(larg / LARG))); }
 function hud(){
   const c = CLASSES[C.classe];
   return `<header class="hud">${retrato(C.classe) ? `<img class="rosto" src="${retrato(C.classe)}" alt="">` : ''}
@@ -1783,7 +1797,7 @@ function telaLoja(){
       <div class="painel-mochila">
         <div class="pm-cab"><b>Mochila</b><span>${abertas.size} de ${LARG * ALT} casas abertas</span></div>
         <div class="moldura"><div class="mochila" id="mochila" style="width:${LARG * TAM}px;height:${ALT * TAM}px">${grade}${pecas}<div class="previa" id="previa"></div></div></div>
-        <p class="pm-dica">A moldura é até onde a mochila pode crescer. As marcas verdes mostram onde cabe uma bolsa nova.</p>
+        <p class="pm-dica">A moldura é até onde a mochila pode crescer. As marcas verdes mostram onde cabe uma bolsa nova.<span class="so-pc"> Aperte <b>?</b> para ver os atalhos.</span></p>
         <div class="bancada" id="bancada"><small>Bancada · não luta</small>${banc || '<span class="vaziob">Arraste para cá o que não couber</span>'}</div>
       </div>
       <div class="painel-direita">
@@ -1905,7 +1919,7 @@ function soltarArrasto(ev){
   desenhar();
 }
 function cancelarArrasto(){ arr = null; document.body.classList.remove('arrastando', 'da-loja', 'da-mochila'); const fa = $('arrasto'); if(fa){ fa.hidden = true; fa.innerHTML = ''; } window.onpointermove = window.onpointerup = window.onpointercancel = null; }
-function tocar(a){ sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; avancarTutorial(1); desenhar(); }
+function tocar(a){ if(a.onde === 'loja' && duploNaVitrine(a.i)){ comprarDaVaga(a.i); return; } sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; avancarTutorial(1); desenhar(); }
 if(temDOM && typeof window !== 'undefined') window.addEventListener('keydown', ev => {
   if((ev.key === 'r' || ev.key === 'R') && arr && arr.ativo){ arr.g = (arr.g + 1) & 3; const f = forma(arr.id, arr.g); arr.cx = Math.min(arr.cx, f.w - 1); arr.cy = Math.min(arr.cy, f.h - 1); desenharFantasma(); }
   else if((ev.key === 'r' || ev.key === 'R') && tela === 'loja' && sel && sel.p){ girar(sel.p); desenhar(); }
@@ -1940,7 +1954,7 @@ async function comecarLuta(){
 const NOME_EST = {forca:'Força', queima:'Queimadura', veneno:'Veneno', regen:'Regeneração', esquiva:'Esquiva', gelo:'Gelo', espinhos:'Espinhos', mana:'Mana'};
 const COR_EST = {forca:'#d9483b', queima:'#f08a2a', veneno:'#5aa84a', regen:'#7ad06a', esquiva:'#8ab4d8', gelo:'#7ad0f0', espinhos:'#b07a4a', mana:'#7a6ad8'};
 function ladoHtml(k){
-  const L = lutaAtual.r.lados[k], adv = k === 1, tam = Math.max(16, Math.min(44, Math.floor((Math.min(480, window.innerWidth - 24) - 30) / LARG)));
+  const L = lutaAtual.r.lados[k], adv = k === 1, largo = window.innerWidth >= 1400, tam = Math.max(16, Math.min(largo ? 62 : 44, Math.floor((Math.min(largo ? 640 : 480, window.innerWidth - 24) - 30) / LARG)));
   const mini = {pecas:L.itens.map((s, i) => ({uid:1000 + i, id:s.id, x:s.x, y:s.y, g:s.g}))};
   const bolsas = (k === 0 ? C.mochila : lutaAtual.adv.mochila).pecas.filter(ehBolsa);
   const pecas = bolsas.concat(mini.pecas).map(p => `<div class="posto" style="left:${p.x * tam}px;top:${p.y * tam}px">${pecaHtml(p, tam, '')}</div>`).join('');
@@ -2259,7 +2273,7 @@ async function carregarJogo(){
 // ---------- Experiência de jogo: opções, sons, vibração, tutorial, prévia de fusões, destaques e cartão do item ----------
 
 // ---- opções do jogador (guardadas no perfil) ----
-const OPC_PADRAO = {som:true, vibrar:true, textoGrande:false, daltonico:false, vel:1};
+const OPC_PADRAO = {som:true, volume:70, vibrar:true, textoGrande:false, daltonico:false, vel:1};
 function opcoes(){ if(!PERFIL.opc) PERFIL.opc = Object.assign({}, OPC_PADRAO); return PERFIL.opc; }
 function aplicarOpcoes(){ if(!temDOM) return; const o = opcoes(); document.body.classList.toggle('texto-grande', !!o.textoGrande); document.body.classList.toggle('daltonico', !!o.daltonico); }
 // quem já jogou não vê o tutorial; quem chega agora começa da primeira dica
@@ -2273,18 +2287,21 @@ function ctxAudio(){
   if(!audioCtx) audioCtx = new A(); if(audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
+// tudo passa por um volume geral (opções: 0 a 100)
+let saidaGeral = null;
+function saidaSom(c){ if(!saidaGeral){ saidaGeral = c.createGain(); saidaGeral.connect(c.destination); } const v = opcoes().volume; saidaGeral.gain.value = (v == null ? 70 : v) / 70; return saidaGeral; }
 function somTom(c, t0, freq, dur, tipo, vol, freqFim){
   const o = c.createOscillator(), g = c.createGain(); o.type = tipo || 'sine';
   o.frequency.setValueAtTime(freq, t0); if(freqFim) o.frequency.exponentialRampToValueAtTime(freqFim, t0 + dur);
   g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + .008); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
-  o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + dur + .02);
+  o.connect(g).connect(saidaSom(c)); o.start(t0); o.stop(t0 + dur + .02);
 }
 function somRuido(c, t0, dur, vol, filtro, freq){
   const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
   for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
   const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
   s.buffer = b; f.type = filtro || 'highpass'; f.frequency.value = freq || 2000; g.gain.value = vol;
-  s.connect(f).connect(g).connect(c.destination); s.start(t0);
+  s.connect(f).connect(g).connect(saidaSom(c)); s.start(t0);
 }
 // uma martelada na bigorna: parciais metálicas fora da série harmônica que somem rápido, mais o estalo do golpe
 function somMartelada(c, t0, forca){
@@ -2403,16 +2420,84 @@ function confete(){
 function telaOpcoes(){
   const o = opcoes(), sw = (k, txt, sub) => `<label class="opc"><span><b>${txt}</b><small>${sub}</small></span><input type="checkbox" data-opc="${k}"${o[k] ? ' checked' : ''}></label>`;
   return `<section class="ranking-tela opcoes-tela"><h1>Opções</h1>
-    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}
+    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}<label class="opc"><span><b>Volume</b><small>${o.volume == null ? 70 : o.volume}%</small></span><input type="range" min="0" max="100" step="5" id="volume" value="${o.volume == null ? 70 : o.volume}"></label>${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}
     ${sw('textoGrande', 'Texto maior', 'Letras maiores nas descrições, na loja e nas dicas')}${sw('daltonico', 'Raridade com letra', 'Mostra C, I, R, É ou L nos itens, além da cor')}
-    <button class="btn sm" id="btTutDeNovo">Ver as dicas de novo</button><button class="btn" id="btVoltar">Voltar</button></section>`;
+    <button class="btn sm" id="btTutDeNovo">Ver as dicas de novo</button><button class="btn sm so-pc" id="btAtalhos">Atalhos do teclado</button><button class="btn" id="btVoltar">Voltar</button></section>`;
 }
 function ligarOpcoes(){
   raiz().querySelectorAll('[data-opc]').forEach(i => i.onchange = () => { opcoes()[i.dataset.opc] = i.checked; gravarPerfil(); aplicarOpcoes(); if(i.dataset.opc === 'som' && i.checked) som('comprar'); if(i.dataset.opc === 'vibrar' && i.checked) vibrar(60); });
+  const vol = $('volume'); vol.oninput = () => { opcoes().volume = +vol.value; vol.closest('.opc').querySelector('small').textContent = vol.value + '%'; }; vol.onchange = () => { gravarPerfil(); som('fundir'); };
+  $('btAtalhos').onclick = painelAtalhos;
   $('btTutDeNovo').onclick = () => { PERFIL.tutorial = 0; gravarPerfil(); avisar('As dicas aparecem na próxima loja'); };
   $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); };
 }
 TELAS.opcoes = [telaOpcoes, ligarOpcoes];
+// ---------- Computador: atalhos de teclado, mouse (girar, comprar com duplo clique, vender com Shift) e a lista de atalhos ----------
+const digitando = () => { const a = typeof document !== 'undefined' && document.activeElement; return !!a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA'); };
+const ATALHOS = [
+  ['Loja', [['Espaço ou Enter', 'Lutar'], ['1 a 5', 'Comprar o item da vaga'], ['T', 'Trocar a vitrine'], ['R ou clique direito', 'Girar a peça'], ['V ou Shift + clique', 'Vender a peça'], ['Duplo clique na vitrine', 'Comprar e encaixar'], ['Roda do mouse', 'Girar a peça que está sendo arrastada'], ['Esc', 'Soltar a seleção']]],
+  ['Luta', [['1, 2 ou 4', 'Velocidade'], ['Espaço', 'Pular para o resultado'], ['Enter', 'Continuar']]],
+  ['Geral', [['?', 'Mostrar ou esconder esta lista'], ['F11', 'Tela cheia (no aplicativo)']]],
+];
+function painelAtalhos(){
+  let p = $('atalhos'); if(p){ p.remove(); return; }
+  p = document.createElement('div'); p.id = 'atalhos';
+  p.innerHTML = `<div class="at-caixa"><h2>Atalhos</h2>${ATALHOS.map(([t, L]) => `<h3>${t}</h3><dl>${L.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`).join('')}<button class="btn" id="btFecharAtalhos">Fechar</button></div>`;
+  document.body.appendChild(p); p.onclick = ev => { if(ev.target === p || ev.target.id === 'btFecharAtalhos') p.remove(); };
+}
+function comprarDaVaga(i){
+  if(!C || !C.loja[i]) return;
+  if(ITEM[C.loja[i]].preco > C.ouro){ avisar('Ouro insuficiente'); return; }
+  const p = comprar(i); if(!p) return;
+  colocarNaMochila(p); sel = {onde:C.mochila.pecas.includes(p) ? 'mochila' : 'bancada', p};
+  som('comprar'); avancarTutorial(0); salvarCorrida(); desenhar();
+}
+function venderSel(p){
+  if(!p || ITEM[p.id].inicial){ if(p) avisar('Este item não pode ser vendido'); return; }
+  vender(p); sel = null; som('vender'); salvarCorrida(); desenhar();
+}
+if(temDOM && typeof window !== 'undefined'){
+  window.addEventListener('keydown', ev => {
+    if(digitando() || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if(ev.key === '?'){ painelAtalhos(); return; }
+    if(ev.key === 'Escape'){ const a = $('atalhos'); if(a){ a.remove(); return; } if(arr){ cancelarArrasto(); desenhar(); return; } if(tela === 'loja' && sel){ sel = null; desenhar(); } return; }
+    if(tela === 'loja' && !(arr && arr.ativo)){
+      if(ev.key === ' ' || ev.key === 'Enter'){ ev.preventDefault(); const b = $('btLutar'); if(b && !b.disabled) b.click(); }
+      else if(ev.key === 't' || ev.key === 'T'){ const b = $('btTrocar'); if(b && !b.disabled) b.click(); }
+      else if((ev.key === 'v' || ev.key === 'V') && sel && sel.p) venderSel(sel.p);
+      else if(/^[1-9]$/.test(ev.key) && +ev.key <= C.loja.length) comprarDaVaga(+ev.key - 1);
+    } else if(tela === 'luta' && lutaAtual){
+      const vel = {'1':1, '2':2, '4':4}[ev.key];
+      if(vel){ const b = raiz().querySelector(`[data-vel="${vel}"]`); if(b) b.click(); }
+      else if(ev.key === ' '){ ev.preventDefault(); if(!lutaAtual.fechada) lutaAtual.tempo = 1e9; }
+      else if(ev.key === 'Enter'){ const b = $('btSeguir'); if(b) b.click(); }
+    } else if(tela === 'fim' && ev.key === 'Enter'){ const b = $('btDeNovo'); if(b) b.click(); }
+  });
+  // clique direito numa peça da mochila gira (durante o arrasto, o 06-telas já gira a peça segurada)
+  window.addEventListener('contextmenu', ev => {
+    if(tela !== 'loja' || (arr && arr.ativo)) return;
+    const el = ev.target.closest && ev.target.closest('.mochila .peca, .bancada .peca'); if(!el) return;
+    ev.preventDefault(); const p = acharPeca(+el.dataset.uid); if(p){ sel = {onde:C.mochila.pecas.includes(p) ? 'mochila' : 'bancada', p}; girar(p); desenhar(); }
+  });
+  // roda do mouse gira a peça que está sendo arrastada
+  window.addEventListener('wheel', ev => {
+    if(!(arr && arr.ativo)) return; ev.preventDefault();
+    arr.g = (arr.g + (ev.deltaY > 0 ? 1 : 3)) & 3; const f = forma(arr.id, arr.g); arr.cx = Math.min(arr.cx, f.w - 1); arr.cy = Math.min(arr.cy, f.h - 1); desenharFantasma();
+  }, {passive:false});
+  // Shift + clique numa peça vende na hora (antes de começar o arrasto)
+  window.addEventListener('pointerdown', ev => {
+    if(tela !== 'loja' || !ev.shiftKey || ev.button > 0) return;
+    const el = ev.target.closest && ev.target.closest('.mochila .peca, .bancada .peca'); if(!el) return;
+    ev.stopPropagation(); ev.preventDefault(); venderSel(acharPeca(+el.dataset.uid));
+  }, true);
+}
+// duplo clique (ou dois toques) no mesmo item da vitrine: compra e encaixa no melhor lugar
+let ultimoToqueLoja = null;
+function duploNaVitrine(i){
+  const agora = Date.now(), d = ultimoToqueLoja && ultimoToqueLoja.i === i && agora - ultimoToqueLoja.t < 380;
+  ultimoToqueLoja = d ? null : {i, t:agora};
+  return d;
+}
 // ---------- Início: tela de carregamento, depois o lobby, e sincroniza com o servidor ----------
 if(uiAtiva){
   // a tela de carregamento prepara as imagens e já confirma que o servidor responde (06b-carregando.js)

@@ -432,3 +432,17 @@ body.daltonico .peca[data-rar="rara"]::before{ content:'R'; } body.daltonico .pe
   .loja2 .ph-acoes{ position:fixed; left:0; right:0; bottom:0; z-index:20; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); background:rgba(18,17,23,.94); border-top:1px solid var(--borda2); backdrop-filter:blur(10px); }
   .loja2 .painel-heroi{ grid-template-columns:auto 1fr; }
 }
+
+/* ---------- Computador: telas grandes, lista de atalhos ---------- */
+@media (min-width:1400px){
+  .loja2 .area2{ grid-template-columns:auto minmax(0, 600px); gap:22px; }
+  .loja2 .item-loja{ width:110px; } .loja2 .item-loja .pic{ width:70px; height:70px; }
+  .lutador{ width:min(100%, 640px); } .ringue{ width:min(100%, 1340px); }
+}
+@media (hover:none){ .so-pc{ display:none !important; } }
+#atalhos{ position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); }
+#atalhos .at-caixa{ width:min(92vw, 460px); max-height:86vh; overflow:auto; padding:18px 20px; border-radius:18px; border:1px solid var(--borda2); background:var(--painel); box-shadow:0 20px 50px rgba(0,0,0,.6); }
+#atalhos h2{ margin:0 0 6px; font-family:var(--fonte-titulo); text-transform:uppercase; } #atalhos h3{ margin:12px 0 4px; font-size:13px; color:var(--ambar); text-transform:uppercase; letter-spacing:.06em; }
+#atalhos dl{ display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin:0; font-size:14px; } #atalhos dt{ font-weight:700; white-space:nowrap; } #atalhos dd{ margin:0; color:var(--suave); }
+#atalhos .btn{ margin-top:14px; width:100%; }
+.opcoes-tela .opc input[type=range]{ width:160px; height:auto; }

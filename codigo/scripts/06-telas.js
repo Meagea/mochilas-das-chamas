@@ -170,7 +170,7 @@ function ligarTrilha(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar
 
 // ---- tela: loja com a mochila ----
 let TAM = 44;
-function medirCasa(){ const w = Math.min(window.innerWidth, 1280), larg = w > 900 ? Math.min(600, w - 560) : w - 44; TAM = Math.max(30, Math.min(58, Math.floor(larg / LARG))); }
+function medirCasa(){ const W = window.innerWidth, w = Math.min(W, 1280), larg = W >= 1400 ? Math.min(760, W - 680) : w > 900 ? Math.min(600, w - 560) : w - 44; TAM = Math.max(30, Math.min(W >= 1400 ? 76 : 58, Math.floor(larg / LARG))); }
 function hud(){
   const c = CLASSES[C.classe];
   return `<header class="hud">${retrato(C.classe) ? `<img class="rosto" src="${retrato(C.classe)}" alt="">` : ''}
@@ -203,7 +203,7 @@ function telaLoja(){
       <div class="painel-mochila">
         <div class="pm-cab"><b>Mochila</b><span>${abertas.size} de ${LARG * ALT} casas abertas</span></div>
         <div class="moldura"><div class="mochila" id="mochila" style="width:${LARG * TAM}px;height:${ALT * TAM}px">${grade}${pecas}<div class="previa" id="previa"></div></div></div>
-        <p class="pm-dica">A moldura é até onde a mochila pode crescer. As marcas verdes mostram onde cabe uma bolsa nova.</p>
+        <p class="pm-dica">A moldura é até onde a mochila pode crescer. As marcas verdes mostram onde cabe uma bolsa nova.<span class="so-pc"> Aperte <b>?</b> para ver os atalhos.</span></p>
         <div class="bancada" id="bancada"><small>Bancada · não luta</small>${banc || '<span class="vaziob">Arraste para cá o que não couber</span>'}</div>
       </div>
       <div class="painel-direita">
@@ -325,7 +325,7 @@ function soltarArrasto(ev){
   desenhar();
 }
 function cancelarArrasto(){ arr = null; document.body.classList.remove('arrastando', 'da-loja', 'da-mochila'); const fa = $('arrasto'); if(fa){ fa.hidden = true; fa.innerHTML = ''; } window.onpointermove = window.onpointerup = window.onpointercancel = null; }
-function tocar(a){ sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; avancarTutorial(1); desenhar(); }
+function tocar(a){ if(a.onde === 'loja' && duploNaVitrine(a.i)){ comprarDaVaga(a.i); return; } sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; avancarTutorial(1); desenhar(); }
 if(temDOM && typeof window !== 'undefined') window.addEventListener('keydown', ev => {
   if((ev.key === 'r' || ev.key === 'R') && arr && arr.ativo){ arr.g = (arr.g + 1) & 3; const f = forma(arr.id, arr.g); arr.cx = Math.min(arr.cx, f.w - 1); arr.cy = Math.min(arr.cy, f.h - 1); desenharFantasma(); }
   else if((ev.key === 'r' || ev.key === 'R') && tela === 'loja' && sel && sel.p){ girar(sel.p); desenhar(); }
@@ -360,7 +360,7 @@ async function comecarLuta(){
 const NOME_EST = {forca:'Força', queima:'Queimadura', veneno:'Veneno', regen:'Regeneração', esquiva:'Esquiva', gelo:'Gelo', espinhos:'Espinhos', mana:'Mana'};
 const COR_EST = {forca:'#d9483b', queima:'#f08a2a', veneno:'#5aa84a', regen:'#7ad06a', esquiva:'#8ab4d8', gelo:'#7ad0f0', espinhos:'#b07a4a', mana:'#7a6ad8'};
 function ladoHtml(k){
-  const L = lutaAtual.r.lados[k], adv = k === 1, tam = Math.max(16, Math.min(44, Math.floor((Math.min(480, window.innerWidth - 24) - 30) / LARG)));
+  const L = lutaAtual.r.lados[k], adv = k === 1, largo = window.innerWidth >= 1400, tam = Math.max(16, Math.min(largo ? 62 : 44, Math.floor((Math.min(largo ? 640 : 480, window.innerWidth - 24) - 30) / LARG)));
   const mini = {pecas:L.itens.map((s, i) => ({uid:1000 + i, id:s.id, x:s.x, y:s.y, g:s.g}))};
   const bolsas = (k === 0 ? C.mochila : lutaAtual.adv.mochila).pecas.filter(ehBolsa);
   const pecas = bolsas.concat(mini.pecas).map(p => `<div class="posto" style="left:${p.x * tam}px;top:${p.y * tam}px">${pecaHtml(p, tam, '')}</div>`).join('');

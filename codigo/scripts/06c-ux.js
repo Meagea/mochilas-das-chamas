@@ -1,7 +1,7 @@
 // ---------- Experiência de jogo: opções, sons, vibração, tutorial, prévia de fusões, destaques e cartão do item ----------
 
 // ---- opções do jogador (guardadas no perfil) ----
-const OPC_PADRAO = {som:true, vibrar:true, textoGrande:false, daltonico:false, vel:1};
+const OPC_PADRAO = {som:true, volume:70, vibrar:true, textoGrande:false, daltonico:false, vel:1};
 function opcoes(){ if(!PERFIL.opc) PERFIL.opc = Object.assign({}, OPC_PADRAO); return PERFIL.opc; }
 function aplicarOpcoes(){ if(!temDOM) return; const o = opcoes(); document.body.classList.toggle('texto-grande', !!o.textoGrande); document.body.classList.toggle('daltonico', !!o.daltonico); }
 // quem já jogou não vê o tutorial; quem chega agora começa da primeira dica
@@ -15,18 +15,21 @@ function ctxAudio(){
   if(!audioCtx) audioCtx = new A(); if(audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
+// tudo passa por um volume geral (opções: 0 a 100)
+let saidaGeral = null;
+function saidaSom(c){ if(!saidaGeral){ saidaGeral = c.createGain(); saidaGeral.connect(c.destination); } const v = opcoes().volume; saidaGeral.gain.value = (v == null ? 70 : v) / 70; return saidaGeral; }
 function somTom(c, t0, freq, dur, tipo, vol, freqFim){
   const o = c.createOscillator(), g = c.createGain(); o.type = tipo || 'sine';
   o.frequency.setValueAtTime(freq, t0); if(freqFim) o.frequency.exponentialRampToValueAtTime(freqFim, t0 + dur);
   g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + .008); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
-  o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + dur + .02);
+  o.connect(g).connect(saidaSom(c)); o.start(t0); o.stop(t0 + dur + .02);
 }
 function somRuido(c, t0, dur, vol, filtro, freq){
   const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
   for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
   const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
   s.buffer = b; f.type = filtro || 'highpass'; f.frequency.value = freq || 2000; g.gain.value = vol;
-  s.connect(f).connect(g).connect(c.destination); s.start(t0);
+  s.connect(f).connect(g).connect(saidaSom(c)); s.start(t0);
 }
 // uma martelada na bigorna: parciais metálicas fora da série harmônica que somem rápido, mais o estalo do golpe
 function somMartelada(c, t0, forca){
@@ -145,12 +148,14 @@ function confete(){
 function telaOpcoes(){
   const o = opcoes(), sw = (k, txt, sub) => `<label class="opc"><span><b>${txt}</b><small>${sub}</small></span><input type="checkbox" data-opc="${k}"${o[k] ? ' checked' : ''}></label>`;
   return `<section class="ranking-tela opcoes-tela"><h1>Opções</h1>
-    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}
+    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}<label class="opc"><span><b>Volume</b><small>${o.volume == null ? 70 : o.volume}%</small></span><input type="range" min="0" max="100" step="5" id="volume" value="${o.volume == null ? 70 : o.volume}"></label>${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}
     ${sw('textoGrande', 'Texto maior', 'Letras maiores nas descrições, na loja e nas dicas')}${sw('daltonico', 'Raridade com letra', 'Mostra C, I, R, É ou L nos itens, além da cor')}
-    <button class="btn sm" id="btTutDeNovo">Ver as dicas de novo</button><button class="btn" id="btVoltar">Voltar</button></section>`;
+    <button class="btn sm" id="btTutDeNovo">Ver as dicas de novo</button><button class="btn sm so-pc" id="btAtalhos">Atalhos do teclado</button><button class="btn" id="btVoltar">Voltar</button></section>`;
 }
 function ligarOpcoes(){
   raiz().querySelectorAll('[data-opc]').forEach(i => i.onchange = () => { opcoes()[i.dataset.opc] = i.checked; gravarPerfil(); aplicarOpcoes(); if(i.dataset.opc === 'som' && i.checked) som('comprar'); if(i.dataset.opc === 'vibrar' && i.checked) vibrar(60); });
+  const vol = $('volume'); vol.oninput = () => { opcoes().volume = +vol.value; vol.closest('.opc').querySelector('small').textContent = vol.value + '%'; }; vol.onchange = () => { gravarPerfil(); som('fundir'); };
+  $('btAtalhos').onclick = painelAtalhos;
   $('btTutDeNovo').onclick = () => { PERFIL.tutorial = 0; gravarPerfil(); avisar('As dicas aparecem na próxima loja'); };
   $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); };
 }
