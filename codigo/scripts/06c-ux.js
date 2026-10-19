@@ -111,7 +111,7 @@ function ligarTutorial(){
 // ---- cartão flutuante do item: passando o mouse, ou segurando o dedo no celular ----
 function cartaoItem(id){
   const d = ITEM[id], rec = RECEITAS.filter(r => (r[0] === id || r[1] === id) && receitaVale(r, C.nivel || 1, C.classe)).slice(0, 3)
-    .map(r => `<li>com <b>${ITEM[r[0] === id ? r[1] : r[0]].nome}</b> vira <b>${ITEM[r[2]].nome}</b></li>`).join('');
+    .map(r => `<li>+ ${ITEM[r[0] === id ? r[1] : r[0]].nome} → <b>${ITEM[r[2]].nome}</b></li>`).join('');
   return `<div class="ct-cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}</small></div></div>
     <p>${textoIcones(d.texto)}</p>${rec ? `<ul class="ct-rec">${rec}</ul>` : ''}`;
 }

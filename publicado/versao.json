@@ -1,6 +1,6 @@
 {
- "versao": 22,
- "tamanho": 12890174,
- "sha256": "9e3933888be63547386f4352c7882d720504dbdef8f3c1887e942b01acdc319d",
- "resumo": "Pacote de UI/UX: tutorial, previa de fusao, travar vitrine, sons com forja, opcoes"
+ "versao": 23,
+ "tamanho": 12889906,
+ "sha256": "f7b3adf0d2a721d7b3d11dc77132f211082fd9989baa45fcdfefaba23682e363",
+ "resumo": "Cartao do item com cada fusao em uma linha"
 }
