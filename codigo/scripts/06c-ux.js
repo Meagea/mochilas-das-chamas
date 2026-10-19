@@ -148,12 +148,12 @@ function confete(){
 function telaOpcoes(){
   const o = opcoes(), sw = (k, txt, sub) => `<label class="opc"><span><b>${txt}</b><small>${sub}</small></span><input type="checkbox" data-opc="${k}"${o[k] ? ' checked' : ''}></label>`;
   return `<section class="ranking-tela opcoes-tela"><h1>Opções</h1>
-    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}<label class="opc"><span><b>Volume</b><small>${o.volume == null ? 70 : o.volume}%</small></span><input type="range" min="0" max="100" step="5" id="volume" value="${o.volume == null ? 70 : o.volume}"></label>${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}
+    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}<label class="opc"><span><b>Volume</b><small>${o.volume == null ? 70 : o.volume}%</small></span><input type="range" min="0" max="100" step="5" id="volume" value="${o.volume == null ? 70 : o.volume}"></label>${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}${nativo() ? sw('avisos', 'Avisar a vitrine nova', 'Uma notificação quando a vitrine de cartas do dia renovar') : ''}
     ${sw('textoGrande', 'Texto maior', 'Letras maiores nas descrições, na loja e nas dicas')}${sw('daltonico', 'Raridade com letra', 'Mostra C, I, R, É ou L nos itens, além da cor')}
     <button class="btn sm" id="btTutDeNovo">Ver as dicas de novo</button><button class="btn sm so-pc" id="btAtalhos">Atalhos do teclado</button><button class="btn" id="btVoltar">Voltar</button></section>`;
 }
 function ligarOpcoes(){
-  raiz().querySelectorAll('[data-opc]').forEach(i => i.onchange = () => { opcoes()[i.dataset.opc] = i.checked; gravarPerfil(); aplicarOpcoes(); if(i.dataset.opc === 'som' && i.checked) som('comprar'); if(i.dataset.opc === 'vibrar' && i.checked) vibrar(60); });
+  raiz().querySelectorAll('[data-opc]').forEach(i => i.onchange = () => { if(i.dataset.opc === 'avisos'){ ligarAvisos(i.checked).then(ok => { if(!ok) i.checked = false; }); return; } opcoes()[i.dataset.opc] = i.checked; gravarPerfil(); aplicarOpcoes(); if(i.dataset.opc === 'som' && i.checked) som('comprar'); if(i.dataset.opc === 'vibrar' && i.checked) vibrar(60); });
   const vol = $('volume'); vol.oninput = () => { opcoes().volume = +vol.value; vol.closest('.opc').querySelector('small').textContent = vol.value + '%'; }; vol.onchange = () => { gravarPerfil(); som('fundir'); };
   $('btAtalhos').onclick = painelAtalhos;
   $('btTutDeNovo').onclick = () => { PERFIL.tutorial = 0; gravarPerfil(); avisar('As dicas aparecem na próxima loja'); };

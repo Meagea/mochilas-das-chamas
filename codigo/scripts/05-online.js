@@ -65,4 +65,12 @@ const onlineComprar = (tipo, vaga) => tentar(() => rpc('comprar_oferta', {p_tipo
 const onlineLuta = (venceu, campanha) => tentar(() => rpc('registrar_luta', {p_venceu:venceu, p_campanha:campanha}, true));
 const onlineRanking = () => tentar(() => rpc('ranking_temporada', {p_limite:100}, false));
 // vitórias reais de cada personagem nos últimos 30 dias (supabase/07-estatisticas.sql): só totais, sem nomes
+// perfil público e conquistas (supabase/09-perfil.sql)
+const onlineMeuPerfil = () => tentar(async () => { const L = await rpc('meu_perfil', {}, true); return L && L[0] || null; });
+const onlinePerfilDe = codigo => tentar(async () => { const L = await rpc('perfil_jogador', {p_codigo:codigo}, false); return L && L[0] || null; });
+const onlineDefinirPerfil = (fav, titulo) => tentar(async () => { await rpc('definir_perfil', {p_favoritos:fav, p_titulo:titulo || null}, true); return true; });
+const onlineConquistas = ids => tentar(() => rpc('registrar_conquistas', {p_ids:ids}, true));
+// missões diárias (supabase/08-missoes.sql)
+const onlineMissoes = () => tentar(() => rpc('minhas_missoes', {}, true));
+const onlineResgatar = n => tentar(() => rpc('resgatar_missao', {p_n:n}, true));
 const onlineEstatisticas = () => tentar(() => rpc('estatisticas_classes', {p_dias:30}, false));

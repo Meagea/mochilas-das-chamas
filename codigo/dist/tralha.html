@@ -485,6 +485,97 @@ body.daltonico .peca[data-rar="rara"]::before{ content:'R'; } body.daltonico .pe
 #atalhos dl{ display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin:0; font-size:14px; } #atalhos dt{ font-weight:700; white-space:nowrap; } #atalhos dd{ margin:0; color:var(--suave); }
 #atalhos .btn{ margin-top:14px; width:100%; }
 .opcoes-tela .opc input[type=range]{ width:160px; height:auto; }
+
+/* ---------- Celular ---------- */
+.so-cel{ display:none !important; }
+@media (max-width:900px){ .so-cel{ display:inline-flex !important; } }
+/* área segura do aparelho (entalhe da câmera e barra de gestos) */
+body{ padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+body.nativo #jogo{ padding-top:env(safe-area-inset-top); }
+/* botão Girar flutuante enquanto arrasta com o dedo */
+#btGirarArrasto{ position:fixed; right:16px; top:calc(16px + env(safe-area-inset-top)); z-index:60; padding:14px 22px; font-size:17px; box-shadow:0 8px 20px rgba(0,0,0,.5); }
+/* celular em pé: vitrine numa faixa fixa logo acima do rodapé, mochila sempre à vista */
+@media (max-width:900px) and (orientation:portrait){
+  .loja2{ padding-bottom:236px; }
+  .loja2 .pm-dica{ display:none; }
+  .loja2 .vitrine{ position:fixed; left:0; right:0; bottom:calc(64px + env(safe-area-inset-bottom)); z-index:19; border-radius:16px 16px 0 0; overflow:visible; padding:8px 6px 10px;
+    display:flex; justify-content:space-between; align-items:flex-end; border-bottom:6px solid #5a371c; }
+  .loja2 .vitrine .prateleira{ display:contents; } .loja2 .vitrine .prateleira::after{ display:none; }
+  .loja2 .vitrine .vt-topo{ position:absolute; right:8px; top:-40px; margin:0; } .loja2 .vitrine .vt-rodada{ display:none; }
+  .loja2 .item-loja{ width:calc((100vw - 32px) / 5); padding:2px 0 4px; } .loja2 .item-loja .pic{ width:46px; height:46px; }
+  .loja2 .item-loja b{ font-size:10px; min-height:2.2em; } .loja2 .item-loja .rar-nome{ display:none; } .loja2 .item-loja .preco{ font-size:15px; }
+  .loja2 .item-loja.vazio{ width:calc((100vw - 32px) / 5); height:96px; }
+  /* gaveta do item: sobe de baixo quando há algo escolhido */
+  .loja2 .info{ display:none; }
+  .loja2.com-sel .info{ display:block; position:fixed; left:0; right:0; bottom:calc(64px + env(safe-area-inset-bottom)); z-index:22; max-height:52vh; overflow:auto;
+    border-radius:18px 18px 0 0; box-shadow:0 -12px 30px rgba(0,0,0,.55); animation:gaveta .2s ease-out; }
+  .loja2 .info .fechar-info{ float:right; margin:-2px -4px 4px 8px; font:inherit; font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px; border:1px solid var(--borda2); background:var(--painel2); color:var(--texto); }
+  /* luta: mochilas recolhidas; o botão Mochilas abre */
+  .ringue:not(.abertas) .lutador .mini{ display:none; }
+  .lutador .vidabar{ height:28px; }
+}
+@keyframes gaveta{ from{ transform:translateY(40px); opacity:0; } }
+/* celular deitado: duas colunas, como no computador */
+@media (max-width:900px) and (orientation:landscape){
+  .loja2 .area2{ grid-template-columns:auto minmax(0, 1fr); gap:10px; padding:8px; }
+  .loja2 .pm-dica, .loja2 .dica-tut{ display:none; }
+  .loja2 .item-loja{ width:76px; } .loja2 .item-loja .pic{ width:42px; height:42px; } .prateleira{ padding:8px 4px 12px; }
+  .loja2 .painel-heroi{ grid-template-columns:auto 1fr auto; } .loja2 .ph-acoes{ position:static; flex-direction:column; padding:0; background:none; border:0; }
+  .loja2{ padding-bottom:0; } .ph-rosto{ width:52px; height:52px; }
+}
+#btGirarArrasto[hidden]{ display:none !important; }
+@media (max-width:900px) and (orientation:landscape){
+  .ringue{ flex-direction:row-reverse; align-items:flex-start; gap:8px; } .ringue .versus{ display:none; }
+  .lutador{ width:50%; padding:8px; } .luta-tela{ gap:6px; } .lcab{ padding:6px; }
+}
+
+/* ---------- Histórico, livro de receitas, conquistas e a mochila do adversário ---------- */
+.lista.hist li{ display:flex; flex-direction:column; gap:8px; align-items:center; }
+.lista.hist .h-cab{ width:100%; display:flex; gap:10px; align-items:center; text-align:left; } .lista.hist .h-cab span{ flex:1; min-width:0; } .lista.hist .h-cab small{ display:block; color:var(--suave); font-size:12px; }
+.h-sete{ font-style:normal; font-size:11px; font-weight:800; padding:3px 8px; border-radius:999px; color:#1a1206; background:var(--ambar); }
+.lista.hist .mini-ret{ width:40px; height:40px; border-radius:10px; object-fit:cover; object-position:50% 20%; }
+.lista.receitas li{ display:flex; align-items:center; gap:6px; justify-content:flex-start; flex-wrap:wrap; }
+.rc-it{ display:inline-flex; flex-direction:column; align-items:center; width:74px; } .rc-it img.ic{ width:38px; height:38px; } .rc-it small{ font-size:10.5px; line-height:1.15; text-align:center; color:var(--suave); }
+.rc-it.res small{ color:var(--texto); font-weight:700; } .rc-it.sombra img{ filter:brightness(0) opacity(.55); } .rc-it.oculto i{ width:38px; height:38px; border-radius:10px; border:1px dashed var(--borda2); display:flex; align-items:center; justify-content:center; font-style:normal; font-weight:800; color:var(--apagado); }
+.lista.receitas li.falta{ opacity:.75; } .rc-nv{ margin-left:auto; font-style:normal; font-size:11px; font-weight:700; color:var(--suave); }
+.lista.conq li{ display:flex; gap:12px; align-items:center; text-align:left; opacity:.55; } .lista.conq li.feita{ opacity:1; }
+.lista.conq small{ display:block; color:var(--suave); font-size:12px; } .cq-selo img.ic{ width:34px; height:34px; } .lista.conq li:not(.feita) .cq-selo img{ filter:grayscale(1); }
+.adv-mochila{ margin-top:12px; display:flex; flex-direction:column; align-items:center; gap:8px; } .adv-mochila h3{ margin:0; }
+.adv-itens{ list-style:none; margin:0; padding:0; width:100%; display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:6px; text-align:left; }
+.adv-itens li{ display:flex; gap:8px; align-items:flex-start; padding:6px 8px; border-radius:10px; border:1px solid color-mix(in srgb, var(--rar) 50%, transparent); background:var(--painel2); font-size:12px; }
+.adv-itens .pic{ width:34px; height:34px; flex:none; } .adv-itens .pic img{ width:100%; height:100%; } .adv-itens b{ display:block; font-size:13px; } .adv-itens small{ color:var(--suave); }
+.ranking-tela .lista.receitas li{ display:flex; justify-content:center; align-items:center; gap:10px; grid-template-columns:none; } .ranking-tela .lista.receitas li .rc-nv{ margin-left:8px; }
+.ranking-tela .lista.receitas li > b{ flex:none; color:var(--suave); }
+/* missões de hoje, no lobby */
+.missoes{ display:flex; flex-direction:column; gap:6px; padding:10px 12px; border-radius:14px; border:1px solid var(--borda2); background:rgba(18,17,23,.7); text-align:left; }
+.missoes h3{ margin:0 0 2px; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--ambar); }
+.missao{ display:flex; align-items:center; gap:10px; } .missao .ms-txt{ flex:1; min-width:0; font-size:13px; font-weight:600; }
+.missao small{ display:flex; align-items:center; gap:3px; font-weight:500; color:var(--suave); font-size:11.5px; } .missao small img.ic{ width:13px; height:13px; }
+.ms-barra{ width:70px; height:8px; border-radius:4px; background:rgba(255,255,255,.08); overflow:hidden; } .ms-barra i{ display:block; height:100%; background:var(--ambar); }
+.missao.feita{ opacity:.5; }
+/* ---------- Perfil do jogador ---------- */
+.perfil-tela .pf-topo{ display:flex; gap:14px; align-items:center; text-align:left; } .perfil-tela .pf-topo h1{ margin:0; font-size:clamp(30px, 8vw, 44px); }
+.pf-titulo{ margin:2px 0; color:var(--ambar); font-weight:700; } .pf-topo small{ color:var(--suave); }
+.pf-sec{ margin:6px 0 0; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--suave); }
+.herois-fav{ width:100%; display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+.heroi-card{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px; border-radius:16px; border:2px solid color-mix(in srgb, var(--cc) 70%, transparent);
+  background:linear-gradient(color-mix(in srgb, var(--cc) 22%, var(--painel)), var(--painel)); }
+.heroi-card img{ width:100%; aspect-ratio:1; object-fit:cover; object-position:50% 20%; border-radius:12px; } .heroi-card b{ font-family:var(--fonte-titulo); text-transform:uppercase; } .heroi-card small{ color:var(--suave); }
+.heroi-card.vazio{ border:2px dashed var(--borda2); background:none; min-height:150px; justify-content:center; color:var(--apagado); font-size:13px; }
+.esc-herois{ width:100%; display:grid; grid-template-columns:repeat(auto-fill, minmax(78px, 1fr)); gap:8px; }
+.esc-h{ position:relative; font:inherit; color:var(--texto); padding:4px; border-radius:12px; border:2px solid var(--borda2); background:var(--painel); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.esc-h img{ width:100%; aspect-ratio:1; object-fit:cover; object-position:50% 20%; border-radius:8px; } .esc-h small{ font-size:11px; }
+.esc-h.on{ border-color:var(--cc); box-shadow:0 0 12px color-mix(in srgb, var(--cc) 60%, transparent); }
+.esc-h em{ position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:var(--ambar); color:#1a1206; font-style:normal; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.perfil-tela select{ font:inherit; padding:6px 8px; border-radius:8px; background:var(--painel2); color:var(--texto); border:1px solid var(--borda2); }
+.pf-conq{ width:100%; display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:8px; }
+.pf-c{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 4px; border-radius:12px; border:1px solid var(--borda2); background:var(--painel); opacity:.4; text-align:center; }
+.pf-c.on{ opacity:1; border-color:rgba(242,179,80,.6); } .pf-c img.ic{ width:30px; height:30px; } .pf-c:not(.on) img{ filter:grayscale(1); } .pf-c small{ font-size:11px; line-height:1.2; }
+.lista li.clicavel{ cursor:pointer; } .lista li.clicavel:hover{ border-color:var(--borda2); background:var(--painel2); }
+.rk-titulo{ display:block; font-size:11px; font-weight:700; color:var(--ambar); }
+@media (max-width:520px){ .herois-fav{ gap:6px; } .heroi-card{ padding:5px; } .heroi-card b{ font-size:13px; } }
+.perfil-tela .opc{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; border:1px solid var(--borda2); background:var(--painel); text-align:left; }
+.perfil-tela .opc small{ display:block; color:var(--suave); font-size:12px; }
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -1584,6 +1675,14 @@ const onlineComprar = (tipo, vaga) => tentar(() => rpc('comprar_oferta', {p_tipo
 const onlineLuta = (venceu, campanha) => tentar(() => rpc('registrar_luta', {p_venceu:venceu, p_campanha:campanha}, true));
 const onlineRanking = () => tentar(() => rpc('ranking_temporada', {p_limite:100}, false));
 // vitórias reais de cada personagem nos últimos 30 dias (supabase/07-estatisticas.sql): só totais, sem nomes
+// perfil público e conquistas (supabase/09-perfil.sql)
+const onlineMeuPerfil = () => tentar(async () => { const L = await rpc('meu_perfil', {}, true); return L && L[0] || null; });
+const onlinePerfilDe = codigo => tentar(async () => { const L = await rpc('perfil_jogador', {p_codigo:codigo}, false); return L && L[0] || null; });
+const onlineDefinirPerfil = (fav, titulo) => tentar(async () => { await rpc('definir_perfil', {p_favoritos:fav, p_titulo:titulo || null}, true); return true; });
+const onlineConquistas = ids => tentar(() => rpc('registrar_conquistas', {p_ids:ids}, true));
+// missões diárias (supabase/08-missoes.sql)
+const onlineMissoes = () => tentar(() => rpc('minhas_missoes', {}, true));
+const onlineResgatar = n => tentar(() => rpc('resgatar_missao', {p_n:n}, true));
 const onlineEstatisticas = () => tentar(() => rpc('estatisticas_classes', {p_dias:30}, false));
 // ---------- Telas: lobby, loja com a mochila, luta, fim de corrida e ranking ----------
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
@@ -1680,7 +1779,8 @@ function telaLobby(){
         ${continuar ? `<button class="btn grande primario" id="btContinuar">Continuar<small>${CLASSES[s.classe].nome} · rodada ${s.rodada} · ${s.vitorias} vitórias${s.modo === 'normal' ? ' · Normal' : ' · Ranqueada'}</small></button>` : ''}
         <button class="btn grande jogar${continuar ? '' : ' primario'}" data-jogar="ranqueada">Ranqueada<small>vale pontos de liga · itens no nível 0</small></button>
         <button class="btn grande jogar" data-jogar="normal">Normal<small>sem liga · itens no nível das cartas</small></button>
-        <div class="lb-sec"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btOpcoes">Opções</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
+        <div class="lb-sec"><button class="btn" id="btColecao">Coleção</button><button class="btn" id="btPerfil">Perfil</button><button class="btn" id="btReceitas">Receitas</button><button class="btn" id="btConquistas">Conquistas</button><button class="btn" id="btHistorico">Histórico</button><button class="btn" id="btOpcoes">Opções</button><button class="btn" id="btLojaCartas">Loja de cartas</button><button class="btn" id="btRanking">Ranking</button></div>
+        ${blocoMissoes()}
         <p class="nota">${PERFIL.corridas ? `${PERFIL.corridas} ${PERFIL.corridas === 1 ? 'corrida' : 'corridas'} · ${PERFIL.vitoriasCorrida} ${PERFIL.vitoriasCorrida === 1 ? 'vencida' : 'vencidas'}` : 'Compre itens, encaixe na mochila e veja a luta acontecer sozinha. 7 vitórias vencem a corrida; 3 derrotas e acaba.'}</p>
       </nav>
       <div class="lb-heroi">
@@ -1718,6 +1818,9 @@ function ligarLobby(){
     PERFIL.modo = b.dataset.jogar; gravarPerfil(); comecarCorrida(classeEscolhida); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
   $('btOpcoes').onclick = () => { tela = 'opcoes'; desenhar(); };
+  ligarMissoes(); carregarMissoes();
+  $('btPerfil').onclick = () => abrirPerfil(null);
+  for(const [b, t] of [['btReceitas', 'receitas'], ['btConquistas', 'conquistas'], ['btHistorico', 'historico']]) $(b).onclick = () => { if(t === 'receitas') livroClasse = classeEscolhida; tela = t; desenhar(); };
   $('btColecao').onclick = abrirColecao; $('btLojaCartas').onclick = () => abrirLojaCartas('dia'); $('btRanking').onclick = abrirRanking;
   const br = $('btRank'); if(br) br.onclick = abrirRanking;
   const c = $('btContinuar'); if(c) c.onclick = () => { if(continuarCorrida()){ tela = 'loja'; desenhar(); } };
@@ -1757,7 +1860,8 @@ function ligarTrilha(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar
 
 // ---- tela: loja com a mochila ----
 let TAM = 44;
-function medirCasa(){ const W = window.innerWidth, w = Math.min(W, 1280), larg = W >= 1400 ? Math.min(760, W - 680) : w > 900 ? Math.min(600, w - 560) : w - 44; TAM = Math.max(30, Math.min(W >= 1400 ? 76 : 58, Math.floor(larg / LARG))); }
+function medirCasa(){ const W = window.innerWidth, w = Math.min(W, 1280), larg = W >= 1400 ? Math.min(760, W - 680) : w > 900 ? Math.min(600, w - 560) : w - 44; TAM = Math.max(30, Math.min(W >= 1400 ? 76 : 58, Math.floor(larg / LARG)));
+  if(W <= 900 && window.innerHeight < W) TAM = Math.max(26, Math.min(TAM, Math.floor((window.innerHeight - 90) / ALT), Math.floor((W * .48) / LARG))); }
 function hud(){
   const c = CLASSES[C.classe];
   return `<header class="hud">${retrato(C.classe) ? `<img class="rosto" src="${retrato(C.classe)}" alt="">` : ''}
@@ -1785,7 +1889,7 @@ function telaLoja(){
   const item = (id, i) => id ? `<button class="item-loja${sel && sel.onde === 'loja' && sel.i === i ? ' sel' : ''}${C.travas && C.travas[i] ? ' travada' : ''}${ITEM[id].preco > C.ouro ? ' caro' : ''}" data-loja="${i}" style="--rar:${raridade(id).cor}" data-rar="${ITEM[id].rar}">
       <span class="preco">${ITEM[id].preco}${ic('moeda')}</span><span class="pic">${iconeItem(id)}</span><b>${ITEM[id].nome}</b><small class="rar-nome">${raridade(id).nome}</small><span class="trava${C.travas && C.travas[i] ? ' on' : ''}" data-trava="${i}" title="O item travado continua na vitrine na próxima rodada">${C.travas && C.travas[i] ? 'Travado' : 'Travar'}</span></button>` : `<div class="item-loja vazio">vendido</div>`;
   const metade = Math.floor(C.loja.length / 2), L = lutador(m, C.classe, '');
-  return `<section class="loja-tela loja2" style="--cc:${K.cor}">
+  return `<section class="loja-tela loja2${sel ? ' com-sel' : ''}" style="--cc:${K.cor}">
     ${dicaTutorial()}<div class="area2">
       <div class="painel-mochila">
         <div class="pm-cab"><b>Mochila</b><span>${abertas.size} de ${LARG * ALT} casas abertas</span></div>
@@ -1828,7 +1932,7 @@ function infoHtml(N){
       : `<p class="receita travada">Receita: com <b>${outro}</b> vira <b>${vira}</b>, a partir do nível ${r[3]} do ${CLASSES[C.classe].nome} (você está no ${C.nivel || 1}).</p>`; }).join('');
   const botoes = sel.onde === 'loja' ? `<button class="btn primario" id="btComprar"${d.preco > C.ouro ? ' disabled' : ''}>Comprar<small>${ic('moeda')} ${d.preco}</small></button>`
     : `<button class="btn" id="btGirar">Girar</button>${sel.onde === 'mochila' && d.id !== 'mochila' ? '<button class="btn" id="btGuardar">Para a bancada</button>' : ''}${d.inicial ? '' : `<button class="btn" id="btVender">Vender<small>${ic('moeda')} ${precoVenda(id)}</small></button>`}`;
-  return `<div class="cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}${d.classe ? ' · ' + CLASSES[d.classe].nome : ''}</small></div></div>
+  return `<button class="fechar-info so-cel" id="btFecharInfo" aria-label="Fechar">Fechar</button><div class="cab" style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><div><b>${d.nome}</b><small>${raridade(id).nome} · ${NOME_TIPO[d.tipo] || 'Item'}${d.classe ? ' · ' + CLASSES[d.classe].nome : ''}</small></div></div>
     ${linhaNumeros(id, base) ? `<p class="nums">${linhaNumeros(id, base)}</p>` : ''}<p>${textoIcones(d.texto)}</p>${rec}${receita}
     ${sel.onde === 'bancada' ? '<p class="aviso-b">Na bancada o item não luta: arraste para dentro de uma bolsa.</p>' : ''}<div class="bts">${botoes}</div>`;
 }
@@ -1840,6 +1944,7 @@ function ligarLoja(){
   raiz().querySelectorAll('[data-trava]').forEach(t => { t.onpointerdown = ev => ev.stopPropagation();
     t.onclick = ev => { ev.stopPropagation(); const i = +t.dataset.trava; if(!C.travas) C.travas = C.loja.map(() => false); C.travas[i] = !C.travas[i]; salvarCorrida(); desenhar(); }; });
   ligarTutorial(); ligarCartoes(); animarOuro();
+  const fi = $('btFecharInfo'); if(fi) fi.onclick = () => { sel = null; desenhar(); };
   const g = $('btGirar'); if(g) g.onclick = () => { girar(sel.p); desenhar(); };
   const gu = $('btGuardar'); if(gu) gu.onclick = () => { const fora = tirar(C.mochila, sel.p); C.mochila.bancada.push(...fora); sel = {onde:'bancada', p:sel.p}; salvarCorrida(); desenhar(); };
   const v = $('btVender'); if(v) v.onclick = () => { vender(sel.p); sel = null; som('vender'); salvarCorrida(); desenhar(); };
@@ -1869,13 +1974,13 @@ function iniciarArrasto(ev, el, onde){
   const g = p ? p.g : 0, f = forma(id, g), escala = onde === 'mochila' ? 1 : onde === 'bancada' ? .62 : 0;
   // a casa do formato que ficou debaixo do dedo (na loja, o meio)
   const cx = escala ? clamp(Math.floor((ev.clientX - r.left) / (TAM * escala)), 0, f.w - 1) : Math.floor(f.w / 2), cy = escala ? clamp(Math.floor((ev.clientY - r.top) / (TAM * escala)), 0, f.h - 1) : Math.floor(f.h / 2);
-  arr = {onde, p, id, g, cx, cy, i:onde === 'loja' ? +el.dataset.loja : null, x0:ev.clientX, y0:ev.clientY, ativo:false, el};
+  arr = {onde, p, id, g, cx, cy, i:onde === 'loja' ? +el.dataset.loja : null, x0:ev.clientX, y0:ev.clientY, ativo:false, el, pid:ev.pointerId, toque:ev.pointerType === 'touch'};
   window.onpointermove = moverArrasto; window.onpointerup = soltarArrasto; window.onpointercancel = () => { cancelarArrasto(); };
 }
 function moverArrasto(ev){
-  if(!arr) return;
-  if(!arr.ativo){ if(Math.hypot(ev.clientX - arr.x0, ev.clientY - arr.y0) < 7) return; arr.ativo = true; arr.el.classList.add('levantada'); document.body.classList.add('arrastando', arr.onde === 'loja' ? 'da-loja' : 'da-mochila'); desenharFantasma(); marcarRelacoes(arr.id, arr.p && arr.p.uid); }
-  arr.mx = ev.clientX; arr.my = ev.clientY;
+  if(!arr || (arr.pid != null && ev.pointerId !== arr.pid)) return;
+  if(!arr.ativo){ if(Math.hypot(ev.clientX - arr.x0, ev.clientY - arr.y0) < 7) return; arr.ativo = true; arr.el.classList.add('levantada'); document.body.classList.add('arrastando', arr.onde === 'loja' ? 'da-loja' : 'da-mochila'); desenharFantasma(); marcarRelacoes(arr.id, arr.p && arr.p.uid); botaoGirarArrasto(arr.toque); }
+  ev = comDedo(ev); arr.mx = ev.clientX; arr.my = ev.clientY;
   const fa = $('arrasto'); fa.style.transform = `translate(${ev.clientX - (arr.cx + .5) * TAM}px, ${ev.clientY - (arr.cy + .5) * TAM}px)`;
   // prévia na mochila: verde se cabe, vermelho se não
   const alvo = alvoNaMochila(ev), pv = $('previa');
@@ -1889,6 +1994,8 @@ const sobreEl = (ev, id) => { const e = $(id); if(!e) return false; const r = e.
 function alvoNaMochila(ev){ const mo = $('mochila'); if(!mo || !sobreEl(ev, 'mochila')) return null; const r = mo.getBoundingClientRect();
   return {x:Math.floor((ev.clientX - r.left) / TAM) - arr.cx, y:Math.floor((ev.clientY - r.top) / TAM) - arr.cy}; }
 function soltarArrasto(ev){
+  if(arr && arr.pid != null && ev.pointerId !== arr.pid) return;
+  ev = comDedo(ev);
   const a = arr; window.onpointermove = window.onpointerup = window.onpointercancel = null;
   if(!a) return;
   if(!a.ativo){ arr = null; tocar(a); return; }
@@ -1911,7 +2018,7 @@ function soltarArrasto(ev){
   if(mudou){ const vendeu = !alvo && !sobreEl(ev, 'bancada'); som(a.onde === 'loja' ? 'comprar' : vendeu ? 'vender' : 'encaixar'); if(a.onde === 'loja') avancarTutorial(0); salvarCorrida(); }
   desenhar();
 }
-function cancelarArrasto(){ arr = null; document.body.classList.remove('arrastando', 'da-loja', 'da-mochila'); const fa = $('arrasto'); if(fa){ fa.hidden = true; fa.innerHTML = ''; } window.onpointermove = window.onpointerup = window.onpointercancel = null; }
+function cancelarArrasto(){ botaoGirarArrasto(false); arr = null; document.body.classList.remove('arrastando', 'da-loja', 'da-mochila'); const fa = $('arrasto'); if(fa){ fa.hidden = true; fa.innerHTML = ''; } window.onpointermove = window.onpointerup = window.onpointercancel = null; }
 function tocar(a){ if(a.onde === 'loja' && duploNaVitrine(a.i)){ comprarDaVaga(a.i); return; } sel = a.onde === 'loja' ? {onde:'loja', i:a.i} : {onde:a.onde, p:a.p}; avancarTutorial(1); desenhar(); }
 if(temDOM && typeof window !== 'undefined') window.addEventListener('keydown', ev => {
   if((ev.key === 'r' || ev.key === 'R') && arr && arr.ativo){ arr.g = (arr.g + 1) & 3; const f = forma(arr.id, arr.g); arr.cx = Math.min(arr.cx, f.w - 1); arr.cy = Math.min(arr.cy, f.h - 1); desenharFantasma(); }
@@ -1926,9 +2033,9 @@ async function comecarLuta(){
   const travadas = receitasTravadas(C.mochila, C.nivel || 1, C.classe).map(r => `${ITEM[r[0]].nome} + ${ITEM[r[1]].nome} só viram ${ITEM[r[2]].nome} no nível ${r[3]}`);
   // a ferramenta do ofício trabalha uma vez por rodada
   const ofi = C.oficioRodada === C.rodada ? [] : oficio(C.mochila, C.rodada); C.oficioRodada = C.rodada;
-  if(feitas.length){ som('fundir'); vibrar([40, 60, 40]); }
+  if(feitas.length){ som('fundir'); vibrar([40, 60, 40]); if(descobrirReceitas(feitas)) feitas.unshift('__nova'); }
   avancarTutorial(3);
-  const avisos = feitas.map(id => 'Fusão: ' + ITEM[id].nome).concat(travadas, ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
+  const avisos = feitas.map(id => id === '__nova' ? 'Receita nova no livro!' : 'Fusão: ' + ITEM[id].nome).concat(travadas, ofi); if(avisos.length) avisar(avisos.slice(0, 3).join(' · '), 3000);
   const foto = fotoMochila(C.mochila), vidas = VIDAS - C.derrotas;
   let adv = null;
   if(C.corrida == null && corridaPendente) await Promise.race([corridaPendente, new Promise(r => setTimeout(r, 3000))]);
@@ -1947,7 +2054,8 @@ async function comecarLuta(){
 const NOME_EST = {forca:'Força', queima:'Queimadura', veneno:'Veneno', regen:'Regeneração', esquiva:'Esquiva', gelo:'Gelo', espinhos:'Espinhos', mana:'Mana'};
 const COR_EST = {forca:'#d9483b', queima:'#f08a2a', veneno:'#5aa84a', regen:'#7ad06a', esquiva:'#8ab4d8', gelo:'#7ad0f0', espinhos:'#b07a4a', mana:'#7a6ad8'};
 function ladoHtml(k){
-  const L = lutaAtual.r.lados[k], adv = k === 1, largo = window.innerWidth >= 1400, tam = Math.max(16, Math.min(largo ? 62 : 44, Math.floor((Math.min(largo ? 640 : 480, window.innerWidth - 24) - 30) / LARG)));
+  let L = lutaAtual.r.lados[k], adv = k === 1, largo = window.innerWidth >= 1400, tam = Math.max(16, Math.min(largo ? 62 : 44, Math.floor((Math.min(largo ? 640 : 480, window.innerWidth - 24) - 30) / LARG)));
+  const deitado = window.innerWidth <= 900 && window.innerHeight < window.innerWidth; if(deitado) tam = Math.max(14, Math.min(tam, Math.floor((window.innerWidth / 2 - 50) / LARG), Math.floor((window.innerHeight - 170) / ALT)));
   const mini = {pecas:L.itens.map((s, i) => ({uid:1000 + i, id:s.id, x:s.x, y:s.y, g:s.g}))};
   const bolsas = (k === 0 ? C.mochila : lutaAtual.adv.mochila).pecas.filter(ehBolsa);
   const pecas = bolsas.concat(mini.pecas).map(p => `<div class="posto" style="left:${p.x * tam}px;top:${p.y * tam}px">${pecaHtml(p, tam, '')}</div>`).join('');
@@ -1960,12 +2068,13 @@ function ladoHtml(k){
 function telaLuta(){
   return `<section class="luta-tela"><header class="lcab"><b>Rodada ${C.rodada}</b><span>${pips(C.vitorias, VITORIAS_META, 'vit')}</span><span class="vidas">${pips(VIDAS - C.derrotas, VIDAS, 'vida')}</span></header>
     <div class="ringue">${ladoHtml(1)}<div class="versus">contra</div>${ladoHtml(0)}</div>
-    <div class="controles"><button class="btn sm${lutaAtual.vel === 1 ? ' on' : ''}" data-vel="1">1×</button><button class="btn sm${lutaAtual.vel === 2 ? ' on' : ''}" data-vel="2">2×</button><button class="btn sm${lutaAtual.vel === 4 ? ' on' : ''}" data-vel="4">4×</button><button class="btn sm" id="btPular">Pular</button></div>${PERFIL.dicaLuta ? '' : '<p class="dica-luta">A luta é automática. Use 2× ou 4× para acelerar, ou Pular para ver o resultado.</p>'}
+    <div class="controles"><button class="btn sm${lutaAtual.vel === 1 ? ' on' : ''}" data-vel="1">1×</button><button class="btn sm${lutaAtual.vel === 2 ? ' on' : ''}" data-vel="2">2×</button><button class="btn sm${lutaAtual.vel === 4 ? ' on' : ''}" data-vel="4">4×</button><button class="btn sm" id="btPular">Pular</button><button class="btn sm so-cel" id="btMochilas">Mochilas</button></div>${PERFIL.dicaLuta ? '' : '<p class="dica-luta">A luta é automática. Use 2× ou 4× para acelerar, ou Pular para ver o resultado.</p>'}
     <div class="resultado" id="resultado" hidden></div></section>`;
 }
 function ligarLuta(){
   raiz().querySelectorAll('[data-vel]').forEach(b => b.onclick = () => { lutaAtual.vel = +b.dataset.vel; opcoes().vel = lutaAtual.vel; gravarPerfil(); raiz().querySelectorAll('[data-vel]').forEach(x => x.classList.toggle('on', x === b)); });
   $('btPular').onclick = () => { lutaAtual.tempo = 1e9; };
+  const bm = $('btMochilas'); if(bm) bm.onclick = () => { const r = raiz().querySelector('.ringue'); r.classList.toggle('abertas'); bm.classList.toggle('on', r.classList.contains('abertas')); };
   aplicarFoto(lutaAtual.r.eventos[0].foto);
 }
 function aplicarFoto(f){
@@ -1979,7 +2088,7 @@ function aplicarFoto(f){
 // item: o número sai de cima da peça que agiu (cura e bloqueio); sem ele, sai do alto do painel
 function numeroFlutuante(k, txt, cls, item){ const el = $('lado' + k); if(!el) return; const n = document.createElement('span'); n.className = 'flut ' + cls; n.textContent = txt;
   const p = item != null ? el.querySelectorAll('.mini .peca:not(.bolsa)')[item] : null;
-  if(p){ const a = el.getBoundingClientRect(), b = p.getBoundingClientRect(); n.classList.add('da-peca'); n.style.left = (b.left - a.left + b.width / 2) + 'px'; n.style.top = (b.top - a.top) + 'px'; el.appendChild(n); }
+  if(p && p.offsetParent){ const a = el.getBoundingClientRect(), b = p.getBoundingClientRect(); n.classList.add('da-peca'); n.style.left = (b.left - a.left + b.width / 2) + 'px'; n.style.top = (b.top - a.top) + 'px'; el.appendChild(n); }
   else { n.style.left = (30 + Math.random() * 40) + '%'; el.querySelector('.flutuantes').appendChild(n); }
   setTimeout(() => n.remove(), 1000); }
 function piscar(k, item){ const el = $('lado' + k); if(!el) return; const p = el.querySelectorAll('.mini .peca:not(.bolsa)')[item]; if(p){ p.classList.remove('age'); void p.offsetWidth; p.classList.add('age'); } }
@@ -2029,11 +2138,12 @@ function mostrarResultado(){
   const el = $('resultado'); el.hidden = false;
   el.className = 'resultado ' + (L.venceu ? 'venceu' : 'perdeu'); som(L.venceu ? 'vitoria' : 'derrota'); if(L.venceu) vibrar(80); PERFIL.dicaLuta = 1; gravarPerfil();
   const pior = L.venceu ? null : estatisticas(L.r)[1].itens.slice().sort((a, b) => b.dano - a.dano)[0];
-  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (C.modo === 'ranqueada' ? ': os pontos de liga vêm no fim da corrida.' : '.') : ''}</p>${pior && pior.dano ? `<p class="pior">O que mais te machucou: <span class="mini-item">${iconeItem(pior.id)}${ITEM[pior.id].nome}</span> · ${pior.dano} de dano</p>` : ''}<div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div>`;
+  el.innerHTML = `<h2>${L.venceu ? 'Vitória!' : 'Derrota'}</h2><p>${L.venceu ? 'Sua tralha deu conta.' : 'Desta vez a mochila do outro foi melhor.'}${L.adv.online ? ' <b>Contra um jogador online</b>' + (C.modo === 'ranqueada' ? ': os pontos de liga vêm no fim da corrida.' : '.') : ''}</p>${pior && pior.dano ? `<p class="pior">O que mais te machucou: <span class="mini-item">${iconeItem(pior.id)}${ITEM[pior.id].nome}</span> · ${pior.dano} de dano</p>` : ''}<div class="res-btns"><button class="btn" id="btStats">Estatísticas</button><button class="btn" id="btAdv">Mochila do adversário</button><button class="btn primario grande" id="btSeguir">Continuar</button></div><div class="stats" id="stats" hidden>${statsHtml(L.r)}</div><div class="adv-mochila" id="advMochila" hidden>${mochilaAdversarioHtml()}</div>`;
+  $('btAdv').onclick = () => { const st = $('advMochila'); st.hidden = !st.hidden; el.classList.toggle('largo', !st.hidden || !$('stats').hidden); };
   $('btStats').onclick = () => { const st = $('stats'); st.hidden = !st.hidden; el.classList.toggle('largo', !st.hidden); };
   $('btSeguir').onclick = () => {
     fecharRodada(L.venceu, L.adv.nome); lutaAtual = null;
-    if(C.fim){ PERFIL.corridas++; if(C.vitorias >= VITORIAS_META) PERFIL.vitoriasCorrida++; PERFIL.melhor = Math.max(PERFIL.melhor, C.vitorias); gravarPerfil(); tela = 'fim'; fecharNoServidor(); }
+    if(C.fim){ PERFIL.corridas++; if(C.vitorias >= VITORIAS_META) PERFIL.vitoriasCorrida++; PERFIL.melhor = Math.max(PERFIL.melhor, C.vitorias); gravarPerfil(); registrarFimCorrida(); tela = 'fim'; fecharNoServidor(); }
     else tela = 'loja';
     salvarCorrida(); desenhar(); };
 }
@@ -2051,7 +2161,7 @@ async function fecharNoServidor(){
       for(let n = antes.nivel + 1; n <= depois.nivel; n++) lib.push(...liberadosNo(alvo.classe, n));
       if(r.rank_depois != null){ alvo.rankRes = {antes:Number(r.rank_antes), depois:Number(r.rank_depois)}; PERFIL.rank = Object.assign(PERFIL.rank || {}, {pontos:Number(r.rank_depois)}); gravarPerfil(); }
       alvo.xpRes = {ganho:Number(r.ganho), base:Number(r.base), mult:Number(r.multiplicador), limite:Number(r.limite_hoje), antes, depois, lib, bronze:Number(r.bronze) || 0, cartas:r.cartas || {}};
-      sincronizarColecao(); }
+      sincronizarColecao(); checarConquistas(); }
     else alvo.xpRes = 'offline';
   }
   if(tela === 'fim' && alvo === C) desenhar();
@@ -2149,7 +2259,7 @@ function ligarCartas(){
 // ---- ranking ----
 async function abrirRanking(){ rankingDados = 'carregando'; tela = 'ranking'; desenhar();
   const [L, eu, E] = await Promise.all([onlineRanking(), onlineMeuRank(), onlineEstatisticas()]); rankingDados = L; estatDados = E;
-  if(eu){ PERFIL.rank = {pontos:Number(eu.pontos), posicao:Number(eu.posicao), melhor:Number(eu.melhor_pontos), fim:eu.fim}; gravarPerfil(); }
+  if(eu){ PERFIL.rank = {pontos:Number(eu.pontos), posicao:Number(eu.posicao), melhor:Number(eu.melhor_pontos), fim:eu.fim}; gravarPerfil(); checarConquistas(); }
   if(tela === 'ranking') desenhar(); }
 // aba Personagens: a taxa de vitória por luta de cada personagem (a meta do equilíbrio é perto de 50%)
 const POUCOS_DADOS = 20;
@@ -2180,10 +2290,11 @@ function telaRanking(){
     <p class="sub">Só a <b>Ranqueada</b> vale pontos, pela corrida inteira: 12 por vitória e 20 a mais ao fechar 7 vitórias, menos a entrada da liga (Prata 20, Ouro 30, Platina 40, Diamante 50, Mestre 60, Grão-Mestre 70). Na temporada nova você começa com metade dos pontos.</p>
     ${rankingDados === 'carregando' ? '<p class="nota">Carregando…</p>' : !L ? '<p class="nota">Sem conexão com o servidor agora. O jogo continua offline; tente de novo mais tarde.</p>'
       : !L.length ? '<p class="nota">Ninguém pontuou ainda nesta temporada. Seja o primeiro!</p>'
-      : `<ol class="lista">${L.map(l => `<li class="${PERFIL.nome && l.nome === PERFIL.nome ? 'eu' : ''}"><span class="pos">${l.posicao}</span>${seloLiga(l.pontos)}<b>${String(l.nome).replace(/</g, '&lt;')}</b><span>${l.vitorias} vitórias</span><em>${l.pontos}</em></li>`).join('')}</ol>`}
+      : `<ol class="lista">${L.map(l => `<li data-perfil="${l.codigo || ''}" class="${PERFIL.nome && l.nome === PERFIL.nome ? 'eu' : ''}${l.codigo ? ' clicavel' : ''}"><span class="pos">${l.posicao}</span>${seloLiga(l.pontos)}<b>${String(l.nome).replace(/</g, '&lt;')}${l.titulo ? `<small class="rk-titulo">${nomeConquista(l.titulo)}</small>` : ''}</b><span>${l.vitorias} vitórias</span><em>${l.pontos}</em></li>`).join('')}</ol>`}
     <button class="btn" id="btVoltar">Voltar</button></section>`;
 }
 function ligarRanking(){ $('btVoltar').onclick = () => { tela = 'lobby'; desenhar(); };
+  raiz().querySelectorAll('[data-perfil]').forEach(li => { if(li.dataset.perfil) li.onclick = () => abrirPerfil(li.dataset.perfil); });
   raiz().querySelectorAll('[data-aba]').forEach(b => b.onclick = () => { rankingAba = b.dataset.aba; desenhar(); });
   raiz().querySelectorAll('[data-filtro]').forEach(b => b.onclick = () => { const k = b.dataset.filtro; estatFiltro[k] = k === 'faixa' ? +b.dataset.valor : b.dataset.valor; desenhar(); }); }
 
@@ -2192,7 +2303,7 @@ const TELAS = {colecao:[telaColecao, ligarColecao], cartas:[telaCartas, ligarCar
 function desenhar(){
   if(!uiAtiva) return;
   const [h, l] = TELAS[tela] || TELAS.lobby;
-  document.body.dataset.tela = tela; aplicarOpcoes(); esconderCartao();
+  document.body.dataset.tela = tela; aplicarOpcoes(); esconderCartao(); cuidarTelaAcesa(); document.body.classList.toggle('nativo', nativo());
   // o fundo pintado de cada tela, bem apagado atrás dos painéis
   const fundo = urlArte(tela === 'luta' ? 'fundo-luta' : 'fundo-lobby'); document.body.classList.toggle('com-fundo', !!fundo); if(fundo) document.body.style.setProperty('--fundo-img', `url("${fundo}")`);
   raiz().innerHTML = h(); l();
@@ -2413,12 +2524,12 @@ function confete(){
 function telaOpcoes(){
   const o = opcoes(), sw = (k, txt, sub) => `<label class="opc"><span><b>${txt}</b><small>${sub}</small></span><input type="checkbox" data-opc="${k}"${o[k] ? ' checked' : ''}></label>`;
   return `<section class="ranking-tela opcoes-tela"><h1>Opções</h1>
-    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}<label class="opc"><span><b>Volume</b><small>${o.volume == null ? 70 : o.volume}%</small></span><input type="range" min="0" max="100" step="5" id="volume" value="${o.volume == null ? 70 : o.volume}"></label>${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}
+    ${sw('som', 'Sons', 'Compra, fusão na forja, golpes e vitória')}<label class="opc"><span><b>Volume</b><small>${o.volume == null ? 70 : o.volume}%</small></span><input type="range" min="0" max="100" step="5" id="volume" value="${o.volume == null ? 70 : o.volume}"></label>${sw('vibrar', 'Vibração', 'No celular, ao fundir e ao vencer')}${nativo() ? sw('avisos', 'Avisar a vitrine nova', 'Uma notificação quando a vitrine de cartas do dia renovar') : ''}
     ${sw('textoGrande', 'Texto maior', 'Letras maiores nas descrições, na loja e nas dicas')}${sw('daltonico', 'Raridade com letra', 'Mostra C, I, R, É ou L nos itens, além da cor')}
     <button class="btn sm" id="btTutDeNovo">Ver as dicas de novo</button><button class="btn sm so-pc" id="btAtalhos">Atalhos do teclado</button><button class="btn" id="btVoltar">Voltar</button></section>`;
 }
 function ligarOpcoes(){
-  raiz().querySelectorAll('[data-opc]').forEach(i => i.onchange = () => { opcoes()[i.dataset.opc] = i.checked; gravarPerfil(); aplicarOpcoes(); if(i.dataset.opc === 'som' && i.checked) som('comprar'); if(i.dataset.opc === 'vibrar' && i.checked) vibrar(60); });
+  raiz().querySelectorAll('[data-opc]').forEach(i => i.onchange = () => { if(i.dataset.opc === 'avisos'){ ligarAvisos(i.checked).then(ok => { if(!ok) i.checked = false; }); return; } opcoes()[i.dataset.opc] = i.checked; gravarPerfil(); aplicarOpcoes(); if(i.dataset.opc === 'som' && i.checked) som('comprar'); if(i.dataset.opc === 'vibrar' && i.checked) vibrar(60); });
   const vol = $('volume'); vol.oninput = () => { opcoes().volume = +vol.value; vol.closest('.opc').querySelector('small').textContent = vol.value + '%'; }; vol.onchange = () => { gravarPerfil(); som('fundir'); };
   $('btAtalhos').onclick = painelAtalhos;
   $('btTutDeNovo').onclick = () => { PERFIL.tutorial = 0; gravarPerfil(); avisar('As dicas aparecem na próxima loja'); };
@@ -2491,12 +2602,220 @@ function duploNaVitrine(i){
   ultimoToqueLoja = d ? null : {i, t:agora};
   return d;
 }
+// ---------- Celular: aplicativo Android (botão voltar, tela acesa na luta, aviso da vitrine) e arrasto com o dedo ----------
+const nativo = () => typeof window !== 'undefined' && !!window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+const plugin = nome => nativo() && window.Capacitor.Plugins ? window.Capacitor.Plugins[nome] : null;
+const celularEmPe = () => typeof window !== 'undefined' && window.innerWidth <= 900 && window.innerHeight > window.innerWidth;
+
+// ---- botão voltar do Android: fecha o que estiver aberto e volta uma tela; no lobby, minimiza em vez de fechar ----
+function voltarAndroid(){
+  const at = $('atalhos'); if(at){ at.remove(); return; }
+  if(arr){ cancelarArrasto(); desenhar(); return; }
+  if(tela === 'loja' && sel){ sel = null; desenhar(); return; }
+  if(tela === 'luta'){ if(lutaAtual && !lutaAtual.fechada) lutaAtual.tempo = 1e9; else { const b = $('btSeguir'); if(b) b.click(); } return; }
+  if(tela === 'loja'){ salvarCorrida(); tela = 'lobby'; desenhar(); return; }
+  if(tela !== 'lobby'){ tela = 'lobby'; desenhar(); return; }
+  const A = plugin('App'); if(A && A.minimizeApp) A.minimizeApp();
+}
+// ---- tela acesa só durante a luta ----
+let telaAcesa = false;
+function cuidarTelaAcesa(){
+  const K = plugin('KeepAwake'); if(!K) return; const quer = tela === 'luta';
+  if(quer === telaAcesa) return; telaAcesa = quer;
+  try{ (quer ? K.keepAwake() : K.allowSleep()).catch(() => {}); }catch(e){}
+}
+// ---- aviso quando a vitrine diária de cartas renovar (notificação local, sem servidor) ----
+async function agendarAvisoVitrine(){
+  const N = plugin('LocalNotifications'); if(!N || !opcoes().avisos) return;
+  try{
+    await N.cancel({notifications:[{id:1}]});
+    const L = await onlineCarrinho('dia'), quando = L && L[0] && L[0].troca_em ? new Date(L[0].troca_em) : null;
+    if(!quando || quando <= new Date()) return;
+    await N.schedule({notifications:[{id:1, title:'Tralha de Guerra', body:'A vitrine de cartas do dia renovou. Venha ver as ofertas!', schedule:{at:new Date(quando.getTime() + 60000), allowWhileIdle:true}}]});
+  }catch(e){}
+}
+async function ligarAvisos(liga){
+  const N = plugin('LocalNotifications'); if(!N) return false;
+  if(liga){ try{ const p = await N.requestPermissions(); if(p.display !== 'granted'){ avisar('Sem permissão para avisos. Libere nas configurações do celular.', 3200); return false; } }catch(e){ return false; } }
+  opcoes().avisos = liga; gravarPerfil();
+  if(liga) agendarAvisoVitrine(); else { try{ await N.cancel({notifications:[{id:1}]}); }catch(e){} }
+  return true;
+}
+if(temDOM && typeof window !== 'undefined'){
+  // o Capacitor injeta os plugins quando o aplicativo abre; espera um pouco e liga o botão voltar
+  setTimeout(() => {
+    const A = plugin('App'); if(A && A.addListener) A.addListener('backButton', voltarAndroid);
+    if(A && A.addListener) A.addListener('appStateChange', s => { if(s.isActive) agendarAvisoVitrine(); });
+    agendarAvisoVitrine();
+  }, 800);
+}
+
+// ---- arrasto com o dedo: a peça aparece acima do dedo e um botão Girar flutua enquanto arrasta ----
+const DEDO = () => -Math.round(TAM * 1.3);
+const comDedo = ev => arr && arr.toque ? {clientX:ev.clientX, clientY:ev.clientY + DEDO()} : ev;
+function botaoGirarArrasto(mostra){
+  let b = $('btGirarArrasto');
+  if(!mostra){ if(b) b.hidden = true; return; }
+  if(!b){ b = document.createElement('button'); b.id = 'btGirarArrasto'; b.className = 'btn'; b.textContent = 'Girar'; document.body.appendChild(b);
+    b.addEventListener('pointerdown', ev => { ev.stopPropagation(); ev.preventDefault(); if(!(arr && arr.ativo)) return;
+      arr.g = (arr.g + 1) & 3; const f = forma(arr.id, arr.g); arr.cx = Math.min(arr.cx, f.w - 1); arr.cy = Math.min(arr.cy, f.h - 1); desenharFantasma(); }); }
+  b.hidden = false;
+}
+// ---------- Histórico de corridas, livro de receitas e conquistas (tudo guardado no perfil do aparelho) ----------
+if(PERFIL){ PERFIL.historico = PERFIL.historico || []; PERFIL.receitas = PERFIL.receitas || {}; PERFIL.conq = PERFIL.conq || {}; PERFIL.fusoes = PERFIL.fusoes || 0; PERFIL.vit7 = PERFIL.vit7 || {}; }
+const miniMochila = (m, tam) => `<div class="mochila final" style="width:${LARG * tam}px;height:${ALT * tam}px">${m.pecas.slice().sort((a, b) => ehBolsa(b) - ehBolsa(a)).map(p => `<div class="posto" style="left:${p.x * tam}px;top:${p.y * tam}px">${pecaHtml(p, tam, '')}</div>`).join('')}</div>`;
+const voltarLobby = () => { const b = $('btVoltar'); if(b) b.onclick = () => { tela = 'lobby'; desenhar(); }; };
+
+// ---- histórico: as últimas 10 corridas, com a mochila final de cada uma ----
+function registrarFimCorrida(){
+  PERFIL.historico.unshift({classe:C.classe, v:C.vitorias, d:C.derrotas, modo:C.modo || 'ranqueada', quando:Date.now(), foto:fotoMochila(C.mochila)});
+  PERFIL.historico = PERFIL.historico.slice(0, 10);
+  if(C.vitorias >= VITORIAS_META) PERFIL.vit7[C.classe] = 1;
+  gravarPerfil(); checarConquistas({semPerder:C.vitorias >= VITORIAS_META && C.derrotas === 0});
+}
+function telaHistorico(){
+  const H = PERFIL.historico, tam = Math.max(14, Math.min(22, Math.floor((Math.min(window.innerWidth, 560) - 150) / LARG)));
+  return `<section class="ranking-tela historico-tela"><h1>Histórico</h1><p class="sub">As suas últimas ${H.length || ''} corridas, com a mochila que terminou cada uma.</p>
+    ${H.length ? `<ol class="lista hist">${H.map(h => { const K = CLASSES[h.classe] || {nome:h.classe, cor:'#888'};
+      return `<li style="--cc:${K.cor}"><div class="h-cab">${retrato(h.classe) ? `<img class="mini-ret" src="${retrato(h.classe)}" alt="">` : ''}<span><b>${K.nome}</b><small>${h.v} ${h.v === 1 ? 'vitória' : 'vitórias'} · ${h.d} ${h.d === 1 ? 'derrota' : 'derrotas'} · ${h.modo === 'normal' ? 'Normal' : 'Ranqueada'} · ${new Date(h.quando).toLocaleDateString('pt-BR')}</small></span>${h.v >= VITORIAS_META ? '<em class="h-sete">7 vitórias</em>' : ''}</div>
+        ${miniMochila(deFoto(h.foto), tam)}</li>`; }).join('')}</ol>` : '<p class="nota">Nenhuma corrida terminada ainda.</p>'}
+    <button class="btn" id="btVoltar">Voltar</button></section>`;
+}
+
+// ---- livro de receitas: as descobertas aparecem inteiras; as outras mostram só a silhueta do resultado ----
+let livroClasse = null;
+function descobrirReceitas(ids){ let novas = 0; for(const id of ids) if(!PERFIL.receitas[id]){ PERFIL.receitas[id] = 1; novas++; } PERFIL.fusoes += ids.length; gravarPerfil(); checarConquistas(); return novas; }
+function telaReceitas(){
+  const c = livroClasse || classeEscolhida, L = RECEITAS.filter(r => !r[3] ? !ITEM[r[2]].classe || ITEM[r[2]].classe === c : ITEM[r[2]].classe === c);
+  const achadas = L.filter(r => PERFIL.receitas[r[2]]).length, total = RECEITAS.filter(r => PERFIL.receitas[r[2]]).length;
+  const linha = r => { const sabe = PERFIL.receitas[r[2]], it = id => `<span class="rc-it">${iconeItem(id)}<small>${ITEM[id].nome}</small></span>`;
+    return `<li class="${sabe ? 'sabe' : 'falta'}">${sabe ? it(r[0]) + '<b>+</b>' + it(r[1]) : '<span class="rc-it oculto"><i>?</i><small>???</small></span><b>+</b><span class="rc-it oculto"><i>?</i><small>???</small></span>'}<b>→</b>
+      <span class="rc-it res${sabe ? '' : ' sombra'}">${iconeItem(r[2])}<small>${sabe ? ITEM[r[2]].nome : 'A descobrir'}</small></span>${r[3] ? `<em class="rc-nv">Nv ${r[3]}</em>` : ''}</li>`; };
+  return `<section class="ranking-tela receitas-tela"><h1>Livro de receitas</h1>
+    <p class="sub">Encoste os itens certos na mochila para descobrir. ${achadas} de ${L.length} do ${CLASSES[c].nome} (com as gerais) · ${total} de ${RECEITAS.length} no total.</p>
+    <div class="filtros">${Object.keys(CLASSES).map(k => `<button class="chip${k === c ? ' on' : ''}" data-livro="${k}">${CLASSES[k].nome}</button>`).join('')}</div>
+    <ol class="lista receitas">${L.map(linha).join('')}</ol><button class="btn" id="btVoltar">Voltar</button></section>`;
+}
+function ligarReceitas(){ voltarLobby(); raiz().querySelectorAll('[data-livro]').forEach(b => b.onclick = () => { livroClasse = b.dataset.livro; desenhar(); }); }
+
+// ---- conquistas ----
+const nivelMax = () => Math.max(1, ...Object.keys(CLASSES).map(c => nivelClasse(c).nivel));
+const CONQUISTAS = [
+  {id:'fusao1', nome:'Primeira faísca', desc:'Faça a primeira fusão.', ok:() => PERFIL.fusoes >= 1},
+  {id:'fusao25', nome:'Ferreiro de mão cheia', desc:'Faça 25 fusões.', ok:() => PERFIL.fusoes >= 25, prog:() => [PERFIL.fusoes, 25]},
+  {id:'fusao100', nome:'Mestre da forja', desc:'Faça 100 fusões.', ok:() => PERFIL.fusoes >= 100, prog:() => [PERFIL.fusoes, 100]},
+  {id:'receitas20', nome:'Caderno de receitas', desc:'Descubra 20 receitas.', ok:() => Object.keys(PERFIL.receitas).length >= 20, prog:() => [Object.keys(PERFIL.receitas).length, 20]},
+  {id:'receitas60', nome:'Livro completo de bolso', desc:'Descubra 60 receitas.', ok:() => Object.keys(PERFIL.receitas).length >= 60, prog:() => [Object.keys(PERFIL.receitas).length, 60]},
+  {id:'corrida1', nome:'Pé na estrada', desc:'Termine a primeira corrida.', ok:() => PERFIL.corridas >= 1},
+  {id:'sete', nome:'Sete de sete', desc:'Feche uma corrida com 7 vitórias.', ok:() => PERFIL.vitoriasCorrida >= 1},
+  {id:'semPerder', nome:'Invicto', desc:'Feche 7 vitórias sem nenhuma derrota.', ok:x => !!(x && x.semPerder)},
+  {id:'todos7', nome:'Elenco completo', desc:'Feche 7 vitórias com cada um dos personagens.', ok:() => Object.keys(CLASSES).every(c => PERFIL.vit7[c]), prog:() => [Object.keys(PERFIL.vit7).length, Object.keys(CLASSES).length]},
+  {id:'nivel5', nome:'Veterano', desc:'Chegue ao nível 5 com um personagem.', ok:() => nivelMax() >= 5},
+  {id:'nivel10', nome:'Lenda da mochila', desc:'Chegue ao nível 10 com um personagem.', ok:() => nivelMax() >= 10},
+  {id:'ouro', nome:'Liga de Ouro', desc:'Chegue à liga de Ouro na ranqueada.', ok:() => !!(PERFIL.rank && PERFIL.rank.pontos >= 800)},
+  {id:'diamante', nome:'Brilho de Diamante', desc:'Chegue à liga de Diamante na ranqueada.', ok:() => !!(PERFIL.rank && PERFIL.rank.pontos >= 1600)},
+  {id:'colecao100', nome:'Acumulador', desc:'Use 100 itens diferentes nas suas mochilas.', ok:() => Object.keys(PERFIL.colecao || {}).length >= 100, prog:() => [Object.keys(PERFIL.colecao || {}).length, 100]},
+];
+function checarConquistas(extra){
+  const novas = CONQUISTAS.filter(q => !PERFIL.conq[q.id] && q.ok(extra));
+  if(!novas.length) return; for(const q of novas) PERFIL.conq[q.id] = Date.now(); gravarPerfil();
+  if(temDOM){ avisar('Conquista: ' + novas.map(q => q.nome).join(', '), 3200); som('festa'); }
+  sincronizarConquistas();
+}
+function telaConquistas(){
+  const feitas = CONQUISTAS.filter(q => PERFIL.conq[q.id]).length;
+  return `<section class="ranking-tela conq-tela"><h1>Conquistas</h1><p class="sub">${feitas} de ${CONQUISTAS.length}</p>
+    <ol class="lista conq">${CONQUISTAS.map(q => { const f = PERFIL.conq[q.id], p = !f && q.prog ? q.prog() : null;
+      return `<li class="${f ? 'feita' : ''}"><span class="cq-selo">${ic(f ? 'trofeu' : 'estrela')}</span><span><b>${q.nome}</b><small>${q.desc}${f ? ` · ${new Date(f).toLocaleDateString('pt-BR')}` : p ? ` · ${Math.min(p[0], p[1])} de ${p[1]}` : ''}</small></span></li>`; }).join('')}</ol>
+    <button class="btn" id="btVoltar">Voltar</button></section>`;
+}
+TELAS.historico = [telaHistorico, voltarLobby]; TELAS.receitas = [telaReceitas, ligarReceitas]; TELAS.conquistas = [telaConquistas, voltarLobby];
+
+// ---- a mochila do adversário, depois da luta ----
+function mochilaAdversarioHtml(){
+  const m = lutaAtual.adv.mochila, tam = Math.max(16, Math.min(30, Math.floor((Math.min(window.innerWidth, 640) - 60) / LARG)));
+  const ids = [...new Set(m.pecas.filter(p => !ehBolsa(p)).map(p => p.id))];
+  return `<h3>Mochila de ${lutaAtual.adv.nome}</h3>${miniMochila(m, tam)}
+    <ul class="adv-itens">${ids.map(id => `<li style="--rar:${raridade(id).cor}"><span class="pic">${iconeItem(id)}</span><span><b>${ITEM[id].nome}</b><small>${textoIcones(ITEM[id].texto)}</small></span></li>`).join('')}</ul>`;
+}
+
+// ---- missões diárias (supabase/08-missoes.sql): o servidor confere e paga em bronze ----
+let missoesDados = null, missoesEm = 0;
+const TEXTO_MISSAO = m => ({vitorias:`Vença ${m.meta} lutas`, classe:`Vença ${m.meta} lutas com o ${(CLASSES[m.classe] || {}).nome || m.classe}`, corridas:`Termine ${m.meta} corridas`,
+  ranqueada:'Feche uma corrida ranqueada com 4 ou mais vitórias', campanha:`Chegue a ${m.meta} vitórias numa corrida`})[m.tipo] || m.tipo;
+async function carregarMissoes(forcar){
+  if(!forcar && Date.now() - missoesEm < 60000) return;
+  missoesEm = Date.now(); const L = await onlineMissoes();
+  missoesDados = Array.isArray(L) ? L : null; if(tela === 'lobby') desenhar();
+}
+function blocoMissoes(){
+  if(!missoesDados) return '';
+  return `<div class="missoes"><h3>Missões de hoje</h3>${missoesDados.map(m => { const p = Number(m.progresso), meta = Number(m.meta), pronta = p >= meta && !m.resgatada;
+    return `<div class="missao${m.resgatada ? ' feita' : ''}"><span class="ms-txt">${TEXTO_MISSAO(m)}<small>${m.resgatada ? 'Resgatada' : `${p} de ${meta}`} · ${ic('moeda')} ${m.bronze} de bronze</small></span>
+      ${pronta ? `<button class="btn sm primario" data-missao="${m.n}">Resgatar</button>` : `<span class="ms-barra"><i style="width:${Math.round(Math.min(1, p / meta) * 100)}%"></i></span>`}</div>`; }).join('')}</div>`;
+}
+function ligarMissoes(){
+  raiz().querySelectorAll('[data-missao]').forEach(b => b.onclick = async () => { b.disabled = true;
+    const s = await onlineResgatar(+b.dataset.missao);
+    if(s != null){ PERFIL.bronze = Number(s); gravarPerfil(); som('vender'); avisar('Bronze recebido!'); } else avisar('Não deu para resgatar agora. Tente de novo.');
+    carregarMissoes(true); });
+}
+
+// ---- perfil do jogador (supabase/09-perfil.sql): 3 heróis favoritos, título e conquistas; o meu dá para editar ----
+// favoritos no formato 'classe' ou 'classe:pele' (as peles/skins entram depois: a pele escolhe outro retrato)
+const heroiDe = f => { const [classe, pele] = String(f).split(':'); return {classe, pele}; };
+const retratoHeroi = f => { const h = heroiDe(f); return (h.pele && urlArte('retrato-' + h.classe + '-' + h.pele)) || retrato(h.classe); };
+const nomeConquista = id => (CONQUISTAS.find(q => q.id === id) || {}).nome || id;
+let perfilVer = null;
+async function sincronizarConquistas(){ const ids = Object.keys(PERFIL.conq || {}); if(!ids.length) return; const r = await onlineConquistas(ids); if(Array.isArray(r)) PERFIL.conqServidor = r; gravarPerfil(); }
+async function abrirPerfil(codigo){
+  perfilVer = {carregando:true, meu:!codigo}; tela = 'perfil'; desenhar();
+  if(!codigo) await sincronizarConquistas();
+  const d = codigo ? await onlinePerfilDe(codigo) : await onlineMeuPerfil();
+  perfilVer = {dados:d, meu:!codigo, editando:false, fav:d ? (d.favoritos || []).slice() : [], titulo:d ? d.titulo : null};
+  if(tela === 'perfil') desenhar();
+}
+function telaPerfil(){
+  const P = perfilVer || {};
+  if(P.carregando) return `<section class="ranking-tela perfil-tela"><h1>Perfil</h1><p class="nota">Carregando…</p></section>`;
+  const d = P.dados; if(!d) return `<section class="ranking-tela perfil-tela"><h1>Perfil</h1><p class="nota">Sem conexão com o servidor agora. Tente de novo mais tarde.</p><button class="btn" id="btVoltarPerfil">Voltar</button></section>`;
+  const xp = d.experiencia || {}, fav = P.editando ? P.fav : (d.favoritos || []), tem = new Set(d.conquistas || []);
+  const card = (f, i) => f ? (() => { const h = heroiDe(f), K = CLASSES[h.classe] || {nome:h.classe, cor:'#888'}, nv = nivelDe(xp[h.classe] || 0);
+      return `<div class="heroi-card" style="--cc:${K.cor}">${retratoHeroi(f) ? `<img src="${retratoHeroi(f)}" alt="">` : ''}<b>${K.nome}</b><small>Nível ${nv.nivel}${nv.estrelas ? ' · ' + '★'.repeat(Math.min(nv.estrelas, 5)) : ''}</small></div>`; })()
+    : `<div class="heroi-card vazio"><span>${P.meu ? 'Escolha um herói' : 'Vazio'}</span></div>`;
+  const escolha = P.editando ? `<p class="sub">Toque em até 3 heróis, na ordem em que quer mostrar.</p><div class="esc-herois">${Object.keys(CLASSES).map(c => { const k = P.fav.findIndex(f => heroiDe(f).classe === c);
+      return `<button class="esc-h${k >= 0 ? ' on' : ''}" data-fav="${c}" style="--cc:${CLASSES[c].cor}">${retrato(c) ? `<img src="${retrato(c)}" alt="">` : ''}<small>${CLASSES[c].nome}</small>${k >= 0 ? `<em>${k + 1}</em>` : ''}</button>`; }).join('')}</div>
+    <label class="opc"><span><b>Título</b><small>Aparece ao lado do seu nome no ranking</small></span><select id="selTitulo"><option value="">Nenhum</option>${[...tem].map(id => `<option value="${id}"${P.titulo === id ? ' selected' : ''}>${nomeConquista(id)}</option>`).join('')}</select></label>
+    <div class="acoes"><button class="btn primario" id="btSalvarPerfil">Salvar</button><button class="btn" id="btCancelarPerfil">Cancelar</button></div>` : '';
+  return `<section class="ranking-tela perfil-tela">
+    <div class="pf-topo">${seloLiga(d.pontos, 'grande')}<div><h1>${String(d.nome).replace(/</g, '&lt;')}</h1>${d.titulo ? `<p class="pf-titulo">${nomeConquista(d.titulo)}</p>` : ''}
+      <small>${ligaDe(d.pontos).nome} · ${d.pontos} pontos${d.melhor_pontos > d.pontos ? ` · melhor ${d.melhor_pontos}` : ''}</small></div></div>
+    <h3 class="pf-sec">Heróis favoritos</h3><div class="herois-fav">${[0, 1, 2].map(i => card(fav[i], i)).join('')}</div>
+    ${P.meu && !P.editando ? '<button class="btn" id="btEditarPerfil">Editar perfil</button>' : ''}${escolha}
+    <h3 class="pf-sec">Conquistas · ${tem.size} de ${CONQUISTAS.length}</h3>
+    <div class="pf-conq">${CONQUISTAS.map(q => `<span class="pf-c${tem.has(q.id) ? ' on' : ''}" title="${q.desc}">${ic(tem.has(q.id) ? 'trofeu' : 'estrela')}<small>${q.nome}</small></span>`).join('')}</div>
+    <button class="btn" id="btVoltarPerfil">Voltar</button></section>`;
+}
+function ligarPerfil(){
+  const P = perfilVer || {};
+  const v = $('btVoltarPerfil'); if(v) v.onclick = () => { tela = P.meu ? 'lobby' : 'ranking'; desenhar(); };
+  const e = $('btEditarPerfil'); if(e) e.onclick = () => { P.editando = true; desenhar(); };
+  const c = $('btCancelarPerfil'); if(c) c.onclick = () => { P.editando = false; P.fav = (P.dados.favoritos || []).slice(); desenhar(); };
+  raiz().querySelectorAll('[data-fav]').forEach(b => b.onclick = () => { const cl = b.dataset.fav, k = P.fav.findIndex(f => heroiDe(f).classe === cl);
+    if(k >= 0) P.fav.splice(k, 1); else if(P.fav.length < 3) P.fav.push(cl); else avisar('No máximo 3 heróis'); desenhar(); });
+  const t = $('selTitulo'); if(t) t.onchange = () => { P.titulo = t.value || null; };
+  const s = $('btSalvarPerfil'); if(s) s.onclick = async () => { s.disabled = true;
+    const ok = await onlineDefinirPerfil(P.fav, P.titulo);
+    if(ok){ P.dados.favoritos = P.fav.slice(); P.dados.titulo = P.titulo; P.editando = false; avisar('Perfil salvo'); } else avisar('Não deu para salvar agora. Tente de novo.');
+    desenhar(); };
+}
+TELAS.perfil = [telaPerfil, ligarPerfil];
 // ---------- Início: tela de carregamento, depois o lobby, e sincroniza com o servidor ----------
 if(uiAtiva){
   // a tela de carregamento prepara as imagens e já confirma que o servidor responde (06b-carregando.js)
   carregarJogo().catch(() => { const c = $('carregando'); if(c) c.remove(); desenhar(); }).then(() => { if(PERFIL.nome && !nomePermitido(PERFIL.nome)){ PERFIL.nome = ''; gravarPerfil(); if(tela === 'lobby') desenhar(); } if(PERFIL.nome && PERFIL.nome.length >= 2) onlineNome(PERFIL.nome);
     onlineMeuRank().then(eu => { if(eu){ PERFIL.rank = {pontos:Number(eu.pontos), posicao:Number(eu.posicao), melhor:Number(eu.melhor_pontos), fim:eu.fim}; gravarPerfil(); if(tela === 'lobby') desenhar(); } });
-    Promise.all([sincronizarExperiencia(), sincronizarColecao()]).then(([ok]) => { if(ok && (tela === 'lobby' || tela === 'trilha')) desenhar(); }); });
+    Promise.all([sincronizarExperiencia(), sincronizarColecao(), sincronizarConquistas()]).then(([ok]) => { if(ok && (tela === 'lobby' || tela === 'trilha')) desenhar(); }); });
   let largAnt = window.innerWidth;
   window.addEventListener('resize', () => { if(Math.abs(window.innerWidth - largAnt) > 30 && tela === 'loja' && !arr){ largAnt = window.innerWidth; desenhar(); } });
 }

@@ -9,6 +9,10 @@
 --  * jogadores bloqueados (05-nomes.sql) e corridas sem nenhuma rodada não contam;
 --  * estatisticas_classes(dias) é pública e devolve os totais dos últimos dias (padrão 30).
 
+-- cada corrida guarda as vitórias finais e quando fechou (usadas pelas missões diárias, 08-missoes.sql)
+alter table public.corridas add column if not exists vitorias smallint;
+alter table public.corridas add column if not exists fechada_em timestamptz;
+
 create table if not exists public.estatisticas_classe (
   dia date not null default current_date,
   classe text not null check (classe ~ '^[a-z]{2,20}$'),
@@ -36,6 +40,7 @@ declare c corridas; r ranking; entrada int; delta int; nv smallint; v int;
 begin
   select * into c from corridas where id = p_corrida;
   if c.id is null then return; end if;
+  update corridas set vitorias = greatest(0, least(coalesce(p_vitorias, 0), c.rodadas)), fechada_em = now() where id = c.id;
   if c.rodadas > 0 and not exists (select 1 from jogadores where id = c.jogador_id and bloqueado) then
     select nivel_xp(xp) into nv from experiencia where jogador_id = c.jogador_id and classe = c.classe;
     nv := coalesce(nv, 1); v := greatest(0, least(coalesce(p_vitorias, 0), c.rodadas));

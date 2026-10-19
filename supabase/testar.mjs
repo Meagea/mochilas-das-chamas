@@ -26,6 +26,8 @@ await db.exec(SQL); ok(true, 'esquema.sql rodou de novo (pode repetir sem estrag
 const NOMES = fs.readFileSync(new URL('./05-nomes.sql', import.meta.url), 'utf8'); await db.exec(NOMES); await db.exec(NOMES); ok(true, '05-nomes.sql rodou (duas vezes)');
 const RANKED = fs.readFileSync(new URL('./06-ranked.sql', import.meta.url), 'utf8'); await db.exec(RANKED); await db.exec(RANKED); ok(true, '06-ranked.sql rodou (duas vezes)');
 const ESTAT = fs.readFileSync(new URL('./07-estatisticas.sql', import.meta.url), 'utf8'); await db.exec(ESTAT); await db.exec(ESTAT); ok(true, '07-estatisticas.sql rodou (duas vezes)');
+const MISSOES = fs.readFileSync(new URL('./08-missoes.sql', import.meta.url), 'utf8'); await db.exec(MISSOES); await db.exec(MISSOES); ok(true, '08-missoes.sql rodou (duas vezes)');
+const PERFIL_SQL = fs.readFileSync(new URL('./09-perfil.sql', import.meta.url), 'utf8'); await db.exec(PERFIL_SQL); await db.exec(PERFIL_SQL); ok(true, '09-perfil.sql rodou (duas vezes)');
 
 const U1 = '11111111-1111-1111-1111-111111111111', U2 = '22222222-2222-2222-2222-222222222222';
 await db.exec(`insert into auth.users values ('${U1}'), ('${U2}')`);
@@ -247,5 +249,47 @@ await db.exec('reset role');
   ok(depois.every(x => !('jogador_id' in x)), 'estatísticas não trazem quem jogou');
   await erro(`set role anon; select * from estatisticas_classe;`, 'ler a tabela de estatísticas direto'); await db.exec('reset role');
   await erro(`select set_config('request.jwt.claim.sub', '${U1}', false); set role authenticated; insert into estatisticas_classe (classe, modo, faixa, vitorias) values ('mago', 'normal', 1, 999);`, 'jogador forjando estatísticas'); await db.exec('reset role');
+}
+// ---- missões diárias (08-missoes.sql) ----
+{
+  const U3 = '33333333-3333-3333-3333-333333333333';
+  await db.exec(`insert into auth.users values ('${U3}')`); await como(U3, `select definir_nome('Iara')`);
+  const ms = await como(U3, `select * from minhas_missoes()`);
+  ok(ms.length === 3 && ms.every(m => Number(m.progresso) === 0 && !m.resgatada), 'missões do dia: 3, sem progresso (' + ms.map(m => m.tipo + (m.classe ? ':' + m.classe : '')).join(', ') + ')');
+  await erro(`select set_config('request.jwt.claim.sub', '${U3}', false); set role authenticated; select resgatar_missao(1::smallint);`, 'resgatar missão incompleta'); await db.exec('reset role');
+  const cl = (ms.find(m => m.tipo === 'classe') || {}).classe || 'mago';
+  for(let k = 0; k < 2; k++){
+    const c = (await como(U3, `select iniciar_corrida($1, 'ranqueada') as c`, [cl]))[0].c;
+    for(let r = 1; r <= 9; r++){ await como(U3, `select enviar_mochila($1, $3, 9, '[]'::jsonb, 0, 3, $2)`, [r, c, cl]); await db.exec(`update corridas set ultima_rodada_em = now() - interval '1 minute' where id = ${c}`); }
+    await como(U3, `select * from fechar_corrida($1, 7)`, [c]);
+  }
+  const ms2 = await como(U3, `select * from minhas_missoes()`);
+  ok(ms2.every(m => Number(m.progresso) >= m.meta), 'duas corridas ranqueadas de 7 vitórias completam as 3 missões (' + ms2.map(m => m.progresso + '/' + m.meta).join(', ') + ')');
+  const antes = Number(((await como(U3, `select bronze from minha_colecao() where item is null`))[0] || {}).bronze || 0);
+  let saldo = 0; for(const m of ms2) saldo = (await como(U3, `select resgatar_missao($1::smallint) as s`, [m.n]))[0].s;
+  ok(saldo === antes + ms2.reduce((a, m) => a + m.bronze, 0), 'resgate pagou o bronze das 3 missões (' + antes + ' → ' + saldo + ')');
+  await erro(`select set_config('request.jwt.claim.sub', '${U3}', false); set role authenticated; select resgatar_missao(1::smallint);`, 'resgatar a mesma missão duas vezes'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U3}', false); set role authenticated; insert into missoes_resgatadas (jogador_id, n) values ('${U3}', 2);`, 'escrever resgate direto'); await db.exec('reset role');
+  ok((await como(U2, `select * from minhas_missoes()`)).every(m => !m.resgatada), 'o resgate de um jogador não marca o de outro');
+}
+// ---- perfil público e conquistas (09-perfil.sql) ----
+{
+  const U3 = '33333333-3333-3333-3333-333333333333';
+  const aceitas = (await como(U3, `select registrar_conquistas(array['fusao1','sete','semPerder','nivel10','inventada']) as a`))[0].a;
+  ok(aceitas.includes('fusao1') && aceitas.includes('sete') && !aceitas.includes('semPerder') && !aceitas.includes('nivel10') && !aceitas.includes('inventada'),
+    'conquistas: aceita as verdadeiras e as cosméticas; recusa as falsas e as inventadas (' + aceitas.join(', ') + ')');
+  await como(U3, `select definir_perfil(array['mago','ladino','guerreiro:pantera'], 'sete')`);
+  const eu = (await como(U3, `select * from meu_perfil()`))[0];
+  const pub = (await como(null, `select * from perfil_jogador($1)`, [eu.codigo]))[0];
+  ok(pub && pub.nome === 'Iara' && pub.favoritos.join() === 'mago,ladino,guerreiro:pantera' && pub.titulo === 'sete' && pub.conquistas.includes('sete') && 'mago' in pub.experiencia,
+    'perfil público pelo código: nome, 3 favoritos (com pele), título, conquistas e experiência');
+  ok(eu.codigo && eu.codigo.length === 8 && !('id' in pub), 'o perfil usa um código curto, não o id da conta');
+  await erro(`select set_config('request.jwt.claim.sub', '${U3}', false); set role authenticated; select definir_perfil(array['mago','ladino','ferreiro','inventor'], null);`, 'mais de 3 favoritos'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U3}', false); set role authenticated; select definir_perfil(array['mago','mago:azul'], null);`, 'herói repetido nos favoritos'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U3}', false); set role authenticated; select definir_perfil(array['mago'], 'nivel10');`, 'título de conquista que não tem'); await db.exec('reset role');
+  await erro(`set role anon; select registrar_conquistas(array['fusao1']);`, 'visitante sem login registrando conquista'); await db.exec('reset role');
+  await erro(`select set_config('request.jwt.claim.sub', '${U3}', false); set role authenticated; insert into conquistas_jogador (jogador_id, conquista) values ('${U3}', 'nivel10');`, 'escrever conquista direto'); await db.exec('reset role');
+  const rk = await como(null, `select * from ranking_temporada(50)`);
+  ok(rk.length && rk.every(l => 'codigo' in l && 'titulo' in l), 'ranking traz o código e o título de cada jogador');
 }
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo');
