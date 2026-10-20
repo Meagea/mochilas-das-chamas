@@ -1,4 +1,4 @@
-# Tralha de Guerra: personagens e arte principal
+# Bornal de Guerra: personagens e arte principal
 
 Estilo: animais humanoides de fantasia, em pintura digital semirrealista (como as referências: o panda com a cuia, o texugo saltando, a hiena de capa). Cada classe é um animal diferente, com personalidade bem marcada.
 

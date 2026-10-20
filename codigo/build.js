@@ -1,4 +1,4 @@
-// Tralha de Guerra · montagem
+// Bornal de Guerra · montagem
 // Junta as partes de codigo/ num jogo de arquivo único:
 //   dist/tralha.html        → versão para publicar (fragmento: o artifact põe o <html> em volta)
 //   ../teste/tralha.html    → documento completo para abrir direto no navegador

@@ -1,9 +1,9 @@
-// Tralha de Guerra para Windows: abre o jogo (index.html, copiado pelo codigo/build.js) numa janela própria.
+// Bornal de Guerra para Windows: abre o jogo (index.html, copiado pelo codigo/build.js) numa janela própria.
 // A janela lembra tamanho, posição, maximizada e tela cheia; F11 alterna a tela cheia; sem menu e sem zoom acidental.
 const { app, BrowserWindow, Menu, shell, screen } = require('electron');
 const path = require('path'), fs = require('fs');
 // o mesmo appId do instalador: a barra de tarefas agrupa e mostra o nome certo do jogo
-app.setAppUserModelId('com.meagea.tralhadeguerra');
+app.setAppUserModelId('com.penaepincel.bornaldeguerra');
 // sem o menu padrão do Electron: some também os atalhos dele (Ctrl+R recarrega, Ctrl + e Ctrl - dão zoom)
 Menu.setApplicationMenu(null);
 
@@ -27,7 +27,7 @@ app.whenReady().then(() => {
   const j = lerJanela();
   const win = new BrowserWindow({
     x:j.x, y:j.y, width:j.width || 1400, height:j.height || 860, minWidth:900, minHeight:600,
-    title:'Tralha de Guerra', autoHideMenuBar:true, backgroundColor:'#121117', show:false,
+    title:'Bornal de Guerra', autoHideMenuBar:true, backgroundColor:'#121117', show:false,
     // em segundo plano o jogo desacelera (economiza processador e bateria)
     webPreferences:{ backgroundThrottling:true },
   });

@@ -27,7 +27,7 @@ async function agendarAvisoVitrine(){
     await N.cancel({notifications:[{id:1}]});
     const L = await onlineCarrinho('dia'), quando = L && L[0] && L[0].troca_em ? new Date(L[0].troca_em) : null;
     if(!quando || quando <= new Date()) return;
-    await N.schedule({notifications:[{id:1, title:'Tralha de Guerra', body:'A vitrine de cartas do dia renovou. Venha ver as ofertas!', schedule:{at:new Date(quando.getTime() + 60000), allowWhileIdle:true}}]});
+    await N.schedule({notifications:[{id:1, title:'Bornal de Guerra', body:'A vitrine de cartas do dia renovou. Venha ver as ofertas!', schedule:{at:new Date(quando.getTime() + 60000), allowWhileIdle:true}}]});
   }catch(e){}
 }
 async function ligarAvisos(liga){

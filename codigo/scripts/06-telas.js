@@ -82,7 +82,7 @@ function telaLobby(){
   const continuar = s && s.mochila && !s.fim && CLASSES[s.classe];
   return `<section class="lobby2" style="--cc:${C0.cor}">
     <header class="lb-topo">
-      <div class="lb-logo"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1></div>
+      <div class="lb-logo"><small>batalha de mochilas</small><h1>Bornal de Guerra</h1></div>
       <div class="lb-conta">
         ${rk ? `<button class="painel-rank" id="btRank" style="--lg:${ligaDe(rk.pontos).cor}">${seloLiga(rk.pontos, 'grande')}<span><b>${rk.pontos} pontos</b><small>${ligaDe(rk.pontos).falta != null ? `faltam ${ligaDe(rk.pontos).falta} para subir` : 'topo da temporada'}${rk.posicao ? ` · ${rk.posicao}º` : ''}</small></span></button>` : ''}
         <div class="nome"><input id="campoNome" maxlength="20" placeholder="Seu nome no ranking" aria-label="Seu nome no ranking" value="${(PERFIL.nome || '').replace(/"/g, '')}"><span class="status ${conexao.ok === false ? 'off' : conexao.ok ? 'on' : ''}">${conexao.ok === false ? 'Offline' : conexao.ok ? 'Online' : 'Conectando'}</span></div>

@@ -1,10 +1,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Tralha de Guerra</title>
+<title>Bornal de Guerra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
-/* ---------- Tralha de Guerra: base (escuro e limpo, para a pintura dos personagens brilhar) ---------- */
+/* ---------- Bornal de Guerra: base (escuro e limpo, para a pintura dos personagens brilhar) ---------- */
 :root{
   --fundo:#121117; --painel:#1d1b24; --painel2:#262330; --painel3:#302c3c; --borda:rgba(255,255,255,.08); --borda2:rgba(255,255,255,.16);
   --texto:#f3eee6; --suave:#a7a1b3; --apagado:#6f697c;
@@ -580,6 +580,11 @@ body.nativo #jogo{ padding-top:env(safe-area-inset-top); }
 .acoes-fim, .ranking-tela > #btVoltar, .ranking-tela > #btVoltarPerfil, section > #btVoltar{ position:sticky; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:15; }
 .acoes-fim{ padding:8px 10px; border-radius:16px; background:rgba(18,17,23,.88); border:1px solid var(--borda2); backdrop-filter:blur(8px); box-shadow:0 8px 24px rgba(0,0,0,.5); }
 .ranking-tela > #btVoltar, .ranking-tela > #btVoltarPerfil, section > #btVoltar{ box-shadow:0 8px 24px rgba(0,0,0,.6); }
+/* loja de cartas: abas Diário e Semanal como cartões retangulares que cabem na tela */
+.chip[data-carrinho]{ flex:1 1 0; min-width:0; border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; white-space:normal; box-sizing:border-box; }
+.chip[data-carrinho] b{ font-family:var(--fonte-titulo); font-size:16px; text-transform:uppercase; letter-spacing:.03em; }
+.chip[data-carrinho] span{ font-size:12px; line-height:1.25; overflow-wrap:anywhere; }
+.chip[data-carrinho].on span{ color:#3a2a10; }
 /* ---------- tela de carregamento (06b-carregando.js) ---------- */
 #carregando{ position:fixed; inset:0; z-index:100; overflow:hidden; background:radial-gradient(ellipse at 50% 30%, #2c2230, #121117 70%); display:flex; align-items:flex-end; justify-content:center; transition:opacity .55s ease; }
 #carregando.saindo{ opacity:0; pointer-events:none; }
@@ -600,7 +605,7 @@ body.nativo #jogo{ padding-top:env(safe-area-inset-top); }
 @media (max-width:560px){ .cg-luta{ top:6%; gap:10px; } .cg-lado .rosto{ width:48px; height:48px; } .cg-vida{ width:90px; } }
 </style>
 <div id="carregando"><div class="cg-fundo"></div><div class="cg-luta" aria-hidden="true"></div>
-  <div class="cg-caixa"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1><div class="cg-barra"><i></i></div><p class="cg-txt">Abrindo a mochila…</p><p class="cg-dica"></p></div></div>
+  <div class="cg-caixa"><small>batalha de mochilas</small><h1>Bornal de Guerra</h1><div class="cg-barra"><i></i></div><p class="cg-txt">Abrindo a mochila…</p><p class="cg-dica"></p></div></div>
 <div id="jogo" aria-live="polite"></div>
 <div id="arrasto" aria-hidden="true"></div>
 <div id="aviso" hidden></div>
@@ -1772,7 +1777,7 @@ function telaLobby(){
   const continuar = s && s.mochila && !s.fim && CLASSES[s.classe];
   return `<section class="lobby2" style="--cc:${C0.cor}">
     <header class="lb-topo">
-      <div class="lb-logo"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1></div>
+      <div class="lb-logo"><small>batalha de mochilas</small><h1>Bornal de Guerra</h1></div>
       <div class="lb-conta">
         ${rk ? `<button class="painel-rank" id="btRank" style="--lg:${ligaDe(rk.pontos).cor}">${seloLiga(rk.pontos, 'grande')}<span><b>${rk.pontos} pontos</b><small>${ligaDe(rk.pontos).falta != null ? `faltam ${ligaDe(rk.pontos).falta} para subir` : 'topo da temporada'}${rk.posicao ? ` · ${rk.posicao}º` : ''}</small></span></button>` : ''}
         <div class="nome"><input id="campoNome" maxlength="20" placeholder="Seu nome no ranking" aria-label="Seu nome no ranking" value="${(PERFIL.nome || '').replace(/"/g, '')}"><span class="status ${conexao.ok === false ? 'off' : conexao.ok ? 'on' : ''}">${conexao.ok === false ? 'Offline' : conexao.ok ? 'Online' : 'Conectando'}</span></div>
@@ -2635,7 +2640,7 @@ async function agendarAvisoVitrine(){
     await N.cancel({notifications:[{id:1}]});
     const L = await onlineCarrinho('dia'), quando = L && L[0] && L[0].troca_em ? new Date(L[0].troca_em) : null;
     if(!quando || quando <= new Date()) return;
-    await N.schedule({notifications:[{id:1, title:'Tralha de Guerra', body:'A vitrine de cartas do dia renovou. Venha ver as ofertas!', schedule:{at:new Date(quando.getTime() + 60000), allowWhileIdle:true}}]});
+    await N.schedule({notifications:[{id:1, title:'Bornal de Guerra', body:'A vitrine de cartas do dia renovou. Venha ver as ofertas!', schedule:{at:new Date(quando.getTime() + 60000), allowWhileIdle:true}}]});
   }catch(e){}
 }
 async function ligarAvisos(liga){

@@ -1,4 +1,4 @@
-# Tralha de Guerra: pintura dos itens
+# Bornal de Guerra: pintura dos itens
 
 Um item por imagem, no mesmo estilo da coruja (`retrato-mago.png`). Só os que ainda não têm pintura: 0 itens (os outros já estão no jogo).
 

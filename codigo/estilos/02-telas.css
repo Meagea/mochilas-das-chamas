@@ -541,3 +541,8 @@ body.nativo #jogo{ padding-top:env(safe-area-inset-top); }
 .acoes-fim, .ranking-tela > #btVoltar, .ranking-tela > #btVoltarPerfil, section > #btVoltar{ position:sticky; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:15; }
 .acoes-fim{ padding:8px 10px; border-radius:16px; background:rgba(18,17,23,.88); border:1px solid var(--borda2); backdrop-filter:blur(8px); box-shadow:0 8px 24px rgba(0,0,0,.5); }
 .ranking-tela > #btVoltar, .ranking-tela > #btVoltarPerfil, section > #btVoltar{ box-shadow:0 8px 24px rgba(0,0,0,.6); }
+/* loja de cartas: abas Diário e Semanal como cartões retangulares que cabem na tela */
+.chip[data-carrinho]{ flex:1 1 0; min-width:0; border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; white-space:normal; box-sizing:border-box; }
+.chip[data-carrinho] b{ font-family:var(--fonte-titulo); font-size:16px; text-transform:uppercase; letter-spacing:.03em; }
+.chip[data-carrinho] span{ font-size:12px; line-height:1.25; overflow-wrap:anywhere; }
+.chip[data-carrinho].on span{ color:#3a2a10; }

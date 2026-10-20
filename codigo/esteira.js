@@ -29,7 +29,7 @@ editar('3-app/android/app/build.gradle', /versionName "[^"]*"/, `versionName "1.
 editar('4-pc/package.json', /"version": "[^"]*"/, `"version": "1.${versao}.0"`);
 
 // 3. APK (Android) com o JDK 21: o deste projeto (3-app/jdk) ou, se não houver, o do Guardiões
-const apk = path.join(RAIZ, '3-app', 'Tralha-de-Guerra.apk');
+const apk = path.join(RAIZ, '3-app', 'Bornal-de-Guerra.apk');
 if(fs.existsSync(path.join(RAIZ, '3-app', 'android'))){
   const jdk = [path.join(RAIZ, '3-app', 'jdk'), path.join(RAIZ, '..', 'guardioes-da-fogueira-site', '3-app', 'jdk')]
     .filter(d => fs.existsSync(d)).map(d => { const j = fs.readdirSync(d).find(n => n.startsWith('jdk-21')); return j && path.join(d, j); }).find(Boolean);
@@ -40,8 +40,8 @@ if(fs.existsSync(path.join(RAIZ, '3-app', 'android'))){
   // pacote da Google Play (.aab assinado): só quando a chave existe (3-app/criar-chave-loja.bat)
   if(fs.existsSync(path.join(andr, 'chave-loja.properties'))){
     passo('pacote da Google Play (AAB)', `"${gw}" bundleRelease --no-daemon -q`, [], { cwd: andr, shell: true, env: { ...process.env, JAVA_HOME: jdk } });
-    fs.copyFileSync(path.join(andr, 'app/build/outputs/bundle/release/app-release.aab'), path.join(RAIZ, '3-app', 'Tralha-de-Guerra.aab'));
-    console.log('  AAB para a loja em 3-app/Tralha-de-Guerra.aab (envie no Play Console; não vai para a Release)');
+    fs.copyFileSync(path.join(andr, 'app/build/outputs/bundle/release/app-release.aab'), path.join(RAIZ, '3-app', 'Bornal-de-Guerra.aab'));
+    console.log('  AAB para a loja em 3-app/Bornal-de-Guerra.aab (envie no Play Console; não vai para a Release)');
   } else console.log('  (sem chave da loja: só o APK de teste; para a Google Play rode 3-app/criar-chave-loja.bat)');
 }
 // 4. instalador de Windows
@@ -67,4 +67,4 @@ if(flag('--release')){
   const anexos = [apk, exe].filter(f => f && fs.existsSync(f));
   passo('Release no GitHub', gh, ['release', 'create', `v${versao}`, ...anexos, '--title', `V${versao}`, '--notes', resumo]);
 }
-console.log(`\n✔ Esteira concluída: V${versao}${fs.existsSync(apk) ? ' · APK em 3-app/Tralha-de-Guerra.apk' : ''}${exe ? ' · instalador em 4-pc/dist' : ''}`);
+console.log(`\n✔ Esteira concluída: V${versao}${fs.existsSync(apk) ? ' · APK em 3-app/Bornal-de-Guerra.apk' : ''}${exe ? ' · instalador em 4-pc/dist' : ''}`);

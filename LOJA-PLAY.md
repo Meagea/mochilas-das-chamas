@@ -1,9 +1,9 @@
-# Tralha de Guerra: ficha da Google Play
+# Bornal de Guerra: ficha da Google Play
 
 Textos e respostas para copiar no Play Console. As imagens ficam em `loja/`.
 
 ## Detalhes do app
-- **Nome do app** (até 30 caracteres): `Tralha de Guerra`
+- **Nome do app** (até 30 caracteres): `Bornal de Guerra`
 - **Categoria:** Jogos › Estratégia
 - **Tags:** Estratégia, Fantasia, Casual, Off-line, Competitivo
 - **E-mail de contato:** schmidt.flp19@gmail.com
@@ -11,40 +11,35 @@ Textos e respostas para copiar no Play Console. As imagens ficam em `loja/`.
 
 ## Descrição curta (até 80 caracteres)
 ```
-Monte a mochila certa, encaixe a tralha e vença lutas automáticas online.
+Encha o bornal, encaixe a tralha e vença lutas automáticas contra jogadores.
 ```
 
 ## Descrição completa (até 4.000 caracteres)
 ```
-Arrume a mochila. O resto é com a sua tralha.
+Encha o bornal. O resto é com a sua tralha.
 
-Tralha de Guerra é um jogo de estratégia de batalhas de mochila. Compre itens na loja, encaixe cada peça no espaço certo e veja a luta acontecer sozinha. Os itens encostados se ajudam: a pedra de amolar afia a espada ao lado, o escudo protege, a poção salva na hora certa. Duas peças da mesma receita encostadas viram uma fusão poderosa.
+Bornal de Guerra é um jogo brasileiro de estratégia com batalhas de mochila. Compre itens, encaixe cada peça no espaço certo do bornal e veja a luta acontecer sozinha. Os itens encostados se ajudam: a pedra de amolar afia a espada ao lado, o escudo protege, a poção salva na hora certa. E duas peças da receita certa encostadas viram uma fusão mais forte, com som de forja e tudo.
 
-11 PERSONAGENS, CADA UM COM O SEU JEITO DE JOGAR
-Guerreiro, Mago e Ladino lutam com força, magia e veneno. E os artesãos trazem as suas ferramentas:
-- Ferreiro: a bigorna tempera o metal a cada rodada.
-- Herbalista: as ervas crescem e ficam mais fortes.
-- Cozinheiro: a comida vira prato na panela.
-- Alquimista: o kit fabrica frascos que explodem.
-- Coureiro: costura bolsas que fortalecem o que vai dentro.
-- Joalheiro: lapida gemas que turbinam as armas.
-- Inventor: engenhocas que atacam sozinhas.
-- Cervejeiro: bebidas que fermentam... e dão ressaca.
+11 HERÓIS DA FAUNA BRASILEIRA
+A onça-pintada guerreira, a coruja-buraqueira maga, a jaguatirica ladina, o tamanduá ferreiro, a perereca herbalista, a capivara cozinheira, o teiú alquimista, o tatu-bola coureiro, o tucano joalheiro, o macaco-prego inventor e o queixada cervejeiro. Cada um tem o seu jeito de jogar e a sua ferramenta de ofício.
+
+MAIS DE 120 RECEITAS PARA DESCOBRIR
+Quase todo item evolui. Encoste as peças certas, descubra a fusão e registre no Livro de Receitas. Tem até itens do folclore, como o Bafo do Boitatá.
 
 ONLINE SEM ESPERA
-Cada luta é contra a mochila de outro jogador da mesma rodada, montada por ele. Não precisa esperar ninguém ficar online: você joga quando quiser. Vença 7 vezes antes de perder 3 para fechar a corrida.
+Cada luta é contra o bornal de outro jogador da mesma rodada. Não precisa esperar ninguém: você joga quando quiser. Vença 7 vezes antes de perder 3 para fechar a corrida.
 
-RANKING E MODOS
-- Ranqueada: todos os itens no mesmo nível, só a sua estratégia conta. Suba no ranking da temporada.
-- Normal: os seus itens lutam no nível das suas cartas.
+RANQUEADA COM LIGAS
+Do Bronze ao Grão-Mestre, com temporadas. Na Ranqueada todos os itens estão no mesmo nível: só a sua estratégia conta. Na Normal, os itens lutam no nível das suas cartas.
 
-PROGRESSO QUE NÃO ACABA
-- Cada personagem sobe do nível 1 ao 10 e libera itens novos na loja.
+PROGRESSO TODO DIA
+- Missões diárias que rendem bronze.
+- Cada herói sobe do nível 1 ao 10 e libera itens novos.
 - Junte cartas para evoluir cada item até o nível 10.
-- Loja de cartas com ofertas diárias e semanais, compradas com moedas ganhas jogando.
+- Conquistas, histórico de corridas e um perfil com os seus 3 heróis favoritos para mostrar no ranking.
 
-MAIS DE 200 ITENS PINTADOS
-Espadas, escudos, poções, comidas, gemas, frascos e engenhocas, todos com arte pintada à mão digital, e personagens animais cheios de personalidade.
+FEITO PARA CELULAR E COMPUTADOR
+Vitrine sempre à mão, arrastar com o dedo, atalhos de teclado, sons, vibração e opções de texto maior e de raridade com letra.
 
 Sem anúncios. Sem cadastro: é só abrir e jogar.
 ```

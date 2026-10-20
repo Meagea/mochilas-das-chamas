@@ -1,7 +1,7 @@
 {
   "name": "tralha-de-guerra",
-  "version": "1.26.0",
-  "description": "Tralha de Guerra: batalha de mochilas",
+  "version": "1.27.0",
+  "description": "Bornal de Guerra: batalha de mochilas",
   "author": "Meagea",
   "main": "main.js",
   "private": true,
@@ -10,8 +10,8 @@
     "dist": "electron-builder --win"
   },
   "build": {
-    "appId": "com.meagea.tralhadeguerra",
-    "productName": "Tralha de Guerra",
+    "appId": "com.penaepincel.bornaldeguerra",
+    "productName": "Bornal de Guerra",
     "files": [
       "main.js",
       "index.html",
@@ -27,7 +27,7 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "Tralha de Guerra"
+      "shortcutName": "Bornal de Guerra"
     }
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-rem Cria a chave de assinatura da Google Play (chave de upload) do Tralha de Guerra. Rode UMA vez só.
+rem Cria a chave de assinatura da Google Play (chave de upload) do Bornal de Guerra. Rode UMA vez só.
 rem A chave fica em 3-app\chave\ e a senha em android\chave-loja.properties: os dois ficam fora do git.
 rem GUARDE uma cópia da pasta 3-app\chave e da senha num lugar seguro (pendrive, Google Drive): sem elas não dá para atualizar o jogo na loja.
 cd /d "%~dp0"

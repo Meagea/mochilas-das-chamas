@@ -39,7 +39,7 @@ const banner = `<!doctype html><html><head><meta charset="utf-8"><link rel="styl
   .rostos{ position:absolute; right:34px; bottom:40px; display:flex; gap:16px; }
   .rostos img{ width:150px; height:150px; border-radius:24px; object-fit:cover; object-position:50% 20%; border:4px solid #f2b350; box-shadow:0 14px 40px rgba(0,0,0,.6); }
   .rostos img:nth-child(2){ transform:translateY(-70px); }
-</style></head><body><div class="vel"></div><div class="txt"><small>batalha de mochilas</small><h1>Tralha de Guerra</h1><p>Monte a mochila. Vença a luta.</p></div>
+</style></head><body><div class="vel"></div><div class="txt"><small>batalha de mochilas</small><h1>Bornal de Guerra</h1><p>Monte a mochila. Vença a luta.</p></div>
 <div class="rostos"><img src="${img('retrato-mago.webp')}"><img src="${img('retrato-guerreiro.webp')}"><img src="${img('retrato-cozinheiro.webp')}"></div></body></html>`;
 const arqB = path.join(TMP, 'banner.html'); fs.writeFileSync(arqB, banner);
 tirar(arqB, path.join(SAIDA, 'destaque-1024x500.png'), 1024, 500, 1, 4000);

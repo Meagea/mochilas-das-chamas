@@ -1,4 +1,4 @@
-/* ---------- Tralha de Guerra: base (escuro e limpo, para a pintura dos personagens brilhar) ---------- */
+/* ---------- Bornal de Guerra: base (escuro e limpo, para a pintura dos personagens brilhar) ---------- */
 :root{
   --fundo:#121117; --painel:#1d1b24; --painel2:#262330; --painel3:#302c3c; --borda:rgba(255,255,255,.08); --borda2:rgba(255,255,255,.16);
   --texto:#f3eee6; --suave:#a7a1b3; --apagado:#6f697c;

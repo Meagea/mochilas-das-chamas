@@ -1,4 +1,4 @@
-package com.meagea.tralhadeguerra;
+package com.penaepincel.bornaldeguerra;
 
 import com.getcapacitor.BridgeActivity;
 
