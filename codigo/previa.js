@@ -2,7 +2,7 @@
 // Lê o arquivo a cada pedido: depois de "node codigo/build.js", basta recarregar a página.
 // Com ?t na URL, a página ganha window.__t.ev(código) para os testes olharem o jogo por dentro.
 const http = require('http'), fs = require('fs'), path = require('path');
-const ARQ = path.join(__dirname, '..', 'teste', 'tralha.html');
+const ARQ = path.join(__dirname, '..', 'teste', 'bornal.html');
 http.createServer((q, r) => {
   if(q.url.split('?')[0] !== '/'){ r.writeHead(404); return r.end(); }
   let s = fs.readFileSync(ARQ, 'utf8');

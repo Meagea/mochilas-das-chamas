@@ -2,10 +2,10 @@
 // Usa o Chrome (ou o Edge) em modo invisível. Uso, depois de node codigo/build.js:  node codigo/loja/capturas.js
 // Cada cena é o jogo de teste com um trecho que arruma a tela (dentro do jogo, depois da tela de carregamento).
 const fs = require('fs'), path = require('path'), os = require('os'), { spawnSync } = require('child_process');
-const RAIZ = path.join(__dirname, '..', '..'), SAIDA = path.join(RAIZ, 'loja'), TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'tralha-loja-'));
+const RAIZ = path.join(__dirname, '..', '..'), SAIDA = path.join(RAIZ, 'loja'), TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'bornal-loja-'));
 const NAVEGADOR = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(f => fs.existsSync(f));
 if(!NAVEGADOR){ console.error('Chrome ou Edge não encontrado.'); process.exit(1); }
-const JOGO = fs.readFileSync(path.join(RAIZ, 'teste', 'tralha.html'), 'utf8');
+const JOGO = fs.readFileSync(path.join(RAIZ, 'teste', 'bornal.html'), 'utf8');
 
 const PERFIL = "PERFIL.nome = 'Pena'; PERFIL.xp = {guerreiro:820, mago:300, ladino:130, ferreiro:2500, herbalista:60, cozinheiro:500, alquimista:900, coureiro:40, joalheiro:1300, inventor:200, cervejeiro:90};";
 const CENAS = {

@@ -92,7 +92,7 @@ Mesmo processo (estilo base v2, `retrato-mago.png` como referência de estilo, 1
 Classes futuras (já pensando no elenco): Necromante (corvo), Paladino (leão), Marinheiro (lontra), Caçador (lince), Ocultista (morcego), Artesão (castor). O panda da referência combina com um cozinheiro ou mercador da loja.
 
 ## Como gerar
-Salvar em `tralha-de-guerra/codigo/arte/originais/` com o nome da tabela. Gere um por vez e confira se o mesmo personagem fica parecido entre o retrato e o corpo inteiro (mesma cor de pelo, roupa e acessórios). Se o gerador permitir, use o retrato aprovado como referência para gerar o corpo inteiro.
+Salvar em `bornal-de-guerra/codigo/arte/originais/` com o nome da tabela. Gere um por vez e confira se o mesmo personagem fica parecido entre o retrato e o corpo inteiro (mesma cor de pelo, roupa e acessórios). Se o gerador permitir, use o retrato aprovado como referência para gerar o corpo inteiro.
 
 ### Estilo base (cole no começo de todo prompt)
 ```

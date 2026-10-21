@@ -1,7 +1,7 @@
 // Bornal de Guerra · montagem
 // Junta as partes de codigo/ num jogo de arquivo único:
-//   dist/tralha.html        → versão para publicar (fragmento: o artifact põe o <html> em volta)
-//   ../teste/tralha.html    → documento completo para abrir direto no navegador
+//   dist/bornal.html        → versão para publicar (fragmento: o artifact põe o <html> em volta)
+//   ../teste/bornal.html    → documento completo para abrir direto no navegador
 // Uso: node codigo/build.js   (Node 16 ou mais novo, sem dependências)
 const fs = require('fs'), path = require('path');
 const DIR = __dirname, ROOT = path.join(DIR, '..');
@@ -32,13 +32,13 @@ const jogo = `(() => {\n'use strict';\n${js.replace("'__ARTE__'", JSON.stringify
 // 3. saídas
 const cabecalho = ler('pagina/cabecalho.html'), corpo = ler('pagina/corpo.html');
 const fragmento = `${cabecalho}<style>\n${css}</style>\n${corpo}<script>\n${jogo}</script>\n`;
-gravar(path.join(DIR, 'dist/tralha.html'), fragmento);
+gravar(path.join(DIR, 'dist/bornal.html'), fragmento);
 const cut = fragmento.indexOf('</style>') + '</style>'.length;
-gravar(path.join(ROOT, 'teste/tralha.html'),
+gravar(path.join(ROOT, 'teste/bornal.html'),
   `<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n${fragmento.slice(0, cut)}\n</head>\n<body>\n${fragmento.slice(cut)}</body>\n</html>\n`);
 // 4. aplicativos (3-app: APK, 4-pc: Windows): o jogo vai como jogo.html, e o index.html é a abertura que procura
 //    versão nova no GitHub (pagina/inicio-app.html). O número da versão vem de codigo/versao.json (a esteira atualiza).
-{ const teste = path.join(ROOT, 'teste/tralha.html'), arqV = path.join(DIR, 'versao.json');
+{ const teste = path.join(ROOT, 'teste/bornal.html'), arqV = path.join(DIR, 'versao.json');
   const versao = fs.existsSync(arqV) ? JSON.parse(fs.readFileSync(arqV, 'utf8')).versao | 0 : 0;
   const abertura = ler('pagina/inicio-app.html').replace('__VERSAO__', String(versao));
   for(const pasta of ['3-app/www', '3-app/android/app/src/main/assets/public', '4-pc'])

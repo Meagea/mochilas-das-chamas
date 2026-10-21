@@ -1,4 +1,4 @@
--- Tralha de Guerra · experiência dos personagens (PROGRESSAO.md) e multiplicador para assinatura/boost no futuro
+-- Bornal de Guerra · experiência dos personagens (PROGRESSAO.md) e multiplicador para assinatura/boost no futuro
 -- Rodar uma vez no SQL Editor (depois do esquema.sql e do 02-amostra-robos.sql). Pode rodar de novo sem estragar nada.
 --
 -- Como funciona:

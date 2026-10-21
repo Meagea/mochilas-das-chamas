@@ -51,8 +51,8 @@ if(fs.existsSync(path.join(RAIZ, '4-pc', 'node_modules'))){
   exe = path.join(RAIZ, '4-pc', 'dist', fs.readdirSync(path.join(RAIZ, '4-pc', 'dist')).find(f => f.endsWith(`1.${versao}.0.exe`)) || '');
 }
 // 4b. versão publicada para a atualização automática dos apps (pagina/inicio-app.html baixa de publicado/ no GitHub)
-{ const html = fs.readFileSync(path.join(RAIZ, 'teste', 'tralha.html')), pub = path.join(RAIZ, 'publicado');
-  fs.mkdirSync(pub, {recursive:true}); fs.writeFileSync(path.join(pub, 'tralha.html'), html);
+{ const html = fs.readFileSync(path.join(RAIZ, 'teste', 'bornal.html')), pub = path.join(RAIZ, 'publicado');
+  fs.mkdirSync(pub, {recursive:true}); fs.writeFileSync(path.join(pub, 'bornal.html'), html);
   fs.writeFileSync(path.join(pub, 'versao.json'), JSON.stringify({versao:+versao, tamanho:html.length, sha256:require('crypto').createHash('sha256').update(html).digest('hex'), resumo}, null, 1) + '\n'); }
 // 5. commit e push
 const msg = `V${versao}: ${resumo}\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`;

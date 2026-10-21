@@ -1,4 +1,4 @@
-# Tralha de Guerra: progressão dos personagens e classes de ofício
+# Bornal de Guerra: progressão dos personagens e classes de ofício
 
 Planejamento para aprovar antes de programar. Os números de cada item são definidos na hora de programar e ajustados no simulador. Aqui ficam o nome, a raridade e a ideia de cada um.
 

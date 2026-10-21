@@ -1,4 +1,4 @@
-# Supabase do Tralha de Guerra: como criar (plano gratuito)
+# Supabase do Bornal de Guerra: como criar (plano gratuito)
 
 Leva uns 10 minutos. Só você cria a conta e o projeto; depois eu cuido do resto.
 

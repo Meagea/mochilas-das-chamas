@@ -1,4 +1,4 @@
--- Tralha de Guerra · banco do modo online assíncrono e do ranking, no Supabase (plano gratuito)
+-- Bornal de Guerra · banco do modo online assíncrono e do ranking, no Supabase (plano gratuito)
 -- Como usar: no painel do Supabase, SQL Editor > New query > colar este arquivo inteiro > Run. Pode rodar de novo sem estragar nada.
 --
 -- Como funciona:

@@ -1,4 +1,4 @@
-# Tralha de Guerra: planejamento
+# Bornal de Guerra: planejamento
 
 Jogo próprio, fora da Bonfire Tales. Inspirado em Backpack Battles: entre as rodadas você compra itens e encaixa na mochila; depois a luta acontece sozinha, contra a mochila que outro jogador montou naquela mesma rodada. Online assíncrono com ranking, e offline quando não houver internet.
 
@@ -91,5 +91,5 @@ Um **robô** joga a loja com as mesmas regras e monta mochilas para cada rodada 
   - texto:  sobre pergaminho,  sobre madeira.
 - **Raridades:** comum cinza, incomum verde, rara azul, épica roxa, lendária dourada (borda do item na mochila e na loja).
 - **Fontes (Google Fonts):** Lilita One nos títulos (gorda e divertida) e Nunito no texto.
-- **Logo:** "TRALHA DE GUERRA" numa etiqueta de couro costurada, presa numa mochila estufada com o cabo de uma espada saindo pela tampa.
+- **Logo:** "BORNAL DE GUERRA" numa etiqueta de couro costurada, presa numa mochila estufada com o cabo de uma espada saindo pela tampa.
 - **Ícone do app:** a mochila com a espada, sem texto.

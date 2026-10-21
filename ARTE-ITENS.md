@@ -6,7 +6,7 @@ Um item por imagem, no mesmo estilo da coruja (`retrato-mago.png`). Só os que a
 - Quadrado **1:1** (ex.: **1024 × 1024**), o item no centro ocupando quase tudo.
 - **Fundo magenta puro (#FF00FF)**, liso: eu recorto para o item ficar solto em cima das casas da mochila.
 - **Anexe `retrato-mago.png` como referência de estilo** em todos os pedidos.
-- Salvar em `tralha-de-guerra/codigo/arte/originais/itens/` com o nome da tabela.
+- Salvar em `bornal-de-guerra/codigo/arte/originais/itens/` com o nome da tabela.
 - Dá para gerar aos poucos: enquanto a pintura de um item não existir, ele usa o ícone provisório.
 
 ### Estilo base (cole no começo de todo prompt)

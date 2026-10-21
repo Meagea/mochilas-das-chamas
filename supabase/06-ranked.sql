@@ -1,4 +1,4 @@
--- Tralha de Guerra · ranked com ligas (Bronze, Prata, Ouro, Platina, Diamante com divisões III/II/I; Mestre; Grão-Mestre)
+-- Bornal de Guerra · ranked com ligas (Bronze, Prata, Ouro, Platina, Diamante com divisões III/II/I; Mestre; Grão-Mestre)
 -- Rodar no SQL Editor depois do 05-nomes.sql. Pode rodar de novo sem estragar nada.
 -- (o 04-cartas.sql chama aplicar_rank no fim da corrida; se rodar o 04 de novo, nada se perde. Se rodar o esquema.sql ou
 --  o 05-nomes.sql de novo, rode este logo depois: ele substitui registrar_luta, ranking_temporada e sortear_adversario.)

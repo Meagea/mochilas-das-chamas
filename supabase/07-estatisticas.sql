@@ -1,4 +1,4 @@
--- Tralha de Guerra · estatísticas dos personagens: vitórias reais de cada classe, para acompanhar o equilíbrio
+-- Bornal de Guerra · estatísticas dos personagens: vitórias reais de cada classe, para acompanhar o equilíbrio
 -- Rodar no SQL Editor depois do 06-ranked.sql. Pode rodar de novo sem estragar nada.
 -- (este arquivo substitui aplicar_rank, que o 06 também define: se rodar o 06 de novo, rode este logo depois.)
 --

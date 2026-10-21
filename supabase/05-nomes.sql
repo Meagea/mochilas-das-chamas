@@ -1,4 +1,4 @@
--- Tralha de Guerra · nomes permitidos e bloqueio de jogadores (tolerância zero para conteúdo sexual, +18 ou ofensivo)
+-- Bornal de Guerra · nomes permitidos e bloqueio de jogadores (tolerância zero para conteúdo sexual, +18 ou ofensivo)
 -- Rodar no SQL Editor depois dos anteriores. Pode rodar de novo sem estragar nada.
 -- Ele substitui definir_nome, registrar_luta, ranking_temporada e sortear_adversario: se rodar o esquema.sql de novo, rode este logo depois.
 --

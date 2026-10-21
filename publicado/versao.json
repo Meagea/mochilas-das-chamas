@@ -1,6 +1,6 @@
 {
- "versao": 27,
- "tamanho": 12930891,
- "sha256": "a77c175199b8e2891dc120723163afcdd8f35d68e2f4dc369b00b1cdea2434c5",
- "resumo": "Novo nome: Bornal de Guerra (pacote com.penaepincel.bornaldeguerra) e abas da loja de cartas retangulares"
+ "versao": 28,
+ "tamanho": 12931117,
+ "sha256": "113b9b14aa36651f6a669de3405545118fe80d2a854a592f09e50c21e08b43d7",
+ "resumo": "Limpeza do nome antigo: arquivos, chaves e chave de assinatura do Bornal de Guerra"
 }

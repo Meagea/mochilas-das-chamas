@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Bornal de Guerra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -604,6 +608,9 @@ body.nativo #jogo{ padding-top:env(safe-area-inset-top); }
 .cg-txt{ margin:0; font-weight:700; font-size:14px; } .cg-dica{ margin:0; color:var(--suave); font-size:13px; min-height:2.6em; }
 @media (max-width:560px){ .cg-luta{ top:6%; gap:10px; } .cg-lado .rosto{ width:48px; height:48px; } .cg-vida{ width:90px; } }
 </style>
+</head>
+<body>
+
 <div id="carregando"><div class="cg-fundo"></div><div class="cg-luta" aria-hidden="true"></div>
   <div class="cg-caixa"><small>batalha de mochilas</small><h1>Bornal de Guerra</h1><div class="cg-barra"><i></i></div><p class="cg-txt">Abrindo a mochila…</p><p class="cg-dica"></p></div></div>
 <div id="jogo" aria-live="polite"></div>
@@ -645,6 +652,8 @@ function ic(nome, classe){
 function avisar(txt, ms){ if(!uiAtiva) return; const a = $('aviso'); a.textContent = txt; a.hidden = false; clearTimeout(avisar.t); avisar.t = setTimeout(() => { a.hidden = true; }, ms || 1900); }
 const guardar = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ /* sem armazenamento: só não guarda */ } };
 const ler = (k, padrao) => { try{ const s = localStorage.getItem(k); return s ? JSON.parse(s) : padrao; }catch(e){ return padrao; } };
+// uma vez só: o progresso guardado com as chaves do nome antigo do jogo passa para as chaves bdg- (Bornal de Guerra)
+try{ if(typeof localStorage !== 'undefined') for(const k of ['perfil', 'corrida', 'sessao']){ const v = localStorage.getItem('td' + 'g-' + k); if(v != null){ if(localStorage.getItem('bdg-' + k) == null) localStorage.setItem('bdg-' + k, v); localStorage.removeItem('td' + 'g-' + k); } } }catch(e){}
 // ---------- Itens, classes e receitas ----------
 // forma: linhas de texto, '#' é casa ocupada (antes de girar). uso:
 //   arma     → ataca sozinha a cada cd segundos, gastando vigor; dano [mín, máx]; crit (0 a 1); acerto: o que faz ao acertar
@@ -1620,7 +1629,7 @@ function adversarioRobo(rodada, sem, nivelItens){
 // ---------- Online: o servidor no Supabase (mochilas dos outros jogadores e o ranking) ----------
 // Só a chave pública vai no jogo: a segurança está nas regras do banco (supabase/esquema.sql). Sem internet, tudo segue offline.
 const SB_URL = 'https://cmcjktczxevgmjurmmmy.supabase.co', SB_CHAVE = 'sb_publishable_F8TM9T4wqTFZTRBdp2xTrA_Ma6Fl8_-';
-let sessao = temDOM ? ler('tdg-sessao', null) : null;
+let sessao = temDOM ? ler('bdg-sessao', null) : null;
 const conexao = {ok:null};   // null: ainda não tentou; true/false: o último pedido deu certo ou não
 async function sb(caminho, corpo, token){
   if(typeof fetch === 'undefined') throw new Error('sem rede');
@@ -1642,7 +1651,7 @@ async function entrar(){
   if(sessao && sessao.refresh){ try{ d = await sb('/auth/v1/token?grant_type=refresh_token', {refresh_token:sessao.refresh}); }catch(e){ if(!e.status) throw e; d = null; } }
   if(!d) d = await sb('/auth/v1/signup', {});
   sessao = {token:d.access_token, refresh:d.refresh_token, exp:agora + (d.expires_in || 3600), id:d.user && d.user.id};
-  guardar('tdg-sessao', sessao);
+  guardar('bdg-sessao', sessao);
   return sessao.token;
 }
 const rpc = async (nome, args, login) => sb('/rest/v1/rpc/' + nome, args, login ? await entrar() : null);
@@ -1697,10 +1706,10 @@ const onlineEstatisticas = () => tentar(() => rpc('estatisticas_classes', {p_dia
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
 // aba Personagens do ranking: os dados do servidor e os filtros (modo e faixa de nível)
 let estatDados = null, rankingAba = 'jogadores', estatFiltro = {modo:'todas', faixa:0};
-let PERFIL = temDOM ? ler('tdg-perfil', null) : null;
+let PERFIL = temDOM ? ler('bdg-perfil', null) : null;
 if(!PERFIL) PERFIL = {nome:'', corridas:0, vitoriasCorrida:0, melhor:0, pontos:0, colecao:{}};
 PERFIL.xp = PERFIL.xp || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
-const gravarPerfil = () => guardar('tdg-perfil', PERFIL);
+const gravarPerfil = () => guardar('bdg-perfil', PERFIL);
 
 // ---- experiência de cada personagem (PROGRESSAO.md): quem manda é o servidor; aqui fica uma cópia para jogar offline ----
 const nivelClasse = c => nivelDe(PERFIL.xp[c] || 0);
@@ -1737,9 +1746,9 @@ function iniciarNoServidor(){
 const raiz = () => $('jogo');
 
 // ---- guardar a corrida no meio (fechar o jogo e voltar depois) ----
-function salvarCorrida(){ if(C && !C.fim) guardar('tdg-corrida', C); else guardar('tdg-corrida', null); }
+function salvarCorrida(){ if(C && !C.fim) guardar('bdg-corrida', C); else guardar('bdg-corrida', null); }
 function continuarCorrida(){
-  const s = ler('tdg-corrida', null); if(!s || !s.mochila || !CLASSES[s.classe]) return false;
+  const s = ler('bdg-corrida', null); if(!s || !s.mochila || !CLASSES[s.classe]) return false;
   C = s; proxUid = Math.max(proxUid, ...C.mochila.pecas.concat(C.mochila.bancada).map(p => p.uid + 1), 1);
   return true;
 }
@@ -1772,7 +1781,7 @@ function linhaNumeros(id, s){
 // lobby no estilo do Backpack Battles: o personagem escolhido grande no centro, o carrossel para trocar,
 // os botões de jogar em destaque (Ranqueada e Normal) e o menu (coleção, cartas, ranking, trilha)
 function telaLobby(){
-  const s = ler('tdg-corrida', null), ks = Object.keys(CLASSES), c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c), ini = ITEM[C0.inicial];
+  const s = ler('bdg-corrida', null), ks = Object.keys(CLASSES), c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c), ini = ITEM[C0.inicial];
   const prox = nv.nivel < 10 ? liberadosNo(c, nv.nivel + 1) : [], rk = PERFIL.rank;
   const continuar = s && s.mochila && !s.fim && CLASSES[s.classe];
   return `<section class="lobby2" style="--cc:${C0.cor}">
@@ -1823,7 +1832,7 @@ function ligarLobby(){
       else if(r === 'proibido'){ PERFIL.nome = ''; gravarPerfil(); avisar('Esse nome não é permitido. Escolha outro.', 3000); }
       desenhar(); }); };
   raiz().querySelectorAll('[data-jogar]').forEach(b => b.onclick = () => {
-    if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
+    if(ler('bdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     PERFIL.modo = b.dataset.jogar; gravarPerfil(); comecarCorrida(classeEscolhida); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
   $('btOpcoes').onclick = () => { tela = 'opcoes'; desenhar(); };
@@ -2830,3 +2839,5 @@ if(uiAtiva){
 }
 })();
 </script>
+</body>
+</html>

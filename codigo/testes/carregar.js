@@ -1,7 +1,7 @@
 // Carrega o jogo montado (dist/) no Node, sem navegador, e devolve as funções pedidas.
 // Uso: const t = require('./carregar')('C, novaCorrida, lutar');  →  t.C é sempre o estado atual
 const fs = require('fs'), path = require('path');
-const ARQUIVO = path.join(__dirname, '..', 'dist', 'tralha.html');
+const ARQUIVO = path.join(__dirname, '..', 'dist', 'bornal.html');
 module.exports = function carregar(nomes) {
   if (!fs.existsSync(ARQUIVO)) throw new Error('Rode primeiro: node codigo/build.js');
   const html = fs.readFileSync(ARQUIVO, 'utf8');

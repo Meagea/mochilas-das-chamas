@@ -1,4 +1,4 @@
--- Tralha de Guerra · robôs até haver jogadores suficientes
+-- Bornal de Guerra · robôs até haver jogadores suficientes
 -- Rodar uma vez no SQL Editor (depois do esquema.sql). Pode rodar de novo sem estragar nada.
 --
 -- Os robôs nunca vão para o banco: o jogo monta a mochila deles no próprio aparelho. Esta parte só diz ao jogo

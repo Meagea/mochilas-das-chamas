@@ -25,7 +25,7 @@ p{ margin:0; font-weight:700; font-size:14px; } .sub{ color:#a7a1b3; font-weight
   const BASE = 'https://raw.githubusercontent.com/Meagea/mochilas-das-chamas/main/publicado/';
   const $ = id => document.getElementById(id), barra = f => { $('barra').style.width = Math.round(Math.max(.03, f) * 100) + '%'; };
   // guarda do aparelho: a última versão baixada (o HTML inteiro do jogo)
-  const banco = () => new Promise((ok, erro) => { const r = indexedDB.open('tralha-atualizacao', 1); r.onupgradeneeded = () => r.result.createObjectStore('jogo'); r.onsuccess = () => ok(r.result); r.onerror = () => erro(r.error); });
+  const banco = () => new Promise((ok, erro) => { const r = indexedDB.open('bornal-atualizacao', 1); r.onupgradeneeded = () => r.result.createObjectStore('jogo'); r.onsuccess = () => ok(r.result); r.onerror = () => erro(r.error); });
   const ler = async () => { try{ const db = await banco(); return await new Promise(ok => { const q = db.transaction('jogo').objectStore('jogo').get('atual'); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); }catch(e){ return null; } };
   const gravar = async v => { const db = await banco(); await new Promise((ok, erro) => { const t = db.transaction('jogo', 'readwrite'); t.objectStore('jogo').put(v, 'atual'); t.oncomplete = ok; t.onerror = () => erro(t.error); }); };
   const abrir = html => { document.open(); document.write(html); document.close(); };
@@ -45,7 +45,7 @@ p{ margin:0; font-weight:700; font-size:14px; } .sub{ color:#a7a1b3; font-weight
   // 2. tem versão nova: baixa o jogo, mostrando quanto já veio
   try{
     $('txt').textContent = `Baixando a versão ${remota.versao}…`;
-    const r = await fetch(BASE + 'tralha.html?v=' + remota.versao, {cache:'no-store'});
+    const r = await fetch(BASE + 'bornal.html?v=' + remota.versao, {cache:'no-store'});
     if(!r.ok || !r.body) throw new Error('download');
     const leitor = r.body.getReader(), partes = []; let veio = 0;
     for(;;){ const {done, value} = await leitor.read(); if(done) break; partes.push(value); veio += value.length;

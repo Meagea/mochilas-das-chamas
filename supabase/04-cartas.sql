@@ -1,4 +1,4 @@
--- Tralha de Guerra · cartas dos itens (níveis 0 a 10), Moedas de Bronze e a loja de cartas (carrinho diário e semanal)
+-- Bornal de Guerra · cartas dos itens (níveis 0 a 10), Moedas de Bronze e a loja de cartas (carrinho diário e semanal)
 -- PROGRESSAO.md, seção 10. Rodar no SQL Editor depois do 03-experiencia.sql. Pode rodar de novo sem estragar nada.
 -- Arquivo GERADO por supabase/gerar-04-cartas.cjs (a lista de itens vem do jogo): não editar à mão.
 -- Este arquivo substitui o enviar_mochila (7 argumentos) e o fechar_corrida do 03: se rodar o 03 de novo, rode este logo depois.

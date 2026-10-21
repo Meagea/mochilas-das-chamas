@@ -2,10 +2,10 @@
 let tela = 'lobby', sel = null, lutaAtual = null, rankingDados = null, classeEscolhida = 'guerreiro';
 // aba Personagens do ranking: os dados do servidor e os filtros (modo e faixa de nível)
 let estatDados = null, rankingAba = 'jogadores', estatFiltro = {modo:'todas', faixa:0};
-let PERFIL = temDOM ? ler('tdg-perfil', null) : null;
+let PERFIL = temDOM ? ler('bdg-perfil', null) : null;
 if(!PERFIL) PERFIL = {nome:'', corridas:0, vitoriasCorrida:0, melhor:0, pontos:0, colecao:{}};
 PERFIL.xp = PERFIL.xp || {}; PERFIL.cartas = PERFIL.cartas || {}; PERFIL.bronze = PERFIL.bronze || 0; PERFIL.modo = PERFIL.modo || 'ranqueada';
-const gravarPerfil = () => guardar('tdg-perfil', PERFIL);
+const gravarPerfil = () => guardar('bdg-perfil', PERFIL);
 
 // ---- experiência de cada personagem (PROGRESSAO.md): quem manda é o servidor; aqui fica uma cópia para jogar offline ----
 const nivelClasse = c => nivelDe(PERFIL.xp[c] || 0);
@@ -42,9 +42,9 @@ function iniciarNoServidor(){
 const raiz = () => $('jogo');
 
 // ---- guardar a corrida no meio (fechar o jogo e voltar depois) ----
-function salvarCorrida(){ if(C && !C.fim) guardar('tdg-corrida', C); else guardar('tdg-corrida', null); }
+function salvarCorrida(){ if(C && !C.fim) guardar('bdg-corrida', C); else guardar('bdg-corrida', null); }
 function continuarCorrida(){
-  const s = ler('tdg-corrida', null); if(!s || !s.mochila || !CLASSES[s.classe]) return false;
+  const s = ler('bdg-corrida', null); if(!s || !s.mochila || !CLASSES[s.classe]) return false;
   C = s; proxUid = Math.max(proxUid, ...C.mochila.pecas.concat(C.mochila.bancada).map(p => p.uid + 1), 1);
   return true;
 }
@@ -77,7 +77,7 @@ function linhaNumeros(id, s){
 // lobby no estilo do Backpack Battles: o personagem escolhido grande no centro, o carrossel para trocar,
 // os botões de jogar em destaque (Ranqueada e Normal) e o menu (coleção, cartas, ranking, trilha)
 function telaLobby(){
-  const s = ler('tdg-corrida', null), ks = Object.keys(CLASSES), c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c), ini = ITEM[C0.inicial];
+  const s = ler('bdg-corrida', null), ks = Object.keys(CLASSES), c = classeEscolhida, C0 = CLASSES[c], nv = nivelClasse(c), ini = ITEM[C0.inicial];
   const prox = nv.nivel < 10 ? liberadosNo(c, nv.nivel + 1) : [], rk = PERFIL.rank;
   const continuar = s && s.mochila && !s.fim && CLASSES[s.classe];
   return `<section class="lobby2" style="--cc:${C0.cor}">
@@ -128,7 +128,7 @@ function ligarLobby(){
       else if(r === 'proibido'){ PERFIL.nome = ''; gravarPerfil(); avisar('Esse nome não é permitido. Escolha outro.', 3000); }
       desenhar(); }); };
   raiz().querySelectorAll('[data-jogar]').forEach(b => b.onclick = () => {
-    if(ler('tdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
+    if(ler('bdg-corrida', null) && !b.dataset.certeza){ b.dataset.certeza = 1; b.innerHTML = 'Abandonar a corrida guardada?<small>Toque de novo para confirmar</small>'; return; }
     PERFIL.modo = b.dataset.jogar; gravarPerfil(); comecarCorrida(classeEscolhida); });
   $('btTrilha').onclick = () => { tela = 'trilha'; desenhar(); };
   $('btOpcoes').onclick = () => { tela = 'opcoes'; desenhar(); };

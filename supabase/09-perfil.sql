@@ -1,4 +1,4 @@
--- Tralha de Guerra · perfil público de cada jogador: 3 heróis favoritos, título e conquistas
+-- Bornal de Guerra · perfil público de cada jogador: 3 heróis favoritos, título e conquistas
 -- Rodar no SQL Editor depois do 08-missoes.sql. Pode rodar de novo sem estragar nada.
 -- (este arquivo substitui ranking_temporada, que o 06 também define: se rodar o 06 de novo, rode este logo depois.)
 --

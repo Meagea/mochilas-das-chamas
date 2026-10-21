@@ -31,3 +31,5 @@ function ic(nome, classe){
 function avisar(txt, ms){ if(!uiAtiva) return; const a = $('aviso'); a.textContent = txt; a.hidden = false; clearTimeout(avisar.t); avisar.t = setTimeout(() => { a.hidden = true; }, ms || 1900); }
 const guardar = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ /* sem armazenamento: só não guarda */ } };
 const ler = (k, padrao) => { try{ const s = localStorage.getItem(k); return s ? JSON.parse(s) : padrao; }catch(e){ return padrao; } };
+// uma vez só: o progresso guardado com as chaves do nome antigo do jogo passa para as chaves bdg- (Bornal de Guerra)
+try{ if(typeof localStorage !== 'undefined') for(const k of ['perfil', 'corrida', 'sessao']){ const v = localStorage.getItem('td' + 'g-' + k); if(v != null){ if(localStorage.getItem('bdg-' + k) == null) localStorage.setItem('bdg-' + k, v); localStorage.removeItem('td' + 'g-' + k); } } }catch(e){}

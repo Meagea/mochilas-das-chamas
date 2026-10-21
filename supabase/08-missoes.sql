@@ -1,4 +1,4 @@
--- Tralha de Guerra · missões diárias: 3 por dia para cada jogador, conferidas no servidor e pagas em bronze
+-- Bornal de Guerra · missões diárias: 3 por dia para cada jogador, conferidas no servidor e pagas em bronze
 -- Rodar no SQL Editor depois do 07-estatisticas.sql (rode o 07 de novo antes: ele passou a guardar as vitórias de cada corrida).
 -- Pode rodar de novo sem estragar nada.
 --
